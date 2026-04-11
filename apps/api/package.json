@@ -1,0 +1,12 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "uv run fastapi dev",
+    "build": "echo 'No build step'",
+    "lint": "uv run ruff check app/",
+    "format": "uv run ruff format app/",
+    "typecheck": "uv run ty check app/"
+  }
+}
