@@ -3,14 +3,17 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.routers import health, items
+from app.config import get_settings
+from app.database import close_db, init_db
+from app.routers import health
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    # Startup: initialize resources (DB connections, caches, etc.)
+    settings = get_settings()
+    await init_db(settings.database_url)
     yield
-    # Shutdown: clean up resources
+    await close_db()
 
 
 app = FastAPI(
@@ -20,4 +23,3 @@ app = FastAPI(
 )
 
 app.include_router(health.router)
-app.include_router(items.router)

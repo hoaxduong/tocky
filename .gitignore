@@ -36,6 +36,9 @@ __pycache__/
 *.py[cod]
 .venv/
 
+# Database
+*.db
+
 # Misc
 .DS_Store
 *.pem

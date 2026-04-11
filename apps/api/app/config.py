@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     app_name: str = "Tocky API"
     debug: bool = False
+    database_url: str = "postgresql+asyncpg://tocky:tocky@localhost:5432/tocky"
 
 
 @lru_cache
