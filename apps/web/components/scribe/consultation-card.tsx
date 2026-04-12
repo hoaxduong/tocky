@@ -1,6 +1,7 @@
 "use client"
 
 import { useExtracted } from "next-intl"
+import { ChevronRight } from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
@@ -9,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import { StatusBadge } from "@/components/status-badge"
 import Link from "next/link"
 
 interface ConsultationCardProps {
@@ -30,17 +32,16 @@ export function ConsultationCard({
 
   return (
     <Link href={`/consultations/${id}`}>
-      <Card className="transition-colors hover:bg-accent/50">
+      <Card className="group cursor-pointer transition-all hover:border-primary/30 hover:shadow-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">
               {title || t("New Consultation")}
             </CardTitle>
-            <Badge
-              variant={status === "completed" ? "default" : "secondary"}
-            >
-              {status}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <StatusBadge status={status} />
+              <ChevronRight className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+            </div>
           </div>
           <CardDescription>
             {new Date(createdAt).toLocaleDateString()}

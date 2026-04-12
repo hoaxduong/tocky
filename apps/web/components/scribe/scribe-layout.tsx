@@ -6,7 +6,7 @@ interface ScribeLayoutProps {
 
 export function ScribeLayout({ children }: ScribeLayoutProps) {
   return (
-    <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
       {children}
     </div>
   )

@@ -8,99 +8,136 @@ msgstr ""
 
 #: app/(app)/consultations/[id]/page.tsx:138
 #: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:61
+#: components/soap-review-form.tsx:77
+#: components/soap-review-form.tsx:81
 msgid "63vr3O"
 msgstr "SOAP Note"
 
-#: app/admin/consultations/page.tsx:8
+#: app/admin/consultations/page.tsx:10
 msgid "5KXcV3"
 msgstr "All Consultations"
 
-#: app/admin/consultations/page.tsx:10
-msgid "uHlhzI"
-msgstr "All consultations view coming soon."
+#: app/admin/consultations/page.tsx:12
+#: app/admin/users/page.tsx:12
+msgid "iHN12u"
+msgstr "Admin"
 
-#: app/admin/page.tsx:14
-msgid "pzvscd"
-msgstr "System Statistics"
-
-#: app/admin/page.tsx:19
-#: components/dashboard-content.tsx:44
-msgid "s1bW4D"
-msgstr "Total Consultations"
-
-#: app/admin/page.tsx:29
-msgid "+j+HRE"
-msgstr "Active Now"
-
-#: app/admin/page.tsx:39
-msgid "/VwiLT"
-msgstr "Total Users"
-
-#: app/admin/users/page.tsx:8
-msgid "J/X6rJ"
-msgstr "User Management"
-
-#: app/admin/users/page.tsx:10
-msgid "aX495T"
-msgstr "User management interface coming soon."
-
-#: components/app-sidebar.tsx:70
-msgid "F62y+K"
-msgstr "Sign Out"
-
-#: components/consultations-list.tsx:18
+#: app/admin/consultations/page.tsx:13
+#: components/consultations-list.tsx:20
+#: components/consultations-list.tsx:23
+#: components/soap-review-form.tsx:80
 msgid "+WBJgJ"
 msgstr "Consultations"
 
+#: app/admin/consultations/page.tsx:17
+msgid "uHlhzI"
+msgstr "All consultations view coming soon."
+
+#: app/admin/page.tsx:15
+msgid "pzvscd"
+msgstr "System Statistics"
+
+#: app/admin/page.tsx:20
+#: components/dashboard-content.tsx:52
+msgid "s1bW4D"
+msgstr "Total Consultations"
+
+#: app/admin/page.tsx:30
+msgid "+j+HRE"
+msgstr "Active Now"
+
+#: app/admin/page.tsx:40
+msgid "/VwiLT"
+msgstr "Total Users"
+
+#: app/admin/users/page.tsx:10
+msgid "J/X6rJ"
+msgstr "User Management"
+
+#: app/admin/users/page.tsx:13
+msgid "YDMrKK"
+msgstr "Users"
+
+#: app/admin/users/page.tsx:17
+msgid "aX495T"
+msgstr "User management interface coming soon."
+
+#: components/app-sidebar.tsx:115
+msgid "fBg+7V"
+msgstr "Navigation"
+
+#: components/app-sidebar.tsx:148
+#: components/app-sidebar.tsx:157
+#: components/app-sidebar.tsx:181
+msgid "TwyMau"
+msgstr "Account"
+
+#: components/app-sidebar.tsx:194
+msgid "y1Z3or"
+msgstr "Language"
+
+#: components/app-sidebar.tsx:213
+msgid "F62y+K"
+msgstr "Sign Out"
+
 #: components/consultations-list.tsx:22
-#: components/dashboard-content.tsx:35
-#: components/new-consultation-form.tsx:42
-#: components/new-consultation-form.tsx:52
-#: components/scribe/consultation-card.tsx:37
-#: components/scribe/consultation-header.tsx:39
+msgid "hzSNj4"
+msgstr "Dashboard"
+
+#: components/consultations-list.tsx:29
+#: components/dashboard-content.tsx:39
+#: components/new-consultation-form.tsx:48
+#: components/new-consultation-form.tsx:58
+#: components/scribe/consultation-card.tsx:39
+#: components/scribe/consultation-header.tsx:32
 msgid "L2NbD2"
 msgstr "New Consultation"
 
-#: components/consultations-list.tsx:28
-#: components/new-consultation-form.tsx:70
-#: components/sign-in-form.tsx:74
-#: components/sign-up-form.tsx:85
-#: components/soap-review-form.tsx:34
-msgid "gjBiyj"
-msgstr "Loading..."
-
-#: components/consultations-list.tsx:31
-#: components/dashboard-content.tsx:83
+#: components/consultations-list.tsx:39
+#: components/dashboard-content.tsx:94
 msgid "eoBnBg"
 msgstr "No consultations yet. Start your first one!"
 
-#: components/dashboard-content.tsx:29
+#: components/dashboard-content.tsx:33
 msgid "UKxoV8"
 msgstr "Welcome back"
 
-#: components/dashboard-content.tsx:54
+#: components/dashboard-content.tsx:62
 msgid "3a5wL8"
 msgstr "Active"
 
-#: components/dashboard-content.tsx:66
-#: components/soap-review-form.tsx:63
+#: components/dashboard-content.tsx:74
+#: components/soap-review-form.tsx:86
 msgid "95stPq"
 msgstr "Completed"
 
-#: components/dashboard-content.tsx:79
+#: components/dashboard-content.tsx:88
 msgid "XVT1Vj"
 msgstr "Recent Consultations"
 
-#: components/new-consultation-form.tsx:47
+#: components/new-consultation-form.tsx:37
+msgid "Zivjuf"
+msgstr "Consultation created"
+
+#: components/new-consultation-form.tsx:40
+msgid "TRkL7w"
+msgstr "Failed to create consultation"
+
+#: components/new-consultation-form.tsx:53
 msgid "9a9+ww"
 msgstr "Title"
 
-#: components/new-consultation-form.tsx:56
+#: components/new-consultation-form.tsx:62
 msgid "r+X7r8"
 msgstr "Patient Identifier"
 
-#: components/new-consultation-form.tsx:71
+#: components/new-consultation-form.tsx:76
+#: components/sign-in-form.tsx:76
+#: components/sign-up-form.tsx:87
+msgid "gjBiyj"
+msgstr "Loading..."
+
+#: components/new-consultation-form.tsx:77
 msgid "VzzYJk"
 msgstr "Create"
 
@@ -125,32 +162,32 @@ msgid "pXFAd/"
 msgstr "Stop Recording"
 
 #: components/scribe/soap-editor.tsx:19
-#: components/soap-review-form.tsx:42
+#: components/soap-review-form.tsx:55
 msgid "R2VjIH"
 msgstr "Subjective"
 
 #: components/scribe/soap-editor.tsx:20
-#: components/soap-review-form.tsx:43
+#: components/soap-review-form.tsx:56
 msgid "khNSj1"
 msgstr "Objective"
 
 #: components/scribe/soap-editor.tsx:21
-#: components/soap-review-form.tsx:44
+#: components/soap-review-form.tsx:57
 msgid "ueRCsi"
 msgstr "Assessment"
 
 #: components/scribe/soap-editor.tsx:22
-#: components/soap-review-form.tsx:45
+#: components/soap-review-form.tsx:58
 msgid "fz0z4c"
 msgstr "Plan"
 
 #: components/scribe/soap-editor.tsx:29
-#: components/soap-review-form.tsx:63
+#: components/soap-review-form.tsx:86
 msgid "W6nwjo"
 msgstr "Draft"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:73
+#: components/soap-review-form.tsx:93
 msgid "Zmv34N"
 msgstr "Finalize Note"
 
@@ -170,42 +207,78 @@ msgstr "Relevant"
 msgid "NGnuCt"
 msgstr "Small Talk"
 
-#: components/sign-in-form.tsx:42
+#: components/sign-in-form.tsx:35
+msgid "M77Nuo"
+msgstr "Invalid credentials"
+
+#: components/sign-in-form.tsx:44
 msgid "tWSP90"
 msgstr "Sign in to Tocky"
 
-#: components/sign-in-form.tsx:44
+#: components/sign-in-form.tsx:46
 msgid "25WwxF"
 msgstr "Don't have an account?"
 
-#: components/sign-in-form.tsx:46
-#: components/sign-up-form.tsx:85
+#: components/sign-in-form.tsx:48
+#: components/sign-up-form.tsx:87
 msgid "39AHJm"
 msgstr "Sign Up"
 
-#: components/sign-in-form.tsx:53
-#: components/sign-up-form.tsx:63
+#: components/sign-in-form.tsx:55
+#: components/sign-up-form.tsx:65
 msgid "sy+pv5"
 msgstr "Email"
 
-#: components/sign-in-form.tsx:63
-#: components/sign-up-form.tsx:73
+#: components/sign-in-form.tsx:65
+#: components/sign-up-form.tsx:75
 msgid "5sg7KC"
 msgstr "Password"
 
-#: components/sign-in-form.tsx:74
-#: components/sign-up-form.tsx:47
+#: components/sign-in-form.tsx:76
+#: components/sign-up-form.tsx:49
 msgid "Ub+AGc"
 msgstr "Sign In"
 
-#: components/sign-up-form.tsx:43
+#: components/sign-up-form.tsx:36
+msgid "QBNztl"
+msgstr "Sign up failed. Please try again."
+
+#: components/sign-up-form.tsx:45
 msgid "SeO7GZ"
 msgstr "Create your account"
 
-#: components/sign-up-form.tsx:45
+#: components/sign-up-form.tsx:47
 msgid "uCk8r+"
 msgstr "Already have an account?"
 
-#: components/sign-up-form.tsx:54
+#: components/sign-up-form.tsx:56
 msgid "TemVby"
 msgstr "Full Name"
+
+#: components/soap-review-form.tsx:63
+msgid "WP4Inj"
+msgstr "Failed to save changes"
+
+#: components/soap-review-form.tsx:69
+msgid "cbHRLl"
+msgstr "SOAP note finalized"
+
+#: components/soap-review-form.tsx:70
+msgid "Z8pSSB"
+msgstr "Failed to finalize note"
+
+#: components/soap-review-form.tsx:99
+msgid "3hVwhB"
+msgstr "Finalize SOAP Note?"
+
+#: components/soap-review-form.tsx:102
+msgid "UgKakY"
+msgstr "This action cannot be undone. The note will be locked for editing."
+
+#: components/soap-review-form.tsx:108
+msgid "47FYwb"
+msgstr "Cancel"
+
+#: components/soap-review-form.tsx:110
+msgid "J9w6+G"
+msgstr "Finalize"

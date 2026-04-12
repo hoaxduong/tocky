@@ -2,6 +2,7 @@
 
 import { useExtracted } from "next-intl"
 import { Badge } from "@workspace/ui/components/badge"
+import { StatusBadge } from "@/components/status-badge"
 
 interface ConsultationHeaderProps {
   title: string
@@ -17,14 +18,6 @@ function formatElapsed(ms: number): string {
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
 }
 
-const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  recording: "destructive",
-  processing: "secondary",
-  completed: "default",
-  idle: "outline",
-  ready: "outline",
-}
-
 export function ConsultationHeader({
   title,
   language,
@@ -38,7 +31,7 @@ export function ConsultationHeader({
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold">{title || t("New Consultation")}</h1>
         <Badge variant="outline">{language}</Badge>
-        <Badge variant={STATUS_VARIANTS[status] ?? "outline"}>{status}</Badge>
+        <StatusBadge status={status} />
       </div>
       <div className="text-muted-foreground font-mono text-lg tabular-nums">
         {formatElapsed(elapsedMs)}

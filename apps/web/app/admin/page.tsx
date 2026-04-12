@@ -5,13 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import { PageHeader } from "@/components/page-header"
 
 export default async function AdminDashboardPage() {
   const t = await getExtracted()
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{t("System Statistics")}</h1>
+      <PageHeader title={t("System Statistics")} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">

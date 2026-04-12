@@ -14,6 +14,7 @@ import {
 } from "@workspace/ui/components/card"
 import { signIn } from "@/lib/auth-client"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export function SignInForm() {
   const t = useExtracted()
@@ -31,6 +32,7 @@ export function SignInForm() {
       window.location.href = "/dashboard"
     } catch {
       setError("Invalid credentials")
+      toast.error(t("Invalid credentials"))
     } finally {
       setLoading(false)
     }

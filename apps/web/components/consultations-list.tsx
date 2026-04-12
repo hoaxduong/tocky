@@ -5,6 +5,8 @@ import { Plus } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { useConsultations } from "@/hooks/use-consultation"
 import { ConsultationCard } from "@/components/scribe/consultation-card"
+import { ConsultationGridSkeleton } from "@/components/skeletons"
+import { PageHeader } from "@/components/page-header"
 import Link from "next/link"
 
 export function ConsultationsList() {
@@ -14,18 +16,24 @@ export function ConsultationsList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">{t("Consultations")}</h1>
-        <Link href="/consultations/new">
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            {t("New Consultation")}
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title={t("Consultations")}
+        breadcrumbs={[
+          { label: t("Dashboard"), href: "/dashboard" },
+          { label: t("Consultations") },
+        ]}
+        actions={
+          <Link href="/consultations/new">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              {t("New Consultation")}
+            </Button>
+          </Link>
+        }
+      />
 
       {isLoading ? (
-        <p className="text-muted-foreground">{t("Loading...")}</p>
+        <ConsultationGridSkeleton />
       ) : data?.items.length === 0 ? (
         <p className="text-muted-foreground">
           {t("No consultations yet. Start your first one!")}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useExtracted } from "next-intl"
-import { ArrowLeft, Check } from "lucide-react"
+import { Check } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Textarea } from "@workspace/ui/components/textarea"
@@ -12,11 +12,24 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@workspace/ui/components/alert-dialog"
+import {
   useSOAPNote,
   useUpdateSOAPNote,
   useFinalizeSOAPNote,
 } from "@/hooks/use-soap-note"
-import Link from "next/link"
+import { toast } from "sonner"
+import { SOAPFormSkeleton } from "@/components/skeletons"
+import { PageHeader } from "@/components/page-header"
 
 interface SOAPReviewFormProps {
   consultationId: string
@@ -31,7 +44,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const finalizeSOAP = useFinalizeSOAPNote(token, consultationId)
 
   if (isLoading) {
-    return <p className="text-muted-foreground">{t("Loading...")}</p>
+    return <SOAPFormSkeleton />
   }
 
   if (!soap) {
@@ -46,34 +59,63 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   ] as const
 
   function handleSave(section: string, value: string) {
-    updateSOAP.mutate({ [section]: value })
+    updateSOAP.mutate({ [section]: value }, {
+      onError: () => toast.error(t("Failed to save changes")),
+    })
+  }
+
+  function handleFinalize() {
+    finalizeSOAP.mutate(undefined, {
+      onSuccess: () => toast.success(t("SOAP note finalized")),
+      onError: () => toast.error(t("Failed to finalize note")),
+    })
   }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href={`/consultations/${consultationId}`}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold">{t("SOAP Note")}</h1>
-          <Badge variant={soap.is_draft ? "secondary" : "default"}>
-            {soap.is_draft ? t("Draft") : t("Completed")}
-          </Badge>
-        </div>
-        {soap.is_draft && (
-          <Button
-            onClick={() => finalizeSOAP.mutate()}
-            disabled={finalizeSOAP.isPending}
-            className="gap-2"
-          >
-            <Check className="h-4 w-4" />
-            {t("Finalize Note")}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={t("SOAP Note")}
+        backHref={`/consultations/${consultationId}`}
+        breadcrumbs={[
+          { label: t("Consultations"), href: "/consultations" },
+          { label: t("SOAP Note") },
+        ]}
+        actions={
+          <>
+            <Badge variant={soap.is_draft ? "secondary" : "default"}>
+              {soap.is_draft ? t("Draft") : t("Completed")}
+            </Badge>
+            {soap.is_draft && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button disabled={finalizeSOAP.isPending} className="gap-2">
+                    <Check className="h-4 w-4" />
+                    {t("Finalize Note")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {t("Finalize SOAP Note?")}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {t(
+                        "This action cannot be undone. The note will be locked for editing.",
+                      )}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleFinalize}>
+                      {t("Finalize")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </>
+        }
+      />
 
       {sections.map(({ key, label }) => (
         <Card key={key}>

@@ -5,6 +5,8 @@ import { getLocale } from "next-intl/server"
 import "@workspace/ui/globals.css"
 import { QueryProvider } from "@/components/query-provider"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@workspace/ui/components/sonner"
+import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import { cn } from "@workspace/ui/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
@@ -32,7 +34,10 @@ export default async function RootLayout({
         <ThemeProvider>
           <QueryProvider>
             <NextIntlClientProvider locale={locale} messages={{}}>
-              {children}
+              <TooltipProvider>
+                {children}
+              </TooltipProvider>
+              <Toaster />
             </NextIntlClientProvider>
           </QueryProvider>
         </ThemeProvider>

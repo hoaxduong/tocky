@@ -1,11 +1,18 @@
 import { getExtracted } from "next-intl/server"
+import { PageHeader } from "@/components/page-header"
 
 export default async function AdminConsultationsPage() {
   const t = await getExtracted()
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{t("All Consultations")}</h1>
+      <PageHeader
+        title={t("All Consultations")}
+        breadcrumbs={[
+          { label: t("Admin"), href: "/admin" },
+          { label: t("Consultations") },
+        ]}
+      />
       <p className="text-muted-foreground">
         {t("All consultations view coming soon.")}
       </p>

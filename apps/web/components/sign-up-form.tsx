@@ -14,6 +14,7 @@ import {
 } from "@workspace/ui/components/card"
 import { signUp } from "@/lib/auth-client"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export function SignUpForm() {
   const t = useExtracted()
@@ -32,6 +33,7 @@ export function SignUpForm() {
       window.location.href = "/dashboard"
     } catch {
       setError("Sign up failed. Please try again.")
+      toast.error(t("Sign up failed. Please try again."))
     } finally {
       setLoading(false)
     }

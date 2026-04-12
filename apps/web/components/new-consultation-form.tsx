@@ -14,6 +14,7 @@ import {
 import { LanguageSelector } from "@/components/scribe/language-selector"
 import { useCreateConsultation } from "@/hooks/use-consultation"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function NewConsultationForm() {
   const t = useExtracted()
@@ -27,12 +28,17 @@ export function NewConsultationForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const consultation = await createConsultation.mutateAsync({
-      title,
-      patient_identifier: patientId || null,
-      language,
-    })
-    router.push(`/consultations/${consultation.id}`)
+    try {
+      const consultation = await createConsultation.mutateAsync({
+        title,
+        patient_identifier: patientId || null,
+        language,
+      })
+      toast.success(t("Consultation created"))
+      router.push(`/consultations/${consultation.id}`)
+    } catch {
+      toast.error(t("Failed to create consultation"))
+    }
   }
 
   return (

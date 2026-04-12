@@ -1,19 +1,55 @@
 "use client"
 
 import { useExtracted } from "next-intl"
+import { useLocale } from "next-intl"
+import { useRouter } from "next/navigation"
 import {
   type LucideIcon,
+  ChevronsUpDown,
+  Globe,
   LayoutDashboard,
   LogOut,
   Stethoscope,
   Users,
 } from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
-import { Separator } from "@workspace/ui/components/separator"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@workspace/ui/components/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { signOut, useSession } from "@/lib/auth-client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LocaleSwitcher } from "@/components/locale-switcher"
+import { LOCALE_COOKIE, SUPPORTED_LOCALES } from "@/i18n/config"
+
+const LOCALE_LABELS: Record<string, string> = {
+  en: "English",
+  vi: "Tiếng Việt",
+  ar: "العربية",
+}
 
 interface NavItem {
   href: string
@@ -37,53 +73,151 @@ interface AppSidebarProps {
   variant: "app" | "admin"
 }
 
+function getInitials(name?: string | null, email?: string | null): string {
+  if (name) {
+    return name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+  if (email) return email.charAt(0).toUpperCase()
+  return "?"
+}
+
 export function AppSidebar({ variant }: AppSidebarProps) {
   const t = useExtracted()
   const pathname = usePathname()
+  const locale = useLocale()
+  const router = useRouter()
   const { data: session } = useSession()
 
   const navItems = variant === "admin" ? ADMIN_NAV : APP_NAV
   const title = variant === "admin" ? "Tocky Admin" : "Tocky"
+  const user = session?.user
+  const initials = getInitials(user?.name, user?.email)
+
+  function handleLocaleChange(value: string) {
+    document.cookie = `${LOCALE_COOKIE}=${value};path=/;max-age=31536000`
+    router.refresh()
+  }
 
   return (
-    <aside className="bg-card flex w-64 flex-col border-r">
-      <div className="p-6">
-        <h2 className="text-xl font-bold">{title}</h2>
-      </div>
-      <Separator />
-      <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => {
-          const isActive = item.exact
-            ? pathname === item.href
-            : pathname.startsWith(item.href)
-          return (
-            <Link key={item.href} href={item.href}>
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
-                className="w-full justify-start gap-2"
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="flex h-14 flex-row items-center border-b px-4">
+        <span className="text-lg font-bold group-data-[collapsible=icon]:hidden">
+          {title}
+        </span>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>{t("Navigation")}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => {
+                const isActive = item.exact
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href)
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.label}
+                    >
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  tooltip={user?.name ?? user?.email ?? t("Account")}
+                >
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarFallback className="rounded-lg">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {user?.name ?? t("Account")}
+                    </span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {user?.email}
+                    </span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side="top"
+                align="end"
+                sideOffset={4}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Button>
-            </Link>
-          )
-        })}
-      </nav>
-      <Separator />
-      <div className="space-y-3 p-4">
-        <LocaleSwitcher />
-        <p className="text-muted-foreground truncate text-sm">
-          {session?.user?.email}
-        </p>
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-2"
-          onClick={() => signOut()}
-        >
-          <LogOut className="h-4 w-4" />
-          {t("Sign Out")}
-        </Button>
-      </div>
-    </aside>
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarFallback className="rounded-lg">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">
+                        {user?.name ?? t("Account")}
+                      </span>
+                      <span className="text-muted-foreground truncate text-xs">
+                        {user?.email}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Globe className="mr-2 size-4" />
+                      {t("Language")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={locale}
+                        onValueChange={handleLocaleChange}
+                      >
+                        {SUPPORTED_LOCALES.map((loc) => (
+                          <DropdownMenuRadioItem key={loc} value={loc}>
+                            {LOCALE_LABELS[loc]}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOut className="mr-2 size-4" />
+                  {t("Sign Out")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
   )
 }

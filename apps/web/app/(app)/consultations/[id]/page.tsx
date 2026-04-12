@@ -99,7 +99,7 @@ export default function ScribePage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
       <ConsultationHeader
         title={consultation?.title ?? ""}
         language={consultation?.language ?? "vi"}

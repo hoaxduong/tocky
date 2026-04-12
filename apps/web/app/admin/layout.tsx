@@ -1,4 +1,9 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@workspace/ui/components/sidebar"
 
 export default function AdminLayout({
   children,
@@ -6,9 +11,16 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen">
+    <SidebarProvider>
       <AppSidebar variant="admin" />
-      <main className="flex-1 overflow-auto p-8">{children}</main>
-    </div>
+      <SidebarInset>
+        <header className="flex h-14 items-center gap-2 border-b px-4 lg:px-6">
+          <SidebarTrigger />
+        </header>
+        <main className="flex-1 overflow-auto px-4 py-6 lg:px-6">
+          {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
