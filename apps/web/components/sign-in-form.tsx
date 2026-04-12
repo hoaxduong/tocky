@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import { signIn } from "@/lib/auth-client"
+import { signIn } from "@/lib/auth"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -28,7 +28,7 @@ export function SignInForm() {
     setError("")
     setLoading(true)
     try {
-      await signIn.email({ email, password })
+      await signIn(email, password)
       window.location.href = "/dashboard"
     } catch {
       setError("Invalid credentials")

@@ -1,17 +1,25 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
+_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
+
 
 class Settings(BaseSettings):
-    model_config = {"env_prefix": "TOCKY_"}
+    model_config = {
+        "env_prefix": "TOCKY_",
+        "env_file": str(_ENV_FILE) if _ENV_FILE.exists() else None,
+        "extra": "ignore",
+    }
 
     app_name: str = "Tocky API"
     debug: bool = False
     database_url: str = "postgresql+asyncpg://tocky:tocky@localhost:5432/tocky"
 
-    # Authentication
-    auth_secret: str = "change-me-to-a-random-secret"
+    # Authentication (ES256 ECDSA keys)
+    jwt_private_key: str = ""  # PEM-encoded EC private key
+    jwt_public_key: str = ""  # PEM-encoded EC public key
 
     # Alibaba Cloud DashScope (Qwen2.5-Omni)
     dashscope_api_key: str = ""

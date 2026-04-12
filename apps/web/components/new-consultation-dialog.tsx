@@ -23,8 +23,7 @@ import { toast } from "sonner"
 export function NewConsultationDialog() {
   const t = useExtracted()
   const router = useRouter()
-  const token = "" // TODO: get JWT token from session
-  const createConsultation = useCreateConsultation(token)
+  const createConsultation = useCreateConsultation()
 
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState("")

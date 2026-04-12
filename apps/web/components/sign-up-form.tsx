@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import { signUp } from "@/lib/auth-client"
+import { signUp } from "@/lib/auth"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -29,7 +29,7 @@ export function SignUpForm() {
     setError("")
     setLoading(true)
     try {
-      await signUp.email({ name, email, password })
+      await signUp(name, email, password)
       window.location.href = "/dashboard"
     } catch {
       setError("Sign up failed. Please try again.")

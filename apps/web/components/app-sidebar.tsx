@@ -43,7 +43,7 @@ import {
 } from "@workspace/ui/components/dropdown-menu"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { useTheme } from "next-themes"
-import { signOut, useSession } from "@/lib/auth-client"
+import { useSession, useSignOut } from "@/hooks/use-auth"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LOCALE_COOKIE, SUPPORTED_LOCALES } from "@/i18n/config"
@@ -95,6 +95,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   const locale = useLocale()
   const router = useRouter()
   const { data: session } = useSession()
+  const { mutate: handleSignOut } = useSignOut()
   const { theme, setTheme } = useTheme()
 
   const navItems = variant === "admin" ? ADMIN_NAV : APP_NAV
@@ -235,7 +236,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                   </DropdownMenuSub>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem onClick={() => handleSignOut()}>
                   <LogOut className="mr-2 size-4" />
                   {t("Sign Out")}
                 </DropdownMenuItem>

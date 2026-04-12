@@ -1,3 +1,5 @@
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar"
 import {
   SidebarInset,
@@ -5,11 +7,18 @@ import {
   SidebarTrigger,
 } from "@workspace/ui/components/sidebar"
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const cookieStore = await cookies()
+  const accessToken = cookieStore.get("tocky_access")?.value
+
+  if (!accessToken) {
+    redirect("/sign-in")
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar variant="app" />

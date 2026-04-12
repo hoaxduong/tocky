@@ -37,11 +37,9 @@ interface SOAPReviewFormProps {
 
 export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const t = useExtracted()
-  const token = "" // TODO: get JWT token from session
-
-  const { data: soap, isLoading } = useSOAPNote(token, consultationId)
-  const updateSOAP = useUpdateSOAPNote(token, consultationId)
-  const finalizeSOAP = useFinalizeSOAPNote(token, consultationId)
+  const { data: soap, isLoading } = useSOAPNote(consultationId)
+  const updateSOAP = useUpdateSOAPNote(consultationId)
+  const finalizeSOAP = useFinalizeSOAPNote(consultationId)
 
   if (isLoading) {
     return <SOAPFormSkeleton />

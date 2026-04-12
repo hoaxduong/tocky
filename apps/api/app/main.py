@@ -6,7 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import close_db, init_db
-from app.routers import admin, consultations, health, scribe_ws, soap_notes, transcripts
+from app.routers import (
+    admin,
+    auth,
+    consultations,
+    health,
+    scribe_ws,
+    soap_notes,
+    transcripts,
+)
 from app.services.dashscope_client import DashScopeClient
 
 
@@ -39,6 +47,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["set-cookie"],
 )
 
 # Health check (unversioned)
@@ -46,6 +55,7 @@ app.include_router(health.router)
 
 # Versioned REST API
 api_v1 = APIRouter(prefix="/api/v1")
+api_v1.include_router(auth.router)
 api_v1.include_router(consultations.router)
 api_v1.include_router(soap_notes.router)
 api_v1.include_router(transcripts.router)

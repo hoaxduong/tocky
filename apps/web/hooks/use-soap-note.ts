@@ -25,19 +25,18 @@ interface SOAPNoteUpdate {
   is_draft?: boolean
 }
 
-export function useSOAPNote(token: string, consultationId: string) {
+export function useSOAPNote(consultationId: string) {
   return useQuery({
     queryKey: ["soap-note", consultationId],
     queryFn: () =>
       apiFetch<SOAPNote>(
         `/api/v1/consultations/${consultationId}/soap-note/`,
-        { token },
       ),
     enabled: !!consultationId,
   })
 }
 
-export function useUpdateSOAPNote(token: string, consultationId: string) {
+export function useUpdateSOAPNote(consultationId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (update: SOAPNoteUpdate) =>
@@ -46,7 +45,6 @@ export function useUpdateSOAPNote(token: string, consultationId: string) {
         {
           method: "PUT",
           body: JSON.stringify(update),
-          token,
         },
       ),
     onSuccess: () => {
@@ -57,13 +55,13 @@ export function useUpdateSOAPNote(token: string, consultationId: string) {
   })
 }
 
-export function useFinalizeSOAPNote(token: string, consultationId: string) {
+export function useFinalizeSOAPNote(consultationId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () =>
       apiFetch<SOAPNote>(
         `/api/v1/consultations/${consultationId}/soap-note/finalize`,
-        { method: "POST", token },
+        { method: "POST" },
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({

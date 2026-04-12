@@ -22,14 +22,12 @@ export default function ScribePage({
 }) {
   const { id } = use(params)
   const t = useExtracted()
-  const token = "" // TODO: get JWT token from session
-
-  const { data: consultation } = useConsultation(token, id)
+  const { data: consultation } = useConsultation(id)
   const { status, elapsedMs, setConsultationId, setStatus, reset } =
     useScribeStore()
 
   const { connect, disconnect, sendAudioChunk, sendControl } =
-    useScribeWebSocket({ consultationId: id, token })
+    useScribeWebSocket({ consultationId: id })
 
   const onAudioChunk = useCallback(
     (data: string, sequence: number, timestampMs: number) => {

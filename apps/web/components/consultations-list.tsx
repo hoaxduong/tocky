@@ -9,8 +9,7 @@ import { NewConsultationDialog } from "@/components/new-consultation-dialog"
 
 export function ConsultationsList() {
   const t = useExtracted()
-  const token = "" // TODO: get JWT token from session
-  const { data, isLoading } = useConsultations(token)
+  const { data, isLoading } = useConsultations()
 
   return (
     <div className="space-y-6">

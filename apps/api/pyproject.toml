@@ -12,6 +12,8 @@ dependencies = [
     "httpx",
     "oss2",
     "pyjwt",
+    "bcrypt>=5.0.0",
+    "cryptography>=46.0.7",
 ]
 
 [dependency-groups]

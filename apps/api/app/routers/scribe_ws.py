@@ -2,7 +2,6 @@ import base64
 import json
 import uuid
 
-import jwt
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 from sqlalchemy import select
 
@@ -28,12 +27,17 @@ async def scribe_websocket(
     consultation_id: uuid.UUID,
     token: str = "",
 ):
-    # Validate JWT
-    settings = get_settings()
+    # Validate JWT from query param or cookie
+    access_token = token or websocket.cookies.get("tocky_access", "")
+    if not access_token:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
     try:
-        payload = jwt.decode(token, settings.auth_secret, algorithms=["HS256"])
+        from app.services.auth import decode_access_token
+
+        payload = decode_access_token(access_token)
         user_id = payload.get("sub")
-    except jwt.InvalidTokenError:
+    except Exception:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -61,6 +65,7 @@ async def scribe_websocket(
         language = consultation.language
 
     # Set up audio processor
+    settings = get_settings()
     dashscope_client = websocket.app.state.dashscope_client
     processor = AudioProcessor(
         consultation_id=consultation_id,

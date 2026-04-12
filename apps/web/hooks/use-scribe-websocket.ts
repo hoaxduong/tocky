@@ -7,12 +7,10 @@ const WS_BASE = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000"
 
 interface UseScribeWebSocketOptions {
   consultationId: string
-  token: string
 }
 
 export function useScribeWebSocket({
   consultationId,
-  token,
 }: UseScribeWebSocketOptions) {
   const [isConnected, setIsConnected] = useState(false)
   const wsRef = useRef<WebSocket | null>(null)
@@ -24,7 +22,7 @@ export function useScribeWebSocket({
     if (wsRef.current?.readyState === WebSocket.OPEN) return
 
     const ws = new WebSocket(
-      `${WS_BASE}/ws/scribe/${consultationId}?token=${token}`,
+      `${WS_BASE}/ws/scribe/${consultationId}`,
     )
     wsRef.current = ws
 
@@ -72,7 +70,6 @@ export function useScribeWebSocket({
     }
   }, [
     consultationId,
-    token,
     setStatus,
     addTranscriptSegment,
     updateSOAPSection,

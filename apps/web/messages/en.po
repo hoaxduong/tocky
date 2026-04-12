@@ -6,10 +6,10 @@ msgstr ""
 "X-Generator: next-intl\n"
 "X-Crowdin-SourceKey: msgstr\n"
 
-#: app/(app)/consultations/[id]/page.tsx:138
+#: app/(app)/consultations/[id]/page.tsx:136
 #: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:77
-#: components/soap-review-form.tsx:81
+#: components/soap-review-form.tsx:75
+#: components/soap-review-form.tsx:79
 msgid "63vr3O"
 msgstr "SOAP Note"
 
@@ -18,14 +18,15 @@ msgid "5KXcV3"
 msgstr "All Consultations"
 
 #: app/admin/consultations/page.tsx:12
-#: app/admin/users/page.tsx:12
+#: app/admin/users/page.tsx:13
+#: components/admin-users-table.tsx:265
 msgid "iHN12u"
 msgstr "Admin"
 
 #: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:18
-#: components/consultations-list.tsx:21
-#: components/soap-review-form.tsx:80
+#: components/consultations-list.tsx:17
+#: components/consultations-list.tsx:20
+#: components/soap-review-form.tsx:78
 msgid "+WBJgJ"
 msgstr "Consultations"
 
@@ -38,7 +39,7 @@ msgid "pzvscd"
 msgstr "System Statistics"
 
 #: app/admin/page.tsx:20
-#: components/dashboard-content.tsx:43
+#: components/dashboard-content.tsx:41
 msgid "s1bW4D"
 msgstr "Total Consultations"
 
@@ -50,117 +51,236 @@ msgstr "Active Now"
 msgid "/VwiLT"
 msgstr "Total Users"
 
-#: app/admin/users/page.tsx:10
+#: app/admin/users/page.tsx:11
 msgid "J/X6rJ"
 msgstr "User Management"
 
-#: app/admin/users/page.tsx:13
+#: app/admin/users/page.tsx:14
 msgid "YDMrKK"
 msgstr "Users"
 
-#: app/admin/users/page.tsx:17
-msgid "aX495T"
-msgstr "User management interface coming soon."
+#: components/admin-users-table.tsx:90
+msgid "xq+TKA"
+msgstr "Role updated to doctor"
 
-#: components/app-sidebar.tsx:119
-msgid "fBg+7V"
-msgstr "Navigation"
+#: components/admin-users-table.tsx:96
+msgid "rL2dx1"
+msgstr "Set as Doctor"
 
-#: components/app-sidebar.tsx:152
-#: components/app-sidebar.tsx:161
-#: components/app-sidebar.tsx:185
-msgid "TwyMau"
-msgstr "Account"
+#: components/admin-users-table.tsx:105
+msgid "yamMD8"
+msgstr "Role updated to admin"
 
-#: components/app-sidebar.tsx:199
-msgid "Pe0ogR"
-msgstr "Theme"
+#: components/admin-users-table.tsx:111
+msgid "UM0W7z"
+msgstr "Set as Admin"
 
-#: components/app-sidebar.tsx:207
-msgid "3cc4Ct"
-msgstr "Light"
+#: components/admin-users-table.tsx:119
+msgid "LXobIi"
+msgstr "User unbanned"
 
-#: components/app-sidebar.tsx:210
-msgid "tOdNiY"
-msgstr "Dark"
+#: components/admin-users-table.tsx:124
+msgid "6U4eIn"
+msgstr "Unban"
 
-#: components/app-sidebar.tsx:213
-msgid "+CwN9C"
-msgstr "System"
+#: components/admin-users-table.tsx:132
+msgid "AFjdgl"
+msgstr "User banned"
 
-#: components/app-sidebar.tsx:221
-msgid "y1Z3or"
-msgstr "Language"
+#: components/admin-users-table.tsx:138
+msgid "XtUrMc"
+msgstr "Ban"
 
-#: components/app-sidebar.tsx:240
-msgid "F62y+K"
-msgstr "Sign Out"
+#: components/admin-users-table.tsx:145
+#: components/admin-users-table.tsx:168
+msgid "K3r6DQ"
+msgstr "Delete"
 
-#: components/consultations-list.tsx:20
-msgid "hzSNj4"
-msgstr "Dashboard"
+#: components/admin-users-table.tsx:152
+msgid "mJbA00"
+msgstr "Delete User"
 
-#: components/consultations-list.tsx:30
-#: components/dashboard-content.tsx:85
-msgid "eoBnBg"
-msgstr "No consultations yet. Start your first one!"
+#: components/admin-users-table.tsx:154
+msgid "eCHBUe"
+msgstr "Are you sure you want to delete this user? This action cannot be undone."
 
-#: components/dashboard-content.tsx:31
-msgid "UKxoV8"
-msgstr "Welcome back"
+#: components/admin-users-table.tsx:160
+#: components/soap-review-form.tsx:106
+msgid "47FYwb"
+msgstr "Cancel"
 
-#: components/dashboard-content.tsx:53
+#: components/admin-users-table.tsx:164
+msgid "+zImMB"
+msgstr "User deleted"
+
+#: components/admin-users-table.tsx:196
+msgid "fAKMg+"
+msgstr "User created"
+
+#: components/admin-users-table.tsx:200
+msgid "9tjZ7S"
+msgstr "Failed to create user"
+
+#: components/admin-users-table.tsx:215
+#: components/admin-users-table.tsx:220
+msgid "7c3ANV"
+msgstr "Add User"
+
+#: components/admin-users-table.tsx:222
+msgid "sYXLf6"
+msgstr "Create a new user account."
+
+#: components/admin-users-table.tsx:227
+#: components/admin-users-table.tsx:291
+msgid "HAlOn1"
+msgstr "Name"
+
+#: components/admin-users-table.tsx:236
+#: components/admin-users-table.tsx:295
+#: components/sign-in-form.tsx:55
+#: components/sign-up-form.tsx:65
+msgid "sy+pv5"
+msgstr "Email"
+
+#: components/admin-users-table.tsx:246
+#: components/sign-in-form.tsx:65
+#: components/sign-up-form.tsx:75
+msgid "5sg7KC"
+msgstr "Password"
+
+#: components/admin-users-table.tsx:257
+#: components/admin-users-table.tsx:299
+msgid "1ZgrhW"
+msgstr "Role"
+
+#: components/admin-users-table.tsx:264
+msgid "kvlt4O"
+msgstr "Doctor"
+
+#: components/admin-users-table.tsx:274
+#: components/new-consultation-dialog.tsx:101
+msgid "VzzYJk"
+msgstr "Create"
+
+#: components/admin-users-table.tsx:274
+#: components/new-consultation-dialog.tsx:101
+msgid "mRL9Vh"
+msgstr "Creating..."
+
+#: components/admin-users-table.tsx:308
+msgid "tzMNF3"
+msgstr "Status"
+
+#: components/admin-users-table.tsx:311
+msgid "xerM7K"
+msgstr "Banned"
+
+#: components/admin-users-table.tsx:313
+#: components/dashboard-content.tsx:51
 msgid "3a5wL8"
 msgstr "Active"
 
-#: components/dashboard-content.tsx:65
-#: components/soap-review-form.tsx:86
+#: components/admin-users-table.tsx:318
+msgid "ORGv1Q"
+msgstr "Created"
+
+#: components/admin-users-table.tsx:332
+msgid "p/iF5T"
+msgstr "Search users..."
+
+#: components/admin-users-table.tsx:341
+#: components/sign-in-form.tsx:76
+#: components/sign-up-form.tsx:87
+msgid "gjBiyj"
+msgstr "Loading..."
+
+#: components/app-sidebar.tsx:120
+msgid "fBg+7V"
+msgstr "Navigation"
+
+#: components/app-sidebar.tsx:153
+#: components/app-sidebar.tsx:162
+#: components/app-sidebar.tsx:186
+msgid "TwyMau"
+msgstr "Account"
+
+#: components/app-sidebar.tsx:200
+msgid "Pe0ogR"
+msgstr "Theme"
+
+#: components/app-sidebar.tsx:208
+msgid "3cc4Ct"
+msgstr "Light"
+
+#: components/app-sidebar.tsx:211
+msgid "tOdNiY"
+msgstr "Dark"
+
+#: components/app-sidebar.tsx:214
+msgid "+CwN9C"
+msgstr "System"
+
+#: components/app-sidebar.tsx:222
+msgid "y1Z3or"
+msgstr "Language"
+
+#: components/app-sidebar.tsx:241
+msgid "F62y+K"
+msgstr "Sign Out"
+
+#: components/consultations-list.tsx:19
+msgid "hzSNj4"
+msgstr "Dashboard"
+
+#: components/consultations-list.tsx:29
+#: components/dashboard-content.tsx:83
+msgid "eoBnBg"
+msgstr "No consultations yet. Start your first one!"
+
+#: components/dashboard-content.tsx:29
+msgid "UKxoV8"
+msgstr "Welcome back"
+
+#: components/dashboard-content.tsx:63
+#: components/soap-review-form.tsx:84
 msgid "95stPq"
 msgstr "Completed"
 
-#: components/dashboard-content.tsx:79
+#: components/dashboard-content.tsx:77
 msgid "XVT1Vj"
 msgstr "Recent Consultations"
 
-#: components/new-consultation-dialog.tsx:48
+#: components/new-consultation-dialog.tsx:47
 msgid "Zivjuf"
 msgstr "Consultation created"
 
-#: components/new-consultation-dialog.tsx:53
+#: components/new-consultation-dialog.tsx:52
 msgid "TRkL7w"
 msgstr "Failed to create consultation"
 
-#: components/new-consultation-dialog.tsx:62
-#: components/new-consultation-dialog.tsx:67
-#: components/new-consultation-dialog.tsx:79
+#: components/new-consultation-dialog.tsx:61
+#: components/new-consultation-dialog.tsx:66
+#: components/new-consultation-dialog.tsx:78
 #: components/scribe/consultation-card.tsx:39
 #: components/scribe/consultation-header.tsx:32
 msgid "L2NbD2"
 msgstr "New Consultation"
 
-#: components/new-consultation-dialog.tsx:69
+#: components/new-consultation-dialog.tsx:68
 msgid "Jldv8h"
 msgstr "Start a new clinical consultation session."
 
-#: components/new-consultation-dialog.tsx:74
+#: components/new-consultation-dialog.tsx:73
 msgid "9a9+ww"
 msgstr "Title"
 
-#: components/new-consultation-dialog.tsx:84
+#: components/new-consultation-dialog.tsx:83
 msgid "r+X7r8"
 msgstr "Patient Identifier"
 
-#: components/new-consultation-dialog.tsx:86
+#: components/new-consultation-dialog.tsx:85
 msgid "V4KNjk"
 msgstr "optional"
-
-#: components/new-consultation-dialog.tsx:102
-msgid "mRL9Vh"
-msgstr "Creating..."
-
-#: components/new-consultation-dialog.tsx:102
-msgid "VzzYJk"
-msgstr "Create"
 
 #: components/scribe/language-selector.tsx:34
 msgid "z3DCpE"
@@ -183,32 +303,32 @@ msgid "pXFAd/"
 msgstr "Stop Recording"
 
 #: components/scribe/soap-editor.tsx:19
-#: components/soap-review-form.tsx:55
+#: components/soap-review-form.tsx:53
 msgid "R2VjIH"
 msgstr "Subjective"
 
 #: components/scribe/soap-editor.tsx:20
-#: components/soap-review-form.tsx:56
+#: components/soap-review-form.tsx:54
 msgid "khNSj1"
 msgstr "Objective"
 
 #: components/scribe/soap-editor.tsx:21
-#: components/soap-review-form.tsx:57
+#: components/soap-review-form.tsx:55
 msgid "ueRCsi"
 msgstr "Assessment"
 
 #: components/scribe/soap-editor.tsx:22
-#: components/soap-review-form.tsx:58
+#: components/soap-review-form.tsx:56
 msgid "fz0z4c"
 msgstr "Plan"
 
 #: components/scribe/soap-editor.tsx:29
-#: components/soap-review-form.tsx:86
+#: components/soap-review-form.tsx:84
 msgid "W6nwjo"
 msgstr "Draft"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:93
+#: components/soap-review-form.tsx:91
 msgid "Zmv34N"
 msgstr "Finalize Note"
 
@@ -245,21 +365,6 @@ msgstr "Don't have an account?"
 msgid "39AHJm"
 msgstr "Sign Up"
 
-#: components/sign-in-form.tsx:55
-#: components/sign-up-form.tsx:65
-msgid "sy+pv5"
-msgstr "Email"
-
-#: components/sign-in-form.tsx:65
-#: components/sign-up-form.tsx:75
-msgid "5sg7KC"
-msgstr "Password"
-
-#: components/sign-in-form.tsx:76
-#: components/sign-up-form.tsx:87
-msgid "gjBiyj"
-msgstr "Loading..."
-
 #: components/sign-in-form.tsx:76
 #: components/sign-up-form.tsx:49
 msgid "Ub+AGc"
@@ -281,30 +386,26 @@ msgstr "Already have an account?"
 msgid "TemVby"
 msgstr "Full Name"
 
-#: components/soap-review-form.tsx:63
+#: components/soap-review-form.tsx:61
 msgid "WP4Inj"
 msgstr "Failed to save changes"
 
-#: components/soap-review-form.tsx:69
+#: components/soap-review-form.tsx:67
 msgid "cbHRLl"
 msgstr "SOAP note finalized"
 
-#: components/soap-review-form.tsx:70
+#: components/soap-review-form.tsx:68
 msgid "Z8pSSB"
 msgstr "Failed to finalize note"
 
-#: components/soap-review-form.tsx:99
+#: components/soap-review-form.tsx:97
 msgid "3hVwhB"
 msgstr "Finalize SOAP Note?"
 
-#: components/soap-review-form.tsx:102
+#: components/soap-review-form.tsx:100
 msgid "UgKakY"
 msgstr "This action cannot be undone. The note will be locked for editing."
 
 #: components/soap-review-form.tsx:108
-msgid "47FYwb"
-msgstr "Cancel"
-
-#: components/soap-review-form.tsx:110
 msgid "J9w6+G"
 msgstr "Finalize"

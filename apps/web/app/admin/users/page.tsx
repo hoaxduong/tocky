@@ -1,5 +1,6 @@
 import { getExtracted } from "next-intl/server"
 import { PageHeader } from "@/components/page-header"
+import { AdminUsersTable } from "@/components/admin-users-table"
 
 export default async function AdminUsersPage() {
   const t = await getExtracted()
@@ -13,9 +14,7 @@ export default async function AdminUsersPage() {
           { label: t("Users") },
         ]}
       />
-      <p className="text-muted-foreground">
-        {t("User management interface coming soon.")}
-      </p>
+      <AdminUsersTable />
     </div>
   )
 }

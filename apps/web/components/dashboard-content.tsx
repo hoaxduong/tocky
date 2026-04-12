@@ -15,15 +15,13 @@ import {
 } from "@/components/skeletons"
 import { PageHeader } from "@/components/page-header"
 import { NewConsultationDialog } from "@/components/new-consultation-dialog"
+import { useSession } from "@/hooks/use-auth"
 
-interface DashboardContentProps {
-  userName: string | undefined
-}
-
-export function DashboardContent({ userName }: DashboardContentProps) {
+export function DashboardContent() {
   const t = useExtracted()
-  const token = "" // TODO: get JWT token from session
-  const { data, isLoading } = useConsultations(token)
+  const { data: session } = useSession()
+  const { data, isLoading } = useConsultations()
+  const userName = session?.user?.name
 
   return (
     <div className="space-y-6">

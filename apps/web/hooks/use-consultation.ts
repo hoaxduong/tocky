@@ -29,34 +29,32 @@ interface CreateConsultationInput {
   language?: string
 }
 
-export function useConsultations(token: string, offset = 0, limit = 20) {
+export function useConsultations(offset = 0, limit = 20) {
   return useQuery({
     queryKey: ["consultations", offset, limit],
     queryFn: () =>
       apiFetch<ConsultationListResponse>(
         `/api/v1/consultations/?offset=${offset}&limit=${limit}`,
-        { token },
       ),
   })
 }
 
-export function useConsultation(token: string, id: string) {
+export function useConsultation(id: string) {
   return useQuery({
     queryKey: ["consultation", id],
     queryFn: () =>
-      apiFetch<Consultation>(`/api/v1/consultations/${id}`, { token }),
+      apiFetch<Consultation>(`/api/v1/consultations/${id}`),
     enabled: !!id,
   })
 }
 
-export function useCreateConsultation(token: string) {
+export function useCreateConsultation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (input: CreateConsultationInput) =>
       apiFetch<Consultation>("/api/v1/consultations/", {
         method: "POST",
         body: JSON.stringify(input),
-        token,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["consultations"] })
@@ -64,13 +62,12 @@ export function useCreateConsultation(token: string) {
   })
 }
 
-export function useDeleteConsultation(token: string) {
+export function useDeleteConsultation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: string) =>
       apiFetch<void>(`/api/v1/consultations/${id}`, {
         method: "DELETE",
-        token,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["consultations"] })
