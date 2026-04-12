@@ -70,3 +70,19 @@ export function useFinalizeSOAPNote(consultationId: string) {
     },
   })
 }
+
+export function useRegenerateSOAPNote(consultationId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<SOAPNote>(
+        `/api/v1/consultations/${consultationId}/soap-note/regenerate`,
+        { method: "POST" },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["soap-note", consultationId],
+      })
+    },
+  })
+}

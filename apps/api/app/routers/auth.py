@@ -169,9 +169,7 @@ async def refresh(
         )
 
     token_hash = hash_token(refresh_token)
-    result = await db.execute(
-        select(Session).where(Session.token_hash == token_hash)
-    )
+    result = await db.execute(select(Session).where(Session.token_hash == token_hash))
     session = result.scalar_one_or_none()
 
     if not session:

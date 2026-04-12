@@ -1,10 +1,11 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from sqlalchemy import select
 
 from app.db_models.consultation import Consultation
 from app.db_models.soap_note import SOAPNote
+from app.db_models.transcript import Transcript
 from app.dependencies import CurrentUserDep, DbSessionDep
 from app.models.soap_note import SOAPNoteResponse, SOAPNoteUpdate
 
@@ -49,6 +50,59 @@ async def finalize_soap_note(
 ):
     soap = await _get_soap_note(db, consultation_id, user["id"])
     soap.is_draft = False
+    soap.version += 1
+    await db.commit()
+    await db.refresh(soap)
+    return SOAPNoteResponse.model_validate(soap)
+
+
+@router.post("/regenerate", response_model=SOAPNoteResponse)
+async def regenerate_soap_note(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    soap = await _get_soap_note(db, consultation_id, user["id"])
+
+    # Fetch consultation language
+    result = await db.execute(
+        select(Consultation).where(Consultation.id == consultation_id)
+    )
+    consultation = result.scalar_one()
+
+    # Fetch medically relevant transcripts
+    result = await db.execute(
+        select(Transcript)
+        .where(
+            Transcript.consultation_id == consultation_id,
+            Transcript.is_medically_relevant.is_(True),
+        )
+        .order_by(Transcript.sequence_number)
+    )
+    segments = result.scalars().all()
+    relevant_text = "\n".join(seg.text for seg in segments)
+
+    if not relevant_text.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No medically relevant transcript segments to generate from",
+        )
+
+    dashscope_client = request.app.state.dashscope_client
+    new_soap = await dashscope_client.generate_soap(
+        relevant_text, consultation.language
+    )
+    entities = await dashscope_client.extract_medical_entities(
+        relevant_text, consultation.language
+    )
+
+    soap.subjective = new_soap.get("subjective", "")
+    soap.objective = new_soap.get("objective", "")
+    soap.assessment = new_soap.get("assessment", "")
+    soap.plan = new_soap.get("plan", "")
+    soap.medical_entities = entities
+    soap.is_draft = True
     soap.version += 1
     await db.commit()
     await db.refresh(soap)

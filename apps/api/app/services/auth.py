@@ -21,9 +21,7 @@ security = HTTPBearer(auto_error=False)
 
 def _get_private_key():
     settings = get_settings()
-    return load_pem_private_key(
-        settings.jwt_private_key.encode(), password=None
-    )
+    return load_pem_private_key(settings.jwt_private_key.encode(), password=None)
 
 
 def _get_public_key():

@@ -8,6 +8,7 @@ class ConsultationCreate(BaseModel):
     title: str = ""
     patient_identifier: str | None = None
     language: str = "vi"
+    mode: str = "live"
 
 
 class ConsultationUpdate(BaseModel):
@@ -23,7 +24,11 @@ class ConsultationResponse(BaseModel):
     title: str
     patient_identifier: str | None
     language: str
+    mode: str
     status: str
+    processing_step: str | None
+    processing_progress: int
+    error_message: str | None
     started_at: datetime
     ended_at: datetime | None
     created_at: datetime

@@ -90,9 +90,7 @@ async def list_users(
     query = select(User)
     if search:
         pattern = f"%{search}%"
-        query = query.where(
-            User.name.ilike(pattern) | User.email.ilike(pattern)
-        )
+        query = query.where(User.name.ilike(pattern) | User.email.ilike(pattern))
 
     total_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(total_query)).scalar_one()
@@ -210,9 +208,7 @@ async def unban_user(
     return UserResponse.model_validate(user)
 
 
-@router.delete(
-    "/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: str,
     db: DbSessionDep,
