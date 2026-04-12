@@ -1,7 +1,7 @@
 [project]
 name = "tocky-api"
 version = "0.1.0"
-description = "Tocky API service"
+description = "Tốc ký AI API service"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]",

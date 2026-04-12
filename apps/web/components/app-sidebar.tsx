@@ -98,7 +98,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   const { theme, setTheme } = useTheme()
 
   const navItems = variant === "admin" ? ADMIN_NAV : APP_NAV
-  const title = variant === "admin" ? "Tocky Admin" : "Tocky"
+  const title = variant === "admin" ? "Tốc ký AI Admin" : "Tốc ký AI"
   const user = session?.user
   const initials = getInitials(user?.name, user?.email)
 

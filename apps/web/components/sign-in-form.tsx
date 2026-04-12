@@ -41,7 +41,7 @@ export function SignInForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>{t("Sign in to Tocky")}</CardTitle>
+        <CardTitle>{t("Sign in to Tốc ký AI")}</CardTitle>
         <CardDescription>
           {t("Don't have an account?")}{" "}
           <Link href="/sign-up" className="text-primary underline">

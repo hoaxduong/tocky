@@ -233,8 +233,8 @@ msgid "M77Nuo"
 msgstr "Invalid credentials"
 
 #: components/sign-in-form.tsx:44
-msgid "tWSP90"
-msgstr "Sign in to Tocky"
+msgid "3zqcWB"
+msgstr "Sign in to Tốc ký AI"
 
 #: components/sign-in-form.tsx:46
 msgid "25WwxF"

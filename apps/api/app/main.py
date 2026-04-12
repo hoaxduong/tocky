@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="Tocky API",
+    title="Tốc ký AI API",
     version="0.1.0",
     lifespan=lifespan,
 )
