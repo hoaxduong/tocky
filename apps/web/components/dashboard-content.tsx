@@ -1,8 +1,6 @@
 "use client"
 
 import { useExtracted } from "next-intl"
-import { Plus } from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
 import {
   Card,
   CardContent,
@@ -16,7 +14,7 @@ import {
   StatsGridSkeleton,
 } from "@/components/skeletons"
 import { PageHeader } from "@/components/page-header"
-import Link from "next/link"
+import { NewConsultationDialog } from "@/components/new-consultation-dialog"
 
 interface DashboardContentProps {
   userName: string | undefined
@@ -32,14 +30,7 @@ export function DashboardContent({ userName }: DashboardContentProps) {
       <PageHeader
         title={t("Welcome back")}
         description={userName}
-        actions={
-          <Link href="/consultations/new">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              {t("New Consultation")}
-            </Button>
-          </Link>
-        }
+        actions={<NewConsultationDialog />}
       />
 
       {isLoading ? (

@@ -23,8 +23,8 @@ msgid "iHN12u"
 msgstr "Admin"
 
 #: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:20
-#: components/consultations-list.tsx:23
+#: components/consultations-list.tsx:18
+#: components/consultations-list.tsx:21
 #: components/soap-review-form.tsx:80
 msgid "+WBJgJ"
 msgstr "Consultations"
@@ -38,7 +38,7 @@ msgid "pzvscd"
 msgstr "System Statistics"
 
 #: app/admin/page.tsx:20
-#: components/dashboard-content.tsx:52
+#: components/dashboard-content.tsx:43
 msgid "s1bW4D"
 msgstr "Total Consultations"
 
@@ -80,64 +80,69 @@ msgstr "Language"
 msgid "F62y+K"
 msgstr "Sign Out"
 
-#: components/consultations-list.tsx:22
+#: components/consultations-list.tsx:20
 msgid "hzSNj4"
 msgstr "Dashboard"
 
-#: components/consultations-list.tsx:29
-#: components/dashboard-content.tsx:39
-#: components/new-consultation-form.tsx:48
-#: components/new-consultation-form.tsx:58
+#: components/consultations-list.tsx:30
+#: components/dashboard-content.tsx:85
+msgid "eoBnBg"
+msgstr "No consultations yet. Start your first one!"
+
+#: components/dashboard-content.tsx:31
+msgid "UKxoV8"
+msgstr "Welcome back"
+
+#: components/dashboard-content.tsx:53
+msgid "3a5wL8"
+msgstr "Active"
+
+#: components/dashboard-content.tsx:65
+#: components/soap-review-form.tsx:86
+msgid "95stPq"
+msgstr "Completed"
+
+#: components/dashboard-content.tsx:79
+msgid "XVT1Vj"
+msgstr "Recent Consultations"
+
+#: components/new-consultation-dialog.tsx:48
+msgid "Zivjuf"
+msgstr "Consultation created"
+
+#: components/new-consultation-dialog.tsx:53
+msgid "TRkL7w"
+msgstr "Failed to create consultation"
+
+#: components/new-consultation-dialog.tsx:62
+#: components/new-consultation-dialog.tsx:67
+#: components/new-consultation-dialog.tsx:79
 #: components/scribe/consultation-card.tsx:39
 #: components/scribe/consultation-header.tsx:32
 msgid "L2NbD2"
 msgstr "New Consultation"
 
-#: components/consultations-list.tsx:39
-#: components/dashboard-content.tsx:94
-msgid "eoBnBg"
-msgstr "No consultations yet. Start your first one!"
+#: components/new-consultation-dialog.tsx:69
+msgid "Jldv8h"
+msgstr "Start a new clinical consultation session."
 
-#: components/dashboard-content.tsx:33
-msgid "UKxoV8"
-msgstr "Welcome back"
-
-#: components/dashboard-content.tsx:62
-msgid "3a5wL8"
-msgstr "Active"
-
-#: components/dashboard-content.tsx:74
-#: components/soap-review-form.tsx:86
-msgid "95stPq"
-msgstr "Completed"
-
-#: components/dashboard-content.tsx:88
-msgid "XVT1Vj"
-msgstr "Recent Consultations"
-
-#: components/new-consultation-form.tsx:37
-msgid "Zivjuf"
-msgstr "Consultation created"
-
-#: components/new-consultation-form.tsx:40
-msgid "TRkL7w"
-msgstr "Failed to create consultation"
-
-#: components/new-consultation-form.tsx:53
+#: components/new-consultation-dialog.tsx:74
 msgid "9a9+ww"
 msgstr "Title"
 
-#: components/new-consultation-form.tsx:62
+#: components/new-consultation-dialog.tsx:84
 msgid "r+X7r8"
 msgstr "Patient Identifier"
 
-#: components/new-consultation-form.tsx:76
-#: components/sign-in-form.tsx:76
-#: components/sign-up-form.tsx:87
-msgid "gjBiyj"
-msgstr "Loading..."
+#: components/new-consultation-dialog.tsx:86
+msgid "V4KNjk"
+msgstr "optional"
 
-#: components/new-consultation-form.tsx:77
+#: components/new-consultation-dialog.tsx:102
+msgid "mRL9Vh"
+msgstr "Creating..."
+
+#: components/new-consultation-dialog.tsx:102
 msgid "VzzYJk"
 msgstr "Create"
 
@@ -238,6 +243,11 @@ msgstr "Password"
 #: components/sign-up-form.tsx:49
 msgid "Ub+AGc"
 msgstr "Sign In"
+
+#: components/sign-in-form.tsx:76
+#: components/sign-up-form.tsx:87
+msgid "gjBiyj"
+msgstr "Loading..."
 
 #: components/sign-up-form.tsx:36
 msgid "QBNztl"

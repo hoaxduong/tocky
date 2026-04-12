@@ -1,13 +1,11 @@
 "use client"
 
 import { useExtracted } from "next-intl"
-import { Plus } from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
 import { useConsultations } from "@/hooks/use-consultation"
 import { ConsultationCard } from "@/components/scribe/consultation-card"
 import { ConsultationGridSkeleton } from "@/components/skeletons"
 import { PageHeader } from "@/components/page-header"
-import Link from "next/link"
+import { NewConsultationDialog } from "@/components/new-consultation-dialog"
 
 export function ConsultationsList() {
   const t = useExtracted()
@@ -22,14 +20,7 @@ export function ConsultationsList() {
           { label: t("Dashboard"), href: "/dashboard" },
           { label: t("Consultations") },
         ]}
-        actions={
-          <Link href="/consultations/new">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              {t("New Consultation")}
-            </Button>
-          </Link>
-        }
+        actions={<NewConsultationDialog />}
       />
 
       {isLoading ? (
