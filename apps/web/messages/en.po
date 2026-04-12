@@ -159,13 +159,13 @@ msgstr "Doctor"
 
 #: components/admin-users-table.tsx:274
 #: components/new-consultation-dialog.tsx:101
-msgid "VzzYJk"
-msgstr "Create"
+msgid "mRL9Vh"
+msgstr "Creating..."
 
 #: components/admin-users-table.tsx:274
 #: components/new-consultation-dialog.tsx:101
-msgid "mRL9Vh"
-msgstr "Creating..."
+msgid "VzzYJk"
+msgstr "Create"
 
 #: components/admin-users-table.tsx:308
 msgid "tzMNF3"
