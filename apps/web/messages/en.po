@@ -1,0 +1,211 @@
+msgid ""
+msgstr ""
+"Language: en\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: next-intl\n"
+"X-Crowdin-SourceKey: msgstr\n"
+
+#: app/(app)/consultations/[id]/page.tsx:138
+#: components/scribe/soap-editor.tsx:28
+#: components/soap-review-form.tsx:61
+msgid "63vr3O"
+msgstr "SOAP Note"
+
+#: app/admin/consultations/page.tsx:8
+msgid "5KXcV3"
+msgstr "All Consultations"
+
+#: app/admin/consultations/page.tsx:10
+msgid "uHlhzI"
+msgstr "All consultations view coming soon."
+
+#: app/admin/page.tsx:14
+msgid "pzvscd"
+msgstr "System Statistics"
+
+#: app/admin/page.tsx:19
+#: components/dashboard-content.tsx:44
+msgid "s1bW4D"
+msgstr "Total Consultations"
+
+#: app/admin/page.tsx:29
+msgid "+j+HRE"
+msgstr "Active Now"
+
+#: app/admin/page.tsx:39
+msgid "/VwiLT"
+msgstr "Total Users"
+
+#: app/admin/users/page.tsx:8
+msgid "J/X6rJ"
+msgstr "User Management"
+
+#: app/admin/users/page.tsx:10
+msgid "aX495T"
+msgstr "User management interface coming soon."
+
+#: components/app-sidebar.tsx:70
+msgid "F62y+K"
+msgstr "Sign Out"
+
+#: components/consultations-list.tsx:18
+msgid "+WBJgJ"
+msgstr "Consultations"
+
+#: components/consultations-list.tsx:22
+#: components/dashboard-content.tsx:35
+#: components/new-consultation-form.tsx:42
+#: components/new-consultation-form.tsx:52
+#: components/scribe/consultation-card.tsx:37
+#: components/scribe/consultation-header.tsx:39
+msgid "L2NbD2"
+msgstr "New Consultation"
+
+#: components/consultations-list.tsx:28
+#: components/new-consultation-form.tsx:70
+#: components/sign-in-form.tsx:74
+#: components/sign-up-form.tsx:85
+#: components/soap-review-form.tsx:34
+msgid "gjBiyj"
+msgstr "Loading..."
+
+#: components/consultations-list.tsx:31
+#: components/dashboard-content.tsx:83
+msgid "eoBnBg"
+msgstr "No consultations yet. Start your first one!"
+
+#: components/dashboard-content.tsx:29
+msgid "UKxoV8"
+msgstr "Welcome back"
+
+#: components/dashboard-content.tsx:54
+msgid "3a5wL8"
+msgstr "Active"
+
+#: components/dashboard-content.tsx:66
+#: components/soap-review-form.tsx:63
+msgid "95stPq"
+msgstr "Completed"
+
+#: components/dashboard-content.tsx:79
+msgid "XVT1Vj"
+msgstr "Recent Consultations"
+
+#: components/new-consultation-form.tsx:47
+msgid "9a9+ww"
+msgstr "Title"
+
+#: components/new-consultation-form.tsx:56
+msgid "r+X7r8"
+msgstr "Patient Identifier"
+
+#: components/new-consultation-form.tsx:71
+msgid "VzzYJk"
+msgstr "Create"
+
+#: components/scribe/language-selector.tsx:34
+msgid "z3DCpE"
+msgstr "Consultation Language"
+
+#: components/scribe/recording-controls.tsx:37
+msgid "xbQgN4"
+msgstr "Start Recording"
+
+#: components/scribe/recording-controls.tsx:47
+msgid "3y9DGg"
+msgstr "Resume"
+
+#: components/scribe/recording-controls.tsx:57
+msgid "tFFMkF"
+msgstr "Pause"
+
+#: components/scribe/recording-controls.tsx:68
+msgid "pXFAd/"
+msgstr "Stop Recording"
+
+#: components/scribe/soap-editor.tsx:19
+#: components/soap-review-form.tsx:42
+msgid "R2VjIH"
+msgstr "Subjective"
+
+#: components/scribe/soap-editor.tsx:20
+#: components/soap-review-form.tsx:43
+msgid "khNSj1"
+msgstr "Objective"
+
+#: components/scribe/soap-editor.tsx:21
+#: components/soap-review-form.tsx:44
+msgid "ueRCsi"
+msgstr "Assessment"
+
+#: components/scribe/soap-editor.tsx:22
+#: components/soap-review-form.tsx:45
+msgid "fz0z4c"
+msgstr "Plan"
+
+#: components/scribe/soap-editor.tsx:29
+#: components/soap-review-form.tsx:63
+msgid "W6nwjo"
+msgstr "Draft"
+
+#: components/scribe/soap-editor.tsx:44
+#: components/soap-review-form.tsx:73
+msgid "Zmv34N"
+msgstr "Finalize Note"
+
+#: components/scribe/transcript-panel.tsx:19
+msgid "TztQA0"
+msgstr "Transcript"
+
+#: components/scribe/transcript-panel.tsx:23
+msgid "9Kw/ze"
+msgstr "Recording..."
+
+#: components/scribe/transcript-segment.tsx:37
+msgid "XpZsjM"
+msgstr "Relevant"
+
+#: components/scribe/transcript-segment.tsx:37
+msgid "NGnuCt"
+msgstr "Small Talk"
+
+#: components/sign-in-form.tsx:42
+msgid "tWSP90"
+msgstr "Sign in to Tocky"
+
+#: components/sign-in-form.tsx:44
+msgid "25WwxF"
+msgstr "Don't have an account?"
+
+#: components/sign-in-form.tsx:46
+#: components/sign-up-form.tsx:85
+msgid "39AHJm"
+msgstr "Sign Up"
+
+#: components/sign-in-form.tsx:53
+#: components/sign-up-form.tsx:63
+msgid "sy+pv5"
+msgstr "Email"
+
+#: components/sign-in-form.tsx:63
+#: components/sign-up-form.tsx:73
+msgid "5sg7KC"
+msgstr "Password"
+
+#: components/sign-in-form.tsx:74
+#: components/sign-up-form.tsx:47
+msgid "Ub+AGc"
+msgstr "Sign In"
+
+#: components/sign-up-form.tsx:43
+msgid "SeO7GZ"
+msgstr "Create your account"
+
+#: components/sign-up-form.tsx:45
+msgid "uCk8r+"
+msgstr "Already have an account?"
+
+#: components/sign-up-form.tsx:54
+msgid "TemVby"
+msgstr "Full Name"

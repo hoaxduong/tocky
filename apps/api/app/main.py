@@ -1,18 +1,29 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import close_db, init_db
-from app.routers import health
+from app.routers import admin, consultations, health, scribe_ws, soap_notes, transcripts
+from app.services.dashscope_client import DashScopeClient
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     await init_db(settings.database_url)
+
+    app.state.dashscope_client = DashScopeClient(
+        base_url=settings.dashscope_base_url,
+        api_key=settings.dashscope_api_key,
+        model_name=settings.qwen_model_name,
+    )
+
     yield
+
+    await app.state.dashscope_client.close()
     await close_db()
 
 
@@ -22,4 +33,24 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Health check (unversioned)
 app.include_router(health.router)
+
+# Versioned REST API
+api_v1 = APIRouter(prefix="/api/v1")
+api_v1.include_router(consultations.router)
+api_v1.include_router(soap_notes.router)
+api_v1.include_router(transcripts.router)
+api_v1.include_router(admin.router)
+app.include_router(api_v1)
+
+# WebSocket (unversioned)
+app.include_router(scribe_ws.router)

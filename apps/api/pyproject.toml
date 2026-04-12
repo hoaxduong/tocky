@@ -9,6 +9,9 @@ dependencies = [
     "sqlalchemy[asyncio]",
     "asyncpg",
     "alembic",
+    "httpx",
+    "oss2",
+    "pyjwt",
 ]
 
 [dependency-groups]

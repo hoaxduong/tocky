@@ -9,6 +9,7 @@ from alembic import context
 
 from app.config import get_settings
 from app.database import Base
+import app.db_models  # noqa: F401 — register all models with Base.metadata
 config = context.config
 
 if not config.get_main_option("sqlalchemy.url"):
