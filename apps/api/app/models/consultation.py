@@ -14,6 +14,7 @@ class ConsultationCreate(BaseModel):
 class ConsultationUpdate(BaseModel):
     title: str | None = None
     patient_identifier: str | None = None
+    language: str | None = None
     status: str | None = None
     ended_at: datetime | None = None
 

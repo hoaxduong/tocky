@@ -31,6 +31,9 @@ const STATUS_CONFIG: Record<
     className:
       "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400",
   },
+  archived: {
+    variant: "secondary",
+  },
   idle: { variant: "outline" },
   ready: { variant: "outline" },
 }

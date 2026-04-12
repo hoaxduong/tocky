@@ -1,51 +1,26 @@
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.services.prompt_registry import PromptRegistry
+
+_SOAP_SLUG_MAP = {
+    "vi": "soap_vi",
+    "ar-eg": "soap_ar_eg",
+    "ar-gulf": "soap_ar_gulf",
+    "en": "soap_en",
+}
 
 
 class SOAPGenerator:
-    SYSTEM_PROMPTS = {
-        "vi": (
-            "Bạn là trợ lý lâm sàng chuyên nghiệp. Từ bản ghi tư vấn y tế, "
-            "hãy tạo ghi chú SOAP bằng tiếng Việt. Sử dụng thuật ngữ y khoa "
-            "chuẩn và nhận diện các thực thể y tế theo VietMed: "
-            "triệu chứng, bệnh, thuốc, thủ thuật, chỉ số sinh tồn, dị ứng.\n\n"
-            "Định dạng đầu ra:\n"
-            "## Subjective\n<nội dung>\n\n"
-            "## Objective\n<nội dung>\n\n"
-            "## Assessment\n<nội dung>\n\n"
-            "## Plan\n<nội dung>"
-        ),
-        "ar-eg": (
-            "أنت مساعد سريري محترف. من نص الاستشارة الطبية، أنشئ ملاحظة SOAP "
-            "باللهجة المصرية مع المصطلحات الطبية القياسية.\n\n"
-            "التنسيق:\n"
-            "## Subjective\n<المحتوى>\n\n"
-            "## Objective\n<المحتوى>\n\n"
-            "## Assessment\n<المحتوى>\n\n"
-            "## Plan\n<المحتوى>"
-        ),
-        "ar-gulf": (
-            "أنت مساعد سريري محترف. من نص الاستشارة الطبية، أنشئ ملاحظة SOAP "
-            "باللهجة الخليجية مع المصطلحات الطبية القياسية.\n\n"
-            "التنسيق:\n"
-            "## Subjective\n<المحتوى>\n\n"
-            "## Objective\n<المحتوى>\n\n"
-            "## Assessment\n<المحتوى>\n\n"
-            "## Plan\n<المحتوى>"
-        ),
-        "en": (
-            "You are a professional clinical assistant. From the medical "
-            "consultation transcript, generate a SOAP note using standard "
-            "medical terminology.\n\n"
-            "Format:\n"
-            "## Subjective\n<content>\n\n"
-            "## Objective\n<content>\n\n"
-            "## Assessment\n<content>\n\n"
-            "## Plan\n<content>"
-        ),
-    }
+    def __init__(self, prompt_registry: PromptRegistry) -> None:
+        self.prompts = prompt_registry
 
     def build_soap_prompt(self, transcript: str, language: str) -> list[dict]:
-        system_prompt = self.SYSTEM_PROMPTS.get(language, self.SYSTEM_PROMPTS["en"])
+        slug = _SOAP_SLUG_MAP.get(language, "soap_en")
+        system_prompt = self.prompts.get(slug)
         return [
             {"role": "system", "content": system_prompt},
             {
@@ -63,10 +38,7 @@ class SOAPGenerator:
         }
 
         heading = r"Subjective|Objective|Assessment|Plan"
-        pattern = (
-            rf"##\s*({heading})\s*\n(.*?)"
-            rf"(?=##\s*(?:{heading})|\Z)"
-        )
+        pattern = rf"##\s*({heading})\s*\n(.*?)" rf"(?=##\s*(?:{heading})|\Z)"
         matches = re.findall(pattern, response_text, re.DOTALL | re.IGNORECASE)
 
         for heading, content in matches:
@@ -80,12 +52,7 @@ class SOAPGenerator:
         return [
             {
                 "role": "system",
-                "content": (
-                    "You classify medical consultation transcript segments. "
-                    "Reply with exactly one word: RELEVANT or IRRELEVANT. "
-                    "RELEVANT = contains medical information. "
-                    "IRRELEVANT = small talk, greetings, non-medical content."
-                ),
+                "content": self.prompts.get("classification"),
             },
             {"role": "user", "content": text},
         ]

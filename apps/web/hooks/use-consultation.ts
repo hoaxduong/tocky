@@ -34,12 +34,21 @@ interface CreateConsultationInput {
   mode?: string
 }
 
-export function useConsultations(offset = 0, limit = 20) {
+export function useConsultations(
+  offset = 0,
+  limit = 20,
+  statusFilter?: string,
+) {
+  const params = new URLSearchParams({
+    offset: String(offset),
+    limit: String(limit),
+  })
+  if (statusFilter) params.set("status_filter", statusFilter)
   return useQuery({
-    queryKey: ["consultations", offset, limit],
+    queryKey: ["consultations", offset, limit, statusFilter],
     queryFn: () =>
       apiFetch<ConsultationListResponse>(
-        `/api/v1/consultations/?offset=${offset}&limit=${limit}`,
+        `/api/v1/consultations/?${params.toString()}`,
       ),
   })
 }
@@ -70,6 +79,41 @@ export function useCreateConsultation() {
         method: "POST",
         body: JSON.stringify(input),
       }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["consultations"] })
+    },
+  })
+}
+
+interface UpdateConsultationInput {
+  title?: string
+  patient_identifier?: string | null
+  language?: string
+}
+
+export function useUpdateConsultation(id: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: UpdateConsultationInput) =>
+      apiFetch<Consultation>(`/api/v1/consultations/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["consultation", id] })
+      queryClient.invalidateQueries({ queryKey: ["consultations"] })
+    },
+  })
+}
+
+export function useArchiveConsultation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) =>
+      apiFetch<Consultation>(
+        `/api/v1/consultations/${id}/archive`,
+        { method: "POST" },
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["consultations"] })
     },

@@ -1,4 +1,7 @@
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 ALLOWED_EXTENSIONS = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm", ".aac"}
 MAX_FILE_SIZE = 100 * 1024 * 1024  # 100 MB
@@ -20,6 +23,7 @@ def validate_audio_file(filename: str, size: int) -> None:
 
 async def convert_to_pcm(input_bytes: bytes) -> bytes:
     """Convert audio bytes to PCM 16kHz 16-bit mono using ffmpeg."""
+    logger.debug("convert_to_pcm: input=%d bytes", len(input_bytes))
     proc = await asyncio.create_subprocess_exec(
         "ffmpeg",
         "-i",
@@ -40,5 +44,12 @@ async def convert_to_pcm(input_bytes: bytes) -> bytes:
     stdout, stderr = await proc.communicate(input=input_bytes)
     if proc.returncode != 0:
         err = stderr.decode(errors="replace")
+        logger.error("ffmpeg failed (rc=%d): %s", proc.returncode, err[:500])
         raise RuntimeError(f"ffmpeg conversion failed: {err[:500]}")
+    duration_s = len(stdout) / 32000  # 16kHz * 2 bytes
+    logger.debug(
+        "convert_to_pcm: output=%d bytes (%.1fs audio)",
+        len(stdout),
+        duration_s,
+    )
     return stdout

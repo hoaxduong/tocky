@@ -19,11 +19,14 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { useConsultation } from "@/hooks/use-consultation"
+import { Input } from "@workspace/ui/components/input"
+import { Label } from "@workspace/ui/components/label"
+import { useConsultation, useUpdateConsultation } from "@/hooks/use-consultation"
 import { useSOAPNote, useRegenerateSOAPNote } from "@/hooks/use-soap-note"
 import { useQuery } from "@tanstack/react-query"
 import { apiFetch } from "@/lib/api"
 import { TranscriptSegmentItem } from "@/components/scribe/transcript-segment"
+import { LanguageSelector } from "@/components/scribe/language-selector"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
 import { toast } from "sonner"
 
@@ -54,17 +57,30 @@ function useTranscripts(consultationId: string, enabled: boolean) {
   })
 }
 
-const PROCESSING_STEPS = [
-  { key: "converting", label: "Converting audio" },
-  { key: "transcribing", label: "Transcribing" },
-  { key: "classifying", label: "Filtering relevance" },
-  { key: "generating_soap", label: "Generating SOAP note" },
-  { key: "extracting_entities", label: "Extracting medical entities" },
+const PROCESSING_STEP_KEYS = [
+  "converting",
+  "transcribing",
+  "detecting",
+  "classifying",
+  "generating_soap",
+  "extracting_entities",
 ] as const
 
 function getStepIndex(step: string | null): number {
   if (!step) return -1
-  return PROCESSING_STEPS.findIndex((s) => s.key === step)
+  return PROCESSING_STEP_KEYS.indexOf(step as (typeof PROCESSING_STEP_KEYS)[number])
+}
+
+function useProcessingStepLabels() {
+  const t = useExtracted()
+  return {
+    converting: t("Converting audio"),
+    transcribing: t("Transcribing"),
+    detecting: t("Detecting language & metadata"),
+    classifying: t("Filtering relevance"),
+    generating_soap: t("Generating SOAP note"),
+    extracting_entities: t("Extracting medical entities"),
+  } as const
 }
 
 interface UploadProcessingViewProps {
@@ -76,6 +92,7 @@ export function UploadProcessingView({
 }: UploadProcessingViewProps) {
   const t = useExtracted()
   const router = useRouter()
+  const stepLabels = useProcessingStepLabels()
   const { data: consultation } = useConsultation(consultationId, {
     refetchInterval: (query) => {
       const s = query.state.data?.status
@@ -89,23 +106,51 @@ export function UploadProcessingView({
   const { data: transcripts } = useTranscripts(consultationId, isComplete)
   const { data: soap } = useSOAPNote(isComplete ? consultationId : "")
   const regenerateSOAP = useRegenerateSOAPNote(isComplete ? consultationId : "")
+  const updateConsultation = useUpdateConsultation(consultationId)
 
   if (!consultation) return null
 
   // Completed view — transcript + SOAP side by side
   if (isComplete) {
+    function handleFieldSave(field: string, value: string) {
+      updateConsultation.mutate(
+        { [field]: value || null },
+        {
+          onError: () => toast.error(t("Failed to save changes")),
+        },
+      )
+    }
+
     return (
       <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">
-              {consultation.title || t("New Consultation")}
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              {t("Processing complete")}
-            </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label className="text-xs">{t("Title")}</Label>
+              <Input
+                defaultValue={consultation.title}
+                placeholder={t("Consultation title")}
+                onBlur={(e) => handleFieldSave("title", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">
+                {t("Patient Identifier")}
+              </Label>
+              <Input
+                defaultValue={consultation.patient_identifier ?? ""}
+                placeholder={t("optional")}
+                onBlur={(e) =>
+                  handleFieldSave("patient_identifier", e.target.value)
+                }
+              />
+            </div>
+            <LanguageSelector
+              value={consultation.language}
+              onChange={(lang) => handleFieldSave("language", lang)}
+            />
           </div>
-          <div className="flex gap-2">
+          <div className="flex shrink-0 gap-2">
             <Button
               variant="outline"
               disabled={regenerateSOAP.isPending}
@@ -126,7 +171,11 @@ export function UploadProcessingView({
                 ? t("Regenerating...")
                 : t("Regenerate")}
             </Button>
-            <Button onClick={() => router.push(`/consultations/${consultationId}/soap`)}>
+            <Button
+              onClick={() =>
+                router.push(`/consultations/${consultationId}/soap`)
+              }
+            >
               {t("Review SOAP Note")}
             </Button>
           </div>
@@ -241,12 +290,12 @@ export function UploadProcessingView({
         <CardContent className="space-y-4">
           <Progress value={consultation.processing_progress} className="h-2" />
           <div className="space-y-2">
-            {PROCESSING_STEPS.map((step, idx) => {
+            {PROCESSING_STEP_KEYS.map((key, idx) => {
               const isCurrent = idx === currentStepIdx
               const isDone = idx < currentStepIdx
               return (
                 <div
-                  key={step.key}
+                  key={key}
                   className="flex items-center gap-2 text-sm"
                 >
                   {isDone ? (
@@ -265,7 +314,7 @@ export function UploadProcessingView({
                           : "text-muted-foreground"
                     }
                   >
-                    {t(step.label)}
+                    {stepLabels[key]}
                   </span>
                 </div>
               )

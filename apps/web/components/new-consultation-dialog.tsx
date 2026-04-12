@@ -4,8 +4,6 @@ import { useRef, useState } from "react"
 import { useExtracted } from "next-intl"
 import { ArrowLeft, Mic, Plus, Upload, X } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Dialog,
@@ -16,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@workspace/ui/components/dialog"
-import { LanguageSelector } from "@/components/scribe/language-selector"
 import { useCreateConsultation, useUploadAudio } from "@/hooks/use-consultation"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -36,9 +33,6 @@ export function NewConsultationDialog() {
 
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState<DialogStep>("mode-select")
-  const [title, setTitle] = useState("")
-  const [patientId, setPatientId] = useState("")
-  const [language, setLanguage] = useState("vi")
   const [file, setFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -46,9 +40,6 @@ export function NewConsultationDialog() {
 
   function resetForm() {
     setStep("mode-select")
-    setTitle("")
-    setPatientId("")
-    setLanguage("vi")
     setFile(null)
   }
 
@@ -74,9 +65,6 @@ export function NewConsultationDialog() {
 
     try {
       const consultation = await createConsultation.mutateAsync({
-        title,
-        patient_identifier: patientId || null,
-        language,
         mode: "upload",
       })
 
@@ -165,94 +153,67 @@ export function NewConsultationDialog() {
                 <DialogTitle>{t("Upload Audio")}</DialogTitle>
               </div>
               <DialogDescription>
-                {t("Upload a recorded consultation audio file.")}
+                {t(
+                  "Upload a recorded consultation. Language, title, and patient info will be auto-detected.",
+                )}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="dialog-title">{t("Title")}</Label>
-                <Input
-                  id="dialog-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder={t("New Consultation")}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dialog-patient-id">
-                  {t("Patient Identifier")}
-                  <span className="text-muted-foreground ml-1 text-xs font-normal">
-                    ({t("optional")})
-                  </span>
-                </Label>
-                <Input
-                  id="dialog-patient-id"
-                  value={patientId}
-                  onChange={(e) => setPatientId(e.target.value)}
-                />
-              </div>
-              <LanguageSelector value={language} onChange={setLanguage} />
-
               {/* File drop zone */}
-              <div className="space-y-2">
-                <Label>{t("Audio File")}</Label>
-                {!file ? (
-                  <div
-                    onDragOver={(e) => {
-                      e.preventDefault()
-                      setIsDragging(true)
-                    }}
-                    onDragLeave={() => setIsDragging(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={cn(
-                      "flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed p-6 text-center transition-colors",
-                      isDragging
-                        ? "border-primary bg-primary/5"
-                        : "border-muted-foreground/25 hover:border-primary/50",
-                    )}
-                  >
-                    <Upload className="text-muted-foreground h-6 w-6" />
-                    <p className="text-muted-foreground text-sm">
-                      {t("Drag and drop or click to browse")}
-                    </p>
+              {!file ? (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setIsDragging(true)
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors",
+                    isDragging
+                      ? "border-primary bg-primary/5"
+                      : "border-muted-foreground/25 hover:border-primary/50",
+                  )}
+                >
+                  <Upload className="text-muted-foreground h-8 w-8" />
+                  <p className="text-muted-foreground text-sm">
+                    {t("Drag and drop or click to browse")}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    MP3, WAV, M4A, OGG, FLAC, WebM, AAC ({MAX_FILE_SIZE_MB}
+                    MB max)
+                  </p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_TYPES}
+                    className="hidden"
+                    onChange={(e) =>
+                      handleFileSelect(e.target.files?.[0] ?? null)
+                    }
+                  />
+                </div>
+              ) : (
+                <div className="bg-muted/50 flex items-center gap-3 rounded-lg border p-3">
+                  <Upload className="text-muted-foreground h-5 w-5 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{file.name}</p>
                     <p className="text-muted-foreground text-xs">
-                      MP3, WAV, M4A, OGG, FLAC, WebM, AAC ({MAX_FILE_SIZE_MB}
-                      MB max)
+                      {(file.size / 1024 / 1024).toFixed(1)} MB
                     </p>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept={ACCEPTED_TYPES}
-                      className="hidden"
-                      onChange={(e) =>
-                        handleFileSelect(e.target.files?.[0] ?? null)
-                      }
-                    />
                   </div>
-                ) : (
-                  <div className="bg-muted/50 flex items-center gap-3 rounded-lg border p-3">
-                    <Upload className="text-muted-foreground h-5 w-5 shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {file.name}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {(file.size / 1024 / 1024).toFixed(1)} MB
-                      </p>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0"
-                      onClick={() => setFile(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0"
+                    onClick={() => setFile(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
 
               <DialogFooter>
                 <Button

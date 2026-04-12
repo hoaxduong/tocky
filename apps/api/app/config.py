@@ -23,7 +23,9 @@ class Settings(BaseSettings):
 
     # Alibaba Cloud DashScope
     dashscope_api_key: str = ""
-    dashscope_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    # Regional: dashscope.aliyuncs.com (Beijing),
+    # dashscope-intl.aliyuncs.com (SG), dashscope-us.aliyuncs.com (VA)
+    dashscope_base_url: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
     qwen_model_name: str = "qwen2.5-omni-7b"  # fallback for all workloads
 
     # Per-workload model overrides (leave empty to use qwen_model_name for all)
