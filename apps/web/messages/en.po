@@ -62,21 +62,37 @@ msgstr "Users"
 msgid "aX495T"
 msgstr "User management interface coming soon."
 
-#: components/app-sidebar.tsx:115
+#: components/app-sidebar.tsx:119
 msgid "fBg+7V"
 msgstr "Navigation"
 
-#: components/app-sidebar.tsx:148
-#: components/app-sidebar.tsx:157
-#: components/app-sidebar.tsx:181
+#: components/app-sidebar.tsx:152
+#: components/app-sidebar.tsx:161
+#: components/app-sidebar.tsx:185
 msgid "TwyMau"
 msgstr "Account"
 
-#: components/app-sidebar.tsx:194
+#: components/app-sidebar.tsx:199
+msgid "Pe0ogR"
+msgstr "Theme"
+
+#: components/app-sidebar.tsx:207
+msgid "3cc4Ct"
+msgstr "Light"
+
+#: components/app-sidebar.tsx:210
+msgid "tOdNiY"
+msgstr "Dark"
+
+#: components/app-sidebar.tsx:213
+msgid "+CwN9C"
+msgstr "System"
+
+#: components/app-sidebar.tsx:221
 msgid "y1Z3or"
 msgstr "Language"
 
-#: components/app-sidebar.tsx:213
+#: components/app-sidebar.tsx:240
 msgid "F62y+K"
 msgstr "Sign Out"
 
@@ -240,14 +256,14 @@ msgid "5sg7KC"
 msgstr "Password"
 
 #: components/sign-in-form.tsx:76
-#: components/sign-up-form.tsx:49
-msgid "Ub+AGc"
-msgstr "Sign In"
-
-#: components/sign-in-form.tsx:76
 #: components/sign-up-form.tsx:87
 msgid "gjBiyj"
 msgstr "Loading..."
+
+#: components/sign-in-form.tsx:76
+#: components/sign-up-form.tsx:49
+msgid "Ub+AGc"
+msgstr "Sign In"
 
 #: components/sign-up-form.tsx:36
 msgid "QBNztl"

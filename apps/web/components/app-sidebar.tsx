@@ -9,7 +9,9 @@ import {
   Globe,
   LayoutDashboard,
   LogOut,
+  Moon,
   Stethoscope,
+  Sun,
   Users,
 } from "lucide-react"
 import {
@@ -40,6 +42,7 @@ import {
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import { useTheme } from "next-themes"
 import { signOut, useSession } from "@/lib/auth-client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -92,6 +95,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   const locale = useLocale()
   const router = useRouter()
   const { data: session } = useSession()
+  const { theme, setTheme } = useTheme()
 
   const navItems = variant === "admin" ? ADMIN_NAV : APP_NAV
   const title = variant === "admin" ? "Tocky Admin" : "Tocky"
@@ -188,6 +192,29 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Sun className="mr-2 size-4 dark:hidden" />
+                      <Moon className="mr-2 hidden size-4 dark:block" />
+                      {t("Theme")}
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={theme}
+                        onValueChange={setTheme}
+                      >
+                        <DropdownMenuRadioItem value="light">
+                          {t("Light")}
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="dark">
+                          {t("Dark")}
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="system">
+                          {t("System")}
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <Globe className="mr-2 size-4" />
