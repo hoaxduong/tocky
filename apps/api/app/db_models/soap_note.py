@@ -18,6 +18,7 @@ class SOAPNote(Base):
     assessment: Mapped[str] = mapped_column(Text, default="")
     plan: Mapped[str] = mapped_column(Text, default="")
     medical_entities: Mapped[dict] = mapped_column(JSON, default=dict)
+    review_flags: Mapped[list] = mapped_column(JSON, default=list)
     is_draft: Mapped[bool] = mapped_column(default=True)
     version: Mapped[int] = mapped_column(default=1)
     created_at: Mapped[datetime] = mapped_column(

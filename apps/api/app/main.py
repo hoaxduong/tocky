@@ -16,6 +16,7 @@ from app.routers import (
     transcripts,
 )
 from app.services.dashscope_client import DashScopeClient
+from app.services.oss_client import OSSClient
 
 
 @asynccontextmanager
@@ -27,6 +28,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         base_url=settings.dashscope_base_url,
         api_key=settings.dashscope_api_key,
         model_name=settings.qwen_model_name,
+    )
+
+    app.state.oss_client = OSSClient(
+        access_key_id=settings.oss_access_key_id,
+        access_key_secret=settings.oss_access_key_secret,
+        endpoint=settings.oss_endpoint,
+        bucket_name=settings.oss_bucket_name,
     )
 
     yield

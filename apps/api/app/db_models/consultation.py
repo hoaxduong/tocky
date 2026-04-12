@@ -16,6 +16,8 @@ class Consultation(Base):
     patient_identifier: Mapped[str | None] = mapped_column(String(100))
     language: Mapped[str] = mapped_column(String(10), default="vi")
     status: Mapped[str] = mapped_column(String(20), default="recording")
+    full_audio_oss_key: Mapped[str | None] = mapped_column(String(500))
+    full_audio_duration_ms: Mapped[int | None] = mapped_column()
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

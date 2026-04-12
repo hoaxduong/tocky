@@ -12,6 +12,7 @@ class SOAPNoteResponse(BaseModel):
     assessment: str
     plan: str
     medical_entities: dict
+    review_flags: list = []
     is_draft: bool
     version: int
     created_at: datetime
