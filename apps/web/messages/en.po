@@ -194,37 +194,49 @@ msgstr "Search users..."
 msgid "gjBiyj"
 msgstr "Loading..."
 
-#: components/app-sidebar.tsx:120
-msgid "fBg+7V"
-msgstr "Navigation"
+#: components/app-sidebar.tsx:107
+msgid "m6lDC9"
+msgstr "Management"
 
-#: components/app-sidebar.tsx:153
-#: components/app-sidebar.tsx:162
-#: components/app-sidebar.tsx:186
+#: components/app-sidebar.tsx:107
+msgid "rOZptg"
+msgstr "Workspace"
+
+#: components/app-sidebar.tsx:156
+#: components/app-sidebar.tsx:165
+#: components/app-sidebar.tsx:189
 msgid "TwyMau"
 msgstr "Account"
 
-#: components/app-sidebar.tsx:200
+#: components/app-sidebar.tsx:203
 msgid "Pe0ogR"
 msgstr "Theme"
 
-#: components/app-sidebar.tsx:208
+#: components/app-sidebar.tsx:211
 msgid "3cc4Ct"
 msgstr "Light"
 
-#: components/app-sidebar.tsx:211
+#: components/app-sidebar.tsx:214
 msgid "tOdNiY"
 msgstr "Dark"
 
-#: components/app-sidebar.tsx:214
+#: components/app-sidebar.tsx:217
 msgid "+CwN9C"
 msgstr "System"
 
-#: components/app-sidebar.tsx:222
+#: components/app-sidebar.tsx:225
 msgid "y1Z3or"
 msgstr "Language"
 
-#: components/app-sidebar.tsx:241
+#: components/app-sidebar.tsx:248
+msgid "3Vr8ps"
+msgstr "Admin Dashboard"
+
+#: components/app-sidebar.tsx:253
+msgid "YNSpuZ"
+msgstr "Back to App"
+
+#: components/app-sidebar.tsx:262
 msgid "F62y+K"
 msgstr "Sign Out"
 
