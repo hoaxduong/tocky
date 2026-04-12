@@ -23,10 +23,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     await init_db(settings.database_url)
 
+    fallback = settings.qwen_model_name
     app.state.dashscope_client = DashScopeClient(
         base_url=settings.dashscope_base_url,
         api_key=settings.dashscope_api_key,
-        model_name=settings.qwen_model_name,
+        transcription_model=settings.qwen_transcription_model or fallback,
+        classification_model=settings.qwen_classification_model or fallback,
+        soap_model=settings.qwen_soap_model or fallback,
+        extraction_model=settings.qwen_extraction_model or fallback,
     )
 
     yield
