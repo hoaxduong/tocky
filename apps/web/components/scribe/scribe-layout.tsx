@@ -13,11 +13,11 @@ export function ScribeLayout({ children }: ScribeLayoutProps) {
 }
 
 function ScribeLayoutLeft({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-col gap-4 overflow-hidden">{children}</div>
+  return <div className="flex min-h-0 flex-col">{children}</div>
 }
 
 function ScribeLayoutRight({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-col overflow-y-auto">{children}</div>
+  return <div className="flex min-h-0 flex-col">{children}</div>
 }
 
 ScribeLayout.Left = ScribeLayoutLeft

@@ -3,6 +3,7 @@
 import { useExtracted } from "next-intl"
 import { Check, RefreshCw } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
+import ReactMarkdown from "react-markdown"
 import { Badge } from "@workspace/ui/components/badge"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
@@ -11,6 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -145,13 +152,32 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
             <CardTitle className="text-base">{label}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Textarea
-              value={soap[key]}
-              onChange={(e) => handleSave(key, e.target.value)}
-              disabled={!soap.is_draft}
-              rows={5}
-              className="resize-none"
-            />
+            <Tabs defaultValue="preview">
+              <TabsList>
+                <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
+                <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
+              </TabsList>
+              <TabsContent value="preview">
+                {soap[key] ? (
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown>{soap[key]}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm italic">
+                    {t("No content yet")}
+                  </p>
+                )}
+              </TabsContent>
+              <TabsContent value="raw">
+                <Textarea
+                  value={soap[key]}
+                  onChange={(e) => handleSave(key, e.target.value)}
+                  disabled={!soap.is_draft}
+                  rows={5}
+                  className="resize-none"
+                />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       ))}
@@ -160,18 +186,29 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
         Object.keys(soap.medical_entities).length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Medical Entities</CardTitle>
+              <CardTitle className="text-base">
+                {t("Medical Entities")}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-4">
                 {Object.entries(soap.medical_entities).map(
                   ([category, entities]) =>
                     Array.isArray(entities) &&
-                    entities.map((entity, i) => (
-                      <Badge key={`${category}-${i}`} variant="outline">
-                        {category}: {entity}
-                      </Badge>
-                    )),
+                    entities.length > 0 && (
+                      <div key={category} className="space-y-1.5">
+                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          {category}
+                        </h4>
+                        <div className="flex flex-wrap gap-1.5">
+                          {entities.map((entity, i) => (
+                            <Badge key={i} variant="outline">
+                              {entity}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ),
                 )}
               </div>
             </CardContent>

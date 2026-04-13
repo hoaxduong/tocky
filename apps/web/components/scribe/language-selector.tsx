@@ -1,6 +1,7 @@
 "use client"
 
 import { useExtracted } from "next-intl"
+import { Label } from "@workspace/ui/components/label"
 import {
   Select,
   SelectContent,
@@ -31,7 +32,7 @@ export function LanguageSelector({
 
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium">{t("Consultation Language")}</label>
+      <Label className="text-xs">{t("Language")}</Label>
       <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger className="w-full">
           <SelectValue />

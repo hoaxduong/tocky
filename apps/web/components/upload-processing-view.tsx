@@ -14,9 +14,22 @@ import {
 } from "lucide-react"
 import { Progress } from "@workspace/ui/components/progress"
 import { Button } from "@workspace/ui/components/button"
+import ReactMarkdown from "react-markdown"
 import { Badge } from "@workspace/ui/components/badge"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card"
 import {
   Alert,
   AlertDescription,
@@ -250,7 +263,7 @@ export function UploadProcessingView({
     }
 
     return (
-      <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
+      <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-4">
         {isCompletedWithErrors && consultation.error_message && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
@@ -277,7 +290,7 @@ export function UploadProcessingView({
           </Alert>
         )}
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-end justify-between border-b pb-4">
           <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="space-y-1">
               <Label className="text-xs">{t("Title")}</Label>
@@ -300,7 +313,7 @@ export function UploadProcessingView({
               onChange={(lang) => handleFieldSave("language", lang)}
             />
           </div>
-          <div className="flex shrink-0 gap-2">
+          <div className="ml-4 flex shrink-0 gap-2">
             <Button
               variant="outline"
               disabled={regenerateSOAP.isPending}
@@ -323,8 +336,10 @@ export function UploadProcessingView({
 
         <ScribeLayout>
           <ScribeLayout.Left>
-            <h3 className="mb-3 text-lg font-semibold">{t("Transcript")}</h3>
-            <div className="flex-1 space-y-2 overflow-y-auto">
+            <div className="flex h-8 items-center">
+              <h3 className="text-sm font-semibold">{t("Transcript")}</h3>
+            </div>
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pt-4">
               {transcripts?.segments.map((seg) => (
                 <TranscriptSegmentItem
                   key={seg.id}
@@ -342,39 +357,62 @@ export function UploadProcessingView({
             </div>
           </ScribeLayout.Left>
           <ScribeLayout.Right>
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">{t("SOAP Note")}</h3>
-              {soap && (
-                <Badge variant={soap.is_draft ? "secondary" : "default"}>
-                  {soap.is_draft ? t("Draft") : t("Completed")}
-                </Badge>
-              )}
-            </div>
-            <div className="flex-1 space-y-4 overflow-y-auto">
-              {soap ? (
-                <>
-                  {(
-                    [
-                      { key: "subjective", label: t("Subjective") },
-                      { key: "objective", label: t("Objective") },
-                      { key: "assessment", label: t("Assessment") },
-                      { key: "plan", label: t("Plan") },
-                    ] as const
-                  ).map(({ key, label }) => (
-                    <div key={key} className="space-y-1">
-                      <label className="text-sm font-semibold">{label}</label>
-                      <div className="bg-muted/50 rounded-md border p-3 text-sm whitespace-pre-wrap">
-                        {soap[key] || (
-                          <span className="text-muted-foreground italic">{t("Empty")}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </>
-              ) : (
-                <p className="text-muted-foreground text-sm">{t("SOAP note not found.")}</p>
-              )}
-            </div>
+            <Tabs defaultValue="preview" className="flex h-full flex-col gap-0">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold">{t("SOAP Note")}</h3>
+                <div className="flex items-center gap-2">
+                  {soap && (
+                    <Badge variant={soap.is_draft ? "secondary" : "default"}>
+                      {soap.is_draft ? t("Draft") : t("Completed")}
+                    </Badge>
+                  )}
+                  <TabsList>
+                    <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
+                    <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
+                  </TabsList>
+                </div>
+              </div>
+              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-px pt-4">
+                {soap ? (
+                  <>
+                    {(
+                      [
+                        { key: "subjective", label: t("Subjective") },
+                        { key: "objective", label: t("Objective") },
+                        { key: "assessment", label: t("Assessment") },
+                        { key: "plan", label: t("Plan") },
+                      ] as const
+                    ).map(({ key, label }) => (
+                      <Card key={key}>
+                        <CardHeader>
+                          <CardTitle className="text-base">{label}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <TabsContent value="preview" className="mt-0">
+                            {soap[key] ? (
+                              <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <ReactMarkdown>{soap[key]}</ReactMarkdown>
+                              </div>
+                            ) : (
+                              <p className="text-muted-foreground text-sm italic">{t("No content yet")}</p>
+                            )}
+                          </TabsContent>
+                          <TabsContent value="raw" className="mt-0">
+                            <div className="text-sm whitespace-pre-wrap">
+                              {soap[key] || (
+                                <span className="text-muted-foreground italic">{t("Empty")}</span>
+                              )}
+                            </div>
+                          </TabsContent>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </>
+                ) : (
+                  <p className="text-muted-foreground text-sm">{t("SOAP note not found.")}</p>
+                )}
+              </div>
+            </Tabs>
           </ScribeLayout.Right>
         </ScribeLayout>
       </div>
