@@ -64,6 +64,7 @@ import { toast } from "sonner"
 import { SOAPFormSkeleton } from "@/components/skeletons"
 import { ConsultationContextBar } from "@/components/consultation-context-bar"
 import { ICD10CodeCard } from "@/components/icd10-code-card"
+import { ElfiePatientCard, ElfiePushDialog } from "@/components/elfie"
 import { useAudioHotkeys } from "@/hooks/use-audio-hotkeys"
 
 interface SOAPReviewFormProps {
@@ -194,6 +195,13 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
           ]}
           actions={
             <>
+              {!soap.is_draft && consultation.patient_identifier && (
+                <ElfiePushDialog
+                  consultationId={consultationId}
+                  patientIdentifier={consultation.patient_identifier}
+                  planText={soap.plan ?? ""}
+                />
+              )}
               {soap.is_draft && (
                 <Badge variant="secondary">{t("Draft")}</Badge>
               )}
@@ -359,6 +367,12 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
           isResuggesting={resuggestICD10.isPending}
         />
       </div>
+
+      {consultation && (
+        <ElfiePatientCard
+          patientIdentifier={consultation.patient_identifier}
+        />
+      )}
 
       {sections.map(({ key, label, borderClass }) => (
         <Card key={key} id={`soap-${key}`} className={borderClass}>

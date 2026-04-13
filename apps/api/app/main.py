@@ -14,6 +14,7 @@ from app.routers import (
     admin,
     auth,
     consultations,
+    elfie,
     events,
     health,
     icd10,
@@ -22,6 +23,7 @@ from app.routers import (
     transcripts,
 )
 from app.services.dashscope_client import DashScopeClient
+from app.services.elfie_mock_client import MockElfieClient
 from app.services.event_queue import EventQueueRegistry
 from app.services.local_storage_client import LocalStorageClient
 from app.services.oss_client import OSSClient
@@ -56,6 +58,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     fallback = settings.qwen_model_name
     app.state.event_registry = EventQueueRegistry()
     app.state.background_tasks = set()  # prevent GC of asyncio tasks
+    app.state.elfie_client = MockElfieClient()
 
     if settings.sandbox_ai:
         from app.services.sandbox_client import SandboxAIClient
@@ -156,6 +159,7 @@ api_v1.include_router(soap_notes.router)
 api_v1.include_router(transcripts.router)
 api_v1.include_router(events.router)
 api_v1.include_router(icd10.router)
+api_v1.include_router(elfie.router)
 api_v1.include_router(admin.router)
 app.include_router(api_v1)
 

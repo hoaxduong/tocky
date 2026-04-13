@@ -122,6 +122,12 @@ export function ConsultationContextBar({
               <span className="flex items-center gap-1">
                 <User className="h-3.5 w-3.5" />
                 {consultation.patient_identifier}
+                <Badge
+                  variant="outline"
+                  className="ml-0.5 border-teal-500 text-[10px] text-teal-700 dark:text-teal-400"
+                >
+                  Elfie
+                </Badge>
               </span>
             )}
             <Badge variant="outline" className="text-xs">
