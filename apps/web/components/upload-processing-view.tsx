@@ -193,12 +193,48 @@ export function UploadProcessingView({
   const updateConsultation = useUpdateConsultation(consultationId)
   const retryProcessing = useRetryProcessing(consultationId)
 
+  const transcriptListRef = useRef<HTMLDivElement>(null)
   const transcriptEndRef = useRef<HTMLDivElement>(null)
+  const prevStepRef = useRef<string | null>(null)
+  const prevClassifiedCountRef = useRef(0)
+
+  const currentProgress = sseProgress.progress || consultation?.processing_progress || 0
+  const currentStep = sseProgress.step || consultation?.processing_step || null
+
+  // During transcription: auto-scroll to bottom as new segments arrive
+  const isTranscribing = currentStep === "transcribing"
   useEffect(() => {
-    if (isProcessing && streamedSegments.length > 0) {
+    if (isTranscribing && streamedSegments.length > 0) {
       transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
-  }, [isProcessing, streamedSegments.length])
+  }, [isTranscribing, streamedSegments.length])
+
+  // When transcription finishes (step transitions away from "transcribing"): scroll to top
+  useEffect(() => {
+    if (prevStepRef.current === "transcribing" && currentStep && currentStep !== "transcribing") {
+      transcriptListRef.current?.scrollTo({ top: 0, behavior: "smooth" })
+    }
+    prevStepRef.current = currentStep
+  }, [currentStep])
+
+  // During classification: scroll to the latest classified segment
+  const classifiedCount = streamedSegments.filter(
+    (s) => s.status === "classified" || s.status === "failed_classification",
+  ).length
+  useEffect(() => {
+    if (classifiedCount > prevClassifiedCountRef.current && classifiedCount > 0) {
+      // Find the last classified segment's sequence number
+      const classified = streamedSegments.filter(
+        (s) => s.status === "classified" || s.status === "failed_classification",
+      )
+      const lastSeq = classified[classified.length - 1]?.sequence
+      if (lastSeq != null) {
+        const el = document.getElementById(`segment-${lastSeq}`)
+        el?.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+    }
+    prevClassifiedCountRef.current = classifiedCount
+  }, [classifiedCount, streamedSegments])
 
   if (!consultation) return null
 
@@ -428,9 +464,6 @@ export function UploadProcessingView({
   // ==================================================================
   // Processing view
   // ==================================================================
-  const currentProgress = sseProgress.progress || consultation.processing_progress
-  const currentStep = sseProgress.step || consultation.processing_step
-
   const transcribedCount = streamedSegments.filter((s) => s.status !== "failed_transcription").length
   const relevantCount = streamedSegments.filter((s) => s.status === "classified" && s.isMedicallyRelevant).length
   const smallTalkCount = streamedSegments.filter((s) => s.status === "classified" && !s.isMedicallyRelevant).length
@@ -472,19 +505,20 @@ export function UploadProcessingView({
                 </span>
               )}
             </h3>
-            <div className="flex-1 space-y-2 overflow-y-auto">
+            <div ref={transcriptListRef} className="flex-1 space-y-2 overflow-y-auto">
               {streamedSegments.length > 0 ? (
                 <>
                   {streamedSegments.map((seg) => (
-                    <TranscriptSegmentItem
-                      key={seg.sequence}
-                      text={seg.text}
-                      isMedicallyRelevant={seg.isMedicallyRelevant}
-                      speakerLabel={null}
-                      sequence={seg.sequence}
-                      status={seg.status}
-                      errorMessage={seg.errorMessage}
-                    />
+                    <div key={seg.sequence} id={`segment-${seg.sequence}`}>
+                      <TranscriptSegmentItem
+                        text={seg.text}
+                        isMedicallyRelevant={seg.isMedicallyRelevant}
+                        speakerLabel={null}
+                        sequence={seg.sequence}
+                        status={seg.status}
+                        errorMessage={seg.errorMessage}
+                      />
+                    </div>
                   ))}
                   <div ref={transcriptEndRef} />
                 </>
