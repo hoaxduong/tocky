@@ -8,8 +8,8 @@ msgstr ""
 
 #: app/(app)/consultations/[id]/page.tsx:138
 #: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:24
-#: components/consultations-list.tsx:27
+#: components/consultations-list.tsx:197
+#: components/consultations-list.tsx:200
 #: components/soap-review-form.tsx:189
 #: components/upload-processing-view.tsx:334
 #: components/upload-processing-view.tsx:599
@@ -18,9 +18,10 @@ msgstr "Consultations"
 
 #: app/(app)/consultations/[id]/page.tsx:139
 #: components/consultation-context-bar.tsx:115
+#: components/consultations-list.tsx:380
 #: components/new-consultation-dialog.tsx:96
 #: components/new-consultation-dialog.tsx:103
-#: components/scribe/consultation-card.tsx:83
+#: components/scribe/consultation-card.tsx:132
 #: components/scribe/consultation-header.tsx:32
 #: components/upload-processing-view.tsx:600
 msgid "L2NbD2"
@@ -64,7 +65,6 @@ msgid "pzvscd"
 msgstr "Statistiques du système"
 
 #: app/admin/page.tsx:20
-#: components/dashboard-content.tsx:41
 msgid "s1bW4D"
 msgstr "Total des consultations"
 
@@ -118,8 +118,10 @@ msgstr "Bannir"
 
 #: components/admin-users-table.tsx:143
 #: components/admin-users-table.tsx:166
-#: components/scribe/consultation-card.tsx:114
-#: components/scribe/consultation-card.tsx:148
+#: components/consultations-list.tsx:424
+#: components/consultations-list.tsx:488
+#: components/scribe/consultation-card.tsx:163
+#: components/scribe/consultation-card.tsx:240
 msgid "K3r6DQ"
 msgstr "Supprimer"
 
@@ -132,8 +134,9 @@ msgid "eCHBUe"
 msgstr "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible."
 
 #: components/admin-users-table.tsx:158
+#: components/consultations-list.tsx:483
 #: components/elfie/elfie-push-dialog.tsx:159
-#: components/scribe/consultation-card.tsx:143
+#: components/scribe/consultation-card.tsx:235
 #: components/soap-review-form.tsx:253
 msgid "47FYwb"
 msgstr "Annuler"
@@ -195,6 +198,7 @@ msgid "VzzYJk"
 msgstr "Créer"
 
 #: components/admin-users-table.tsx:308
+#: components/consultations-list.tsx:367
 msgid "tzMNF3"
 msgstr "Statut"
 
@@ -203,12 +207,12 @@ msgid "xerM7K"
 msgstr "Banni"
 
 #: components/admin-users-table.tsx:313
-#: components/consultations-list.tsx:37
-#: components/dashboard-content.tsx:51
+#: components/consultations-list.tsx:207
 msgid "3a5wL8"
 msgstr "Actif"
 
 #: components/admin-users-table.tsx:318
+#: components/consultations-list.tsx:368
 msgid "ORGv1Q"
 msgstr "Créé"
 
@@ -253,6 +257,8 @@ msgid "+CwN9C"
 msgstr "Système"
 
 #: components/app-sidebar.tsx:223
+#: components/consultations-list.tsx:243
+#: components/consultations-list.tsx:366
 #: components/scribe/language-selector.tsx:36
 msgid "y1Z3or"
 msgstr "Langue"
@@ -270,42 +276,166 @@ msgid "F62y+K"
 msgstr "Déconnexion"
 
 #: components/consultation-context-bar.tsx:142
+#: components/scribe/consultation-card.tsx:189
 msgid "p4N05H"
 msgstr ""
 
 #: components/consultation-context-bar.tsx:142
+#: components/scribe/consultation-card.tsx:189
 msgid "Dn82AL"
 msgstr ""
 
-#: components/consultations-list.tsx:26
+#: components/consultations-list.tsx:178
+#: components/scribe/consultation-card.tsx:113
+msgid "XOBOTM"
+msgstr "Consultation archivée"
+
+#: components/consultations-list.tsx:179
+#: components/scribe/consultation-card.tsx:114
+msgid "sJKt39"
+msgstr "Échec de l'archivage de la consultation"
+
+#: components/consultations-list.tsx:186
+#: components/scribe/consultation-card.tsx:120
+msgid "YFqZph"
+msgstr "Consultation supprimée"
+
+#: components/consultations-list.tsx:187
+#: components/scribe/consultation-card.tsx:121
+msgid "x297rU"
+msgstr "Échec de la suppression de la consultation"
+
+#: components/consultations-list.tsx:199
 msgid "hzSNj4"
 msgstr "Tableau de bord"
 
-#: components/consultations-list.tsx:38
+#: components/consultations-list.tsx:208
 msgid "0HT+Ib"
 msgstr "Archivées"
 
-#: components/consultations-list.tsx:47
-msgid "ywPYka"
-msgstr "Aucune consultation archivée."
+#: components/consultations-list.tsx:224
+msgid "zEiDy1"
+msgstr ""
 
-#: components/consultations-list.tsx:48
-#: components/dashboard-content.tsx:85
-msgid "eoBnBg"
-msgstr "Aucune consultation pour le moment. Commencez votre première !"
+#: components/consultations-list.tsx:246
+msgid "8Z+7D/"
+msgstr ""
 
-#: components/dashboard-content.tsx:29
+#: components/consultations-list.tsx:266
+msgid "fwIt1X"
+msgstr ""
+
+#: components/consultations-list.tsx:267
+msgid "0TZMjQ"
+msgstr ""
+
+#: components/consultations-list.tsx:268
+msgid "nZgZJc"
+msgstr ""
+
+#: components/consultations-list.tsx:270
+msgid "XZegeq"
+msgstr ""
+
+#: components/consultations-list.tsx:298
+msgid "/zES4+"
+msgstr ""
+
+#: components/consultations-list.tsx:313
+msgid "EXyp83"
+msgstr ""
+
+#: components/consultations-list.tsx:314
+msgid "fn14Hs"
+msgstr ""
+
+#: components/consultations-list.tsx:319
+msgid "MsGXc3"
+msgstr ""
+
+#: components/consultations-list.tsx:326
+msgid "M9zd2L"
+msgstr ""
+
+#: components/consultations-list.tsx:327
+msgid "0fK3A0"
+msgstr ""
+
+#: components/consultations-list.tsx:334
+#: components/dashboard-content.tsx:125
+msgid "4Rs3d/"
+msgstr ""
+
+#: components/consultations-list.tsx:335
+#: components/dashboard-content.tsx:126
+msgid "Ct/wJD"
+msgstr ""
+
+#: components/consultations-list.tsx:364
+#: components/upload-processing-view.tsx:363
+msgid "9a9+ww"
+msgstr "Titre"
+
+#: components/consultations-list.tsx:365
+msgid "+0hh6g"
+msgstr ""
+
+#: components/consultations-list.tsx:412
+#: components/scribe/consultation-card.tsx:151
+msgid "hrgo+E"
+msgstr "Archiver"
+
+#: components/consultations-list.tsx:441
+msgid "TxjoW4"
+msgstr ""
+
+#: components/consultations-list.tsx:452
+msgid "JJNc3c"
+msgstr ""
+
+#: components/consultations-list.tsx:460
+msgid "9+Ddtu"
+msgstr ""
+
+#: components/consultations-list.tsx:475
+#: components/scribe/consultation-card.tsx:227
+msgid "Y0pMB6"
+msgstr "Supprimer la consultation ?"
+
+#: components/consultations-list.tsx:477
+#: components/scribe/consultation-card.tsx:229
+msgid "P2jK4q"
+msgstr "Cette action supprimera définitivement cette consultation et toutes ses données. Cette action est irréversible."
+
+#: components/dashboard-content.tsx:49
 msgid "UKxoV8"
 msgstr "Bon retour"
 
-#: components/dashboard-content.tsx:64
+#: components/dashboard-content.tsx:61
+msgid "MJ2jZQ"
+msgstr ""
+
+#: components/dashboard-content.tsx:72
+#: components/upload-processing-view.tsx:658
+msgid "1Ia8qN"
+msgstr "Traitement"
+
+#: components/dashboard-content.tsx:83
 #: components/upload-processing-view.tsx:445
 msgid "95stPq"
 msgstr "Terminée"
 
-#: components/dashboard-content.tsx:79
+#: components/dashboard-content.tsx:94
+msgid "K+cFF2"
+msgstr ""
+
+#: components/dashboard-content.tsx:108
 msgid "XVT1Vj"
 msgstr "Consultations récentes"
+
+#: components/dashboard-content.tsx:115
+msgid "wbcwKd"
+msgstr ""
 
 #: components/elfie/elfie-lifestyle-tab.tsx:50
 msgid "yn52UE"
@@ -375,24 +505,24 @@ msgstr ""
 msgid "32knt1"
 msgstr ""
 
-#: components/elfie/elfie-vitals-tab.tsx:220
+#: components/elfie/elfie-vitals-tab.tsx:222
 msgid "AiTpb5"
 msgstr ""
 
-#: components/elfie/elfie-vitals-tab.tsx:227
-#: components/elfie/elfie-vitals-tab.tsx:242
+#: components/elfie/elfie-vitals-tab.tsx:229
+#: components/elfie/elfie-vitals-tab.tsx:244
 msgid "7jMPLm"
 msgstr ""
 
-#: components/elfie/elfie-vitals-tab.tsx:233
+#: components/elfie/elfie-vitals-tab.tsx:235
 msgid "y/Y3ZR"
 msgstr ""
 
-#: components/elfie/elfie-vitals-tab.tsx:250
+#: components/elfie/elfie-vitals-tab.tsx:252
 msgid "zCb8fX"
 msgstr ""
 
-#: components/elfie/elfie-vitals-tab.tsx:252
+#: components/elfie/elfie-vitals-tab.tsx:254
 msgid "mI3ywe"
 msgstr ""
 
@@ -484,34 +614,6 @@ msgstr "Téléversement..."
 #: components/new-consultation-dialog.tsx:220
 msgid "iNHvrU"
 msgstr "Téléverser et traiter"
-
-#: components/scribe/consultation-card.tsx:64
-msgid "XOBOTM"
-msgstr "Consultation archivée"
-
-#: components/scribe/consultation-card.tsx:65
-msgid "sJKt39"
-msgstr "Échec de l'archivage de la consultation"
-
-#: components/scribe/consultation-card.tsx:71
-msgid "YFqZph"
-msgstr "Consultation supprimée"
-
-#: components/scribe/consultation-card.tsx:72
-msgid "x297rU"
-msgstr "Échec de la suppression de la consultation"
-
-#: components/scribe/consultation-card.tsx:102
-msgid "hrgo+E"
-msgstr "Archiver"
-
-#: components/scribe/consultation-card.tsx:135
-msgid "Y0pMB6"
-msgstr "Supprimer la consultation ?"
-
-#: components/scribe/consultation-card.tsx:137
-msgid "P2jK4q"
-msgstr "Cette action supprimera définitivement cette consultation et toutes ses données. Cette action est irréversible."
 
 #: components/scribe/recording-controls.tsx:37
 msgid "xbQgN4"
@@ -788,10 +890,6 @@ msgstr "Échec de la nouvelle tentative"
 msgid "VwEw0a"
 msgstr "Réessayer les échecs"
 
-#: components/upload-processing-view.tsx:363
-msgid "9a9+ww"
-msgstr "Titre"
-
 #: components/upload-processing-view.tsx:366
 msgid "TiaHwd"
 msgstr "Titre de la consultation"
@@ -855,10 +953,6 @@ msgstr "Retour aux consultations"
 #: components/upload-processing-view.tsx:647
 msgid "kFd8T3"
 msgstr "En attente du début de la transcription..."
-
-#: components/upload-processing-view.tsx:658
-msgid "1Ia8qN"
-msgstr "Traitement"
 
 #: components/upload-processing-view.tsx:673
 msgid "fAsQ0N"

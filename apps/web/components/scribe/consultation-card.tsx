@@ -2,7 +2,16 @@
 
 import { useState } from "react"
 import { useExtracted } from "next-intl"
-import { Archive, ChevronRight, MoreHorizontal, Trash2 } from "lucide-react"
+import {
+  AlertTriangle,
+  Archive,
+  ChevronRight,
+  Mic,
+  MoreHorizontal,
+  Trash2,
+  Upload,
+  User,
+} from "lucide-react"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
@@ -28,6 +37,13 @@ import {
   AlertDialogTitle,
 } from "@workspace/ui/components/alert-dialog"
 import { Button } from "@workspace/ui/components/button"
+import { Progress } from "@workspace/ui/components/progress"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@workspace/ui/components/tooltip"
 import { StatusBadge } from "@/components/status-badge"
 import {
   useArchiveConsultation,
@@ -42,6 +58,31 @@ interface ConsultationCardProps {
   language: string
   status: string
   createdAt: string
+  patientIdentifier?: string | null
+  mode?: string
+  processingProgress?: number
+  processingStep?: string | null
+  errorMessage?: string | null
+}
+
+function formatRelativeTime(dateStr: string): string {
+  const now = Date.now()
+  const date = new Date(dateStr).getTime()
+  const diffMs = now - date
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHr = Math.floor(diffMin / 60)
+  const diffDay = Math.floor(diffHr / 24)
+
+  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" })
+
+  if (diffDay > 30) {
+    return new Date(dateStr).toLocaleDateString()
+  }
+  if (diffDay >= 1) return rtf.format(-diffDay, "day")
+  if (diffHr >= 1) return rtf.format(-diffHr, "hour")
+  if (diffMin >= 1) return rtf.format(-diffMin, "minute")
+  return rtf.format(0, "second")
 }
 
 export function ConsultationCard({
@@ -50,6 +91,11 @@ export function ConsultationCard({
   language,
   status,
   createdAt,
+  patientIdentifier,
+  mode,
+  processingProgress,
+  processingStep,
+  errorMessage,
 }: ConsultationCardProps) {
   const t = useExtracted()
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -57,6 +103,8 @@ export function ConsultationCard({
   const deleteConsultation = useDeleteConsultation()
 
   const isArchived = status === "archived"
+  const isProcessing = status === "processing"
+  const hasError = status === "failed" || status === "completed_with_errors"
 
   function handleArchive(e: React.MouseEvent) {
     e.preventDefault()
@@ -76,14 +124,21 @@ export function ConsultationCard({
   return (
     <>
       <Link href={`/consultations/${id}`}>
-        <Card className="group cursor-pointer transition-all hover:border-primary/30 hover:shadow-sm">
+        <Card className="group h-full cursor-pointer transition-all hover:border-primary/30 hover:shadow-sm">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">
-                {title || t("New Consultation")}
-              </CardTitle>
-              <div className="flex items-center gap-1">
-                <StatusBadge status={status} />
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="truncate text-base">
+                  {title || t("New Consultation")}
+                </CardTitle>
+                {patientIdentifier && (
+                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                    <User className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{patientIdentifier}</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -119,12 +174,54 @@ export function ConsultationCard({
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
               </div>
             </div>
-            <CardDescription>
-              {new Date(createdAt).toLocaleDateString()}
-            </CardDescription>
+            <div className="flex items-center gap-2">
+              <StatusBadge status={status} />
+              <span className="text-sm text-muted-foreground">
+                {formatRelativeTime(createdAt)}
+              </span>
+            </div>
           </CardHeader>
-          <CardContent>
-            <Badge variant="outline">{language}</Badge>
+          <CardContent className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Badge variant="outline">{language}</Badge>
+              {mode && (
+                <Badge variant="outline" className="gap-1">
+                  {mode === "upload" ? (
+                    <Upload className="h-3 w-3" />
+                  ) : (
+                    <Mic className="h-3 w-3" />
+                  )}
+                  {mode === "upload" ? t("Upload") : t("Live")}
+                </Badge>
+              )}
+              {hasError && errorMessage && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className="inline-flex"
+                        onClick={(e) => e.preventDefault()}
+                      >
+                        <AlertTriangle className="h-4 w-4 text-destructive" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{errorMessage}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
+            {isProcessing && (
+              <div className="space-y-1">
+                <Progress value={processingProgress ?? 0} />
+                {processingStep && (
+                  <p className="text-xs capitalize text-muted-foreground">
+                    {processingStep}
+                  </p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </Link>

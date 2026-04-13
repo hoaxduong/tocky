@@ -9,10 +9,14 @@ export function ConsultationCardSkeleton() {
           <Skeleton className="h-5 w-32" />
           <Skeleton className="h-5 w-16 rounded-full" />
         </div>
+        <Skeleton className="mt-1 h-3.5 w-20" />
         <Skeleton className="mt-1 h-4 w-24" />
       </CardHeader>
       <CardContent>
-        <Skeleton className="h-5 w-12 rounded-full" />
+        <div className="flex items-center gap-1.5">
+          <Skeleton className="h-5 w-14 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
       </CardContent>
     </Card>
   )
@@ -32,7 +36,10 @@ export function StatsCardSkeleton() {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <Skeleton className="h-4 w-28" />
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-5 w-5 rounded" />
+        </div>
       </CardHeader>
       <CardContent>
         <Skeleton className="h-8 w-12" />
@@ -43,10 +50,24 @@ export function StatsCardSkeleton() {
 
 export function StatsGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      {Array.from({ length: 3 }).map((_, i) => (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
         <StatsCardSkeleton key={i} />
       ))}
+    </div>
+  )
+}
+
+export function ConsultationToolbarSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <Skeleton className="h-9 w-full sm:max-w-xs" />
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-32" />
+        <Skeleton className="h-9 w-9" />
+        <Skeleton className="h-9 w-9" />
+      </div>
     </div>
   )
 }
