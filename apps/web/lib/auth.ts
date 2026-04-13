@@ -14,10 +14,7 @@ interface SessionData {
   user: UserData
 }
 
-async function authFetch<T>(
-  path: string,
-  options?: RequestInit,
-): Promise<T> {
+async function authFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API}${path}`, {
     ...options,
     credentials: "include",
@@ -36,7 +33,7 @@ async function authFetch<T>(
 
 export async function signIn(
   email: string,
-  password: string,
+  password: string
 ): Promise<SessionData> {
   return authFetch<SessionData>("/api/v1/auth/sign-in", {
     method: "POST",
@@ -47,7 +44,7 @@ export async function signIn(
 export async function signUp(
   name: string,
   email: string,
-  password: string,
+  password: string
 ): Promise<SessionData> {
   return authFetch<SessionData>("/api/v1/auth/sign-up", {
     method: "POST",

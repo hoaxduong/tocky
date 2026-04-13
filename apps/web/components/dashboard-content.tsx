@@ -53,7 +53,8 @@ export function DashboardContent() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">
-                {data?.items.filter((c) => c.status === "recording").length ?? 0}
+                {data?.items.filter((c) => c.status === "recording").length ??
+                  0}
               </p>
             </CardContent>
           </Card>
@@ -65,7 +66,8 @@ export function DashboardContent() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">
-                {data?.items.filter((c) => c.status === "completed").length ?? 0}
+                {data?.items.filter((c) => c.status === "completed").length ??
+                  0}
               </p>
             </CardContent>
           </Card>

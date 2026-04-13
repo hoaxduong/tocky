@@ -20,6 +20,18 @@ class Consultation(Base):
     processing_step: Mapped[str | None] = mapped_column(String(50))
     processing_progress: Mapped[int] = mapped_column(Integer, default=0)
     error_message: Mapped[str | None] = mapped_column(Text)
+
+    # Final stitched audio (populated on finalize)
+    full_audio_oss_key: Mapped[str | None] = mapped_column(String(500))
+    full_audio_duration_ms: Mapped[int | None] = mapped_column()
+
+    # Transcription checkpoint: converted PCM persisted to OSS so a run that
+    # fails mid-transcription can re-transcribe only the chunks flagged
+    # STATUS_FAILED_TRANSCRIPTION in the transcripts table, without a
+    # re-upload.
+    pcm_audio_oss_key: Mapped[str | None] = mapped_column(String(500))
+    pcm_audio_size_bytes: Mapped[int | None] = mapped_column(Integer)
+
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

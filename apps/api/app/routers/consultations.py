@@ -182,6 +182,7 @@ async def upload_audio(
     await db.refresh(consultation)
 
     dashscope_client = request.app.state.dashscope_client
+    oss_client = request.app.state.oss_client
     event_registry: EventQueueRegistry = request.app.state.event_registry
     db_session_factory = database.async_session_factory
     assert db_session_factory is not None
@@ -195,9 +196,7 @@ async def upload_audio(
             # Conversion failed — mark consultation as failed and clean up
             async with db_session_factory() as sess:
                 result = await sess.execute(
-                    select(Consultation).where(
-                        Consultation.id == consultation_id
-                    )
+                    select(Consultation).where(Consultation.id == consultation_id)
                 )
                 c = result.scalar_one()
                 c.status = "failed"
@@ -209,9 +208,7 @@ async def upload_audio(
                 StatusEvent(
                     data={
                         "status": "failed",
-                        "error_message": f"Audio conversion failed: {e!s}"[
-                            :500
-                        ],
+                        "error_message": f"Audio conversion failed: {e!s}"[:500],
                     }
                 ),
             )
@@ -223,6 +220,7 @@ async def upload_audio(
             model_client=dashscope_client,
             db_session_factory=db_session_factory,
             event_registry=event_registry,
+            oss_client=oss_client,
         )
         await processor.process(pcm_audio)
 
@@ -272,6 +270,7 @@ async def retry_processing(
     await db.refresh(consultation)
 
     dashscope_client = request.app.state.dashscope_client
+    oss_client = request.app.state.oss_client
     event_registry: EventQueueRegistry = request.app.state.event_registry
     db_session_factory = database.async_session_factory
     assert db_session_factory is not None
@@ -284,6 +283,7 @@ async def retry_processing(
             model_client=dashscope_client,
             db_session_factory=db_session_factory,
             event_registry=event_registry,
+            oss_client=oss_client,
         )
         await processor.resume()
 

@@ -13,7 +13,7 @@ interface UseAudioRecorderReturn {
 }
 
 export function useAudioRecorder(
-  onAudioChunk: (chunk: string, sequence: number, timestampMs: number) => void,
+  onAudioChunk: (chunk: string, sequence: number, timestampMs: number) => void
 ): UseAudioRecorderReturn {
   const [isRecording, setIsRecording] = useState(false)
   const [audioLevel, setAudioLevel] = useState(0)
@@ -32,7 +32,7 @@ export function useAudioRecorder(
 
     const totalLength = bufferRef.current.reduce(
       (sum, buf) => sum + buf.length,
-      0,
+      0
     )
     const merged = new Float32Array(totalLength)
     let offset = 0
@@ -118,7 +118,7 @@ export function useAudioRecorder(
       setIsRecording(true)
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to access microphone",
+        err instanceof Error ? err.message : "Failed to access microphone"
       )
     }
   }, [flushBuffer])

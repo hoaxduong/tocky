@@ -89,7 +89,7 @@ export function ConsultationCard({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-muted-foreground h-7 w-7 opacity-0 group-hover:opacity-100"
+                      className="h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100"
                       onClick={(e) => e.preventDefault()}
                     >
                       <MoreHorizontal className="h-4 w-4" />
@@ -116,7 +116,7 @@ export function ConsultationCard({
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <ChevronRight className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
               </div>
             </div>
             <CardDescription>
@@ -132,12 +132,10 @@ export function ConsultationCard({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t("Delete Consultation?")}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{t("Delete Consultation?")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t(
-                "This will permanently delete this consultation and all its data. This action cannot be undone.",
+                "This will permanently delete this consultation and all its data. This action cannot be undone."
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -145,7 +143,7 @@ export function ConsultationCard({
             <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
             >
               {t("Delete")}
             </AlertDialogAction>

@@ -15,7 +15,7 @@ export function ConsultationsList() {
   const { data, isLoading } = useConsultations(
     0,
     50,
-    tab === "archived" ? "archived" : undefined,
+    tab === "archived" ? "archived" : undefined
   )
 
   return (
