@@ -26,6 +26,7 @@ from app.services.event_queue import (
     TranscriptSegmentEvent,
 )
 from app.services.oss_client import OSSClient
+from app.services.streaming_stt import StreamingSTTClient, STTSegment
 
 logger = logging.getLogger(__name__)
 
@@ -41,12 +42,14 @@ class BatchAudioProcessor:
         db_session_factory: async_sessionmaker[AsyncSession],
         event_registry: EventQueueRegistry | None = None,
         oss_client: OSSClient | None = None,
+        streaming_stt: StreamingSTTClient | None = None,
     ):
         self.consultation_id = consultation_id
         self.model_client = model_client
         self.db_session_factory = db_session_factory
         self.event_registry = event_registry
         self.oss_client = oss_client
+        self.streaming_stt = streaming_stt
 
     # ------------------------------------------------------------------
     # Public entry points
@@ -59,90 +62,21 @@ class BatchAudioProcessor:
             # retry only the failed chunks without a re-upload.
             await self._persist_pcm_checkpoint(pcm_audio)
 
-            chunks = [
-                pcm_audio[i : i + CHUNK_BYTES]
-                for i in range(0, len(pcm_audio), CHUNK_BYTES)
-            ]
-            total_chunks = len(chunks)
+            total_bytes = len(pcm_audio)
             logger.info(
-                "Consultation %s: %d bytes PCM, %d chunks",
+                "Consultation %s: %d bytes PCM (%.1fs)",
                 self.consultation_id,
-                len(pcm_audio),
-                total_chunks,
+                total_bytes,
+                total_bytes / 32000,
             )
 
             # --- Transcribe (per-segment persist) ---
             await self._update_progress("transcribing", 0)
-            seq = 0
-            for i, chunk in enumerate(chunks):
-                logger.debug(
-                    "Consultation %s: transcribing chunk %d/%d (%d bytes)",
-                    self.consultation_id,
-                    i + 1,
-                    total_chunks,
-                    len(chunk),
-                )
-                try:
-                    text = await self.model_client.transcribe_audio(chunk, "auto")
-                    logger.debug(
-                        "Consultation %s: chunk %d returned %d chars: %s",
-                        self.consultation_id,
-                        i + 1,
-                        len(text),
-                        text[:200],
-                    )
-                    if text.strip():
-                        seq += 1
-                        await self._persist_segment(
-                            sequence=seq,
-                            text=text,
-                            status=STATUS_TRANSCRIBED,
-                            language="pending",
-                            timestamp_start_ms=i * 5000,
-                            timestamp_end_ms=(i + 1) * 5000,
-                        )
-                        self._push(
-                            TranscriptSegmentEvent(
-                                data={
-                                    "sequence": seq,
-                                    "text": text,
-                                    "timestamp_start_ms": i * 5000,
-                                    "timestamp_end_ms": (i + 1) * 5000,
-                                }
-                            )
-                        )
-                except Exception as e:
-                    logger.warning(
-                        "Consultation %s: chunk %d transcription failed: %s",
-                        self.consultation_id,
-                        i + 1,
-                        e,
-                    )
-                    seq += 1
-                    await self._persist_segment(
-                        sequence=seq,
-                        text="",
-                        status=STATUS_FAILED_TRANSCRIPTION,
-                        language="pending",
-                        timestamp_start_ms=i * 5000,
-                        timestamp_end_ms=(i + 1) * 5000,
-                        error_message=str(e)[:500],
-                    )
-                    self._push(
-                        SegmentFailedEvent(
-                            data={
-                                "sequence": seq,
-                                "step": "transcription",
-                                "error_message": str(e)[:500],
-                            }
-                        )
-                    )
 
-                progress = int(((i + 1) / total_chunks) * 45)
-                await self._update_progress("transcribing", progress)
-                self._push(
-                    ProgressEvent(data={"step": "transcribing", "progress": progress})
-                )
+            if self.streaming_stt is not None:
+                await self._transcribe_streaming(pcm_audio, total_bytes)
+            else:
+                await self._transcribe_chunked(pcm_audio, total_bytes)
 
             logger.info("Consultation %s: transcription done", self.consultation_id)
 
@@ -156,20 +90,44 @@ class BatchAudioProcessor:
     async def resume(self) -> None:
         """Resume processing from where it left off.
 
-        Re-transcribes any chunks flagged STATUS_FAILED_TRANSCRIPTION if the
-        PCM checkpoint is still in OSS, then continues with the post-
-        transcription pipeline. Requires transcripts to already exist.
+        If streaming STT is available and no transcripts exist, re-streams
+        from the PCM checkpoint.  Otherwise re-transcribes failed chunks
+        (legacy path) and continues with the post-transcription pipeline.
         """
         try:
             async with self.db_session_factory() as db:
                 result = await db.execute(
                     select(func.count())
                     .select_from(Transcript)
-                    .where(Transcript.consultation_id == self.consultation_id)
+                    .where(
+                        Transcript.consultation_id == self.consultation_id,
+                        Transcript.status == STATUS_TRANSCRIBED,
+                    )
                 )
-                count = result.scalar_one()
+                transcribed_count = result.scalar_one()
 
-            if count == 0:
+            if transcribed_count == 0 and self.streaming_stt is not None:
+                # No successful transcripts — re-stream entire file
+                pcm_audio = await self._load_pcm_checkpoint()
+                if pcm_audio is None:
+                    raise ValueError(
+                        "No PCM checkpoint and no transcripts. "
+                        "Please re-upload the audio file."
+                    )
+                # Clear any partial/failed segments before re-processing
+                async with self.db_session_factory() as db:
+                    from sqlalchemy import delete
+
+                    await db.execute(
+                        delete(Transcript).where(
+                            Transcript.consultation_id == self.consultation_id
+                        )
+                    )
+                    await db.commit()
+                await self.process(pcm_audio)
+                return
+
+            if transcribed_count == 0:
                 raise ValueError(
                     "No transcripts found. Please re-upload the audio file."
                 )
@@ -299,9 +257,150 @@ class BatchAudioProcessor:
             c.pcm_audio_size_bytes = len(pcm_audio)
             await db.commit()
 
+    async def _load_pcm_checkpoint(self) -> bytes | None:
+        """Download PCM from OSS checkpoint. Returns None if unavailable."""
+        if self.oss_client is None:
+            return None
+        async with self.db_session_factory() as db:
+            result = await db.execute(
+                select(Consultation).where(Consultation.id == self.consultation_id)
+            )
+            consultation = result.scalar_one()
+            pcm_key = consultation.pcm_audio_oss_key
+        if pcm_key is None:
+            return None
+        try:
+            return await asyncio.to_thread(self.oss_client.download_object, pcm_key)
+        except Exception:
+            logger.exception(
+                "Consultation %s: failed to load PCM checkpoint",
+                self.consultation_id,
+            )
+            return None
+
     # ------------------------------------------------------------------
     # Shared pipeline stages (used by both process() and resume())
     # ------------------------------------------------------------------
+
+    async def _transcribe_streaming(self, pcm_audio: bytes, total_bytes: int) -> None:
+        """Stream PCM through DashScope real-time ASR WebSocket."""
+        assert self.streaming_stt is not None
+        seq = 0
+
+        async def on_segment(segment: STTSegment) -> None:
+            nonlocal seq
+            if not segment.text.strip():
+                return
+            seq += 1
+            await self._persist_segment(
+                sequence=seq,
+                text=segment.text,
+                status=STATUS_TRANSCRIBED,
+                language="pending",
+                timestamp_start_ms=segment.timestamp_start_ms,
+                timestamp_end_ms=segment.timestamp_end_ms,
+                emotion=segment.emotion,
+            )
+            self._push(
+                TranscriptSegmentEvent(
+                    data={
+                        "sequence": seq,
+                        "text": segment.text,
+                        "timestamp_start_ms": segment.timestamp_start_ms,
+                        "timestamp_end_ms": segment.timestamp_end_ms,
+                        "emotion": segment.emotion,
+                    }
+                )
+            )
+
+        async def on_progress(bytes_consumed: int) -> None:
+            progress = int((bytes_consumed / total_bytes) * 45)
+            await self._update_progress("transcribing", progress)
+            self._push(
+                ProgressEvent(data={"step": "transcribing", "progress": progress})
+            )
+
+        await self.streaming_stt.transcribe_stream(
+            pcm_audio, "auto", on_segment, on_progress
+        )
+
+    async def _transcribe_chunked(self, pcm_audio: bytes, total_bytes: int) -> None:
+        """Legacy: split PCM into fixed 5-second chunks and transcribe each."""
+        chunks = [
+            pcm_audio[i : i + CHUNK_BYTES] for i in range(0, total_bytes, CHUNK_BYTES)
+        ]
+        total_chunks = len(chunks)
+        seq = 0
+
+        for i, chunk in enumerate(chunks):
+            logger.debug(
+                "Consultation %s: transcribing chunk %d/%d (%d bytes)",
+                self.consultation_id,
+                i + 1,
+                total_chunks,
+                len(chunk),
+            )
+            try:
+                text = await self.model_client.transcribe_audio(chunk, "auto")
+                logger.debug(
+                    "Consultation %s: chunk %d returned %d chars: %s",
+                    self.consultation_id,
+                    i + 1,
+                    len(text),
+                    text[:200],
+                )
+                if text.strip():
+                    seq += 1
+                    await self._persist_segment(
+                        sequence=seq,
+                        text=text,
+                        status=STATUS_TRANSCRIBED,
+                        language="pending",
+                        timestamp_start_ms=i * 5000,
+                        timestamp_end_ms=(i + 1) * 5000,
+                    )
+                    self._push(
+                        TranscriptSegmentEvent(
+                            data={
+                                "sequence": seq,
+                                "text": text,
+                                "timestamp_start_ms": i * 5000,
+                                "timestamp_end_ms": (i + 1) * 5000,
+                            }
+                        )
+                    )
+            except Exception as e:
+                logger.warning(
+                    "Consultation %s: chunk %d transcription failed: %s",
+                    self.consultation_id,
+                    i + 1,
+                    e,
+                )
+                seq += 1
+                await self._persist_segment(
+                    sequence=seq,
+                    text="",
+                    status=STATUS_FAILED_TRANSCRIPTION,
+                    language="pending",
+                    timestamp_start_ms=i * 5000,
+                    timestamp_end_ms=(i + 1) * 5000,
+                    error_message=str(e)[:500],
+                )
+                self._push(
+                    SegmentFailedEvent(
+                        data={
+                            "sequence": seq,
+                            "step": "transcription",
+                            "error_message": str(e)[:500],
+                        }
+                    )
+                )
+
+            progress = int(((i + 1) / total_chunks) * 45)
+            await self._update_progress("transcribing", progress)
+            self._push(
+                ProgressEvent(data={"step": "transcribing", "progress": progress})
+            )
 
     async def _post_transcription_pipeline(self) -> None:
         """Run detection → classification → SOAP on persisted transcripts."""
@@ -405,8 +504,11 @@ class BatchAudioProcessor:
                 total_segs,
             )
             try:
+                classify_text = seg.text
+                if seg.emotion and seg.emotion != "neutral":
+                    classify_text = f"[Speaker emotion: {seg.emotion}] {seg.text}"
                 is_relevant = await self.model_client.classify_relevance(
-                    seg.text, detected_lang
+                    classify_text, detected_lang
                 )
                 async with self.db_session_factory() as db:
                     await db.execute(
@@ -498,7 +600,12 @@ class BatchAudioProcessor:
             )
             total_count = result.scalar_one()
 
-        relevant_texts = [seg.text for seg in relevant_segments]
+        relevant_texts = []
+        for seg in relevant_segments:
+            if seg.emotion and seg.emotion != "neutral":
+                relevant_texts.append(f"[{seg.emotion}] {seg.text}")
+            else:
+                relevant_texts.append(seg.text)
 
         logger.info(
             "Consultation %s: classification done, %d/%d relevant, %d failed",
@@ -608,6 +715,7 @@ class BatchAudioProcessor:
         timestamp_start_ms: int,
         timestamp_end_ms: int,
         error_message: str | None = None,
+        emotion: str | None = None,
     ) -> None:
         async with self.db_session_factory() as db:
             db.add(
@@ -620,6 +728,7 @@ class BatchAudioProcessor:
                     status=status,
                     error_message=error_message,
                     speaker_label=None,
+                    emotion=emotion,
                     timestamp_start_ms=timestamp_start_ms,
                     timestamp_end_ms=timestamp_end_ms,
                 )

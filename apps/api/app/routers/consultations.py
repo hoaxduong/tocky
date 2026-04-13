@@ -216,12 +216,14 @@ async def upload_audio(
             event_registry.remove_topic(consultation_id)
             return
 
+        streaming_stt = request.app.state.streaming_stt
         processor = BatchAudioProcessor(
             consultation_id=consultation_id,
             model_client=dashscope_client,
             db_session_factory=db_session_factory,
             event_registry=event_registry,
             oss_client=oss_client,
+            streaming_stt=streaming_stt,
         )
         await processor.process(pcm_audio)
 
@@ -279,12 +281,14 @@ async def retry_processing(
     event_registry.create_topic(consultation_id)
 
     async def _retry() -> None:
+        streaming_stt = request.app.state.streaming_stt
         processor = BatchAudioProcessor(
             consultation_id=consultation_id,
             model_client=dashscope_client,
             db_session_factory=db_session_factory,
             event_registry=event_registry,
             oss_client=oss_client,
+            streaming_stt=streaming_stt,
         )
         await processor.resume()
 

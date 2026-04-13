@@ -25,6 +25,7 @@ class Transcript(Base):
     status: Mapped[str] = mapped_column(String(30), default=STATUS_TRANSCRIBED)
     error_message: Mapped[str | None] = mapped_column(Text)
     speaker_label: Mapped[str | None] = mapped_column(String(20))
+    emotion: Mapped[str | None] = mapped_column(String(20))
     timestamp_start_ms: Mapped[int]
     timestamp_end_ms: Mapped[int]
     created_at: Mapped[datetime] = mapped_column(

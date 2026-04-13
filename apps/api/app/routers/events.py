@@ -90,6 +90,7 @@ def _transcript_to_sse(t: Transcript) -> list[str]:
                     "text": t.text,
                     "timestamp_start_ms": t.timestamp_start_ms,
                     "timestamp_end_ms": t.timestamp_end_ms,
+                    "emotion": t.emotion,
                 },
             )
         )

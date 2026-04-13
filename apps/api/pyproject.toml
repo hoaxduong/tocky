@@ -11,6 +11,7 @@ dependencies = [
     "alembic",
     "httpx",
     "oss2",
+    "websockets>=16.0",
     "pyjwt",
     "bcrypt>=5.0.0",
     "cryptography>=46.0.7",

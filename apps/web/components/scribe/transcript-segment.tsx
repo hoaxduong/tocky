@@ -5,6 +5,16 @@ import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
 import { AlertCircle } from "lucide-react"
 
+const EMOTION_CONFIG: Record<string, { emoji: string; className: string }> = {
+  // DashScope returns these labels from qwen3-asr-flash-realtime
+  happy: { emoji: "\u{1F60A}", className: "text-yellow-600 dark:text-yellow-400" },
+  sad: { emoji: "\u{1F622}", className: "text-blue-600 dark:text-blue-400" },
+  angry: { emoji: "\u{1F621}", className: "text-red-600 dark:text-red-400" },
+  fearful: { emoji: "\u{1F628}", className: "text-purple-600 dark:text-purple-400" },
+  surprised: { emoji: "\u{1F632}", className: "text-orange-600 dark:text-orange-400" },
+  disgusted: { emoji: "\u{1F616}", className: "text-green-600 dark:text-green-400" },
+}
+
 interface TranscriptSegmentProps {
   text: string
   isMedicallyRelevant: boolean
@@ -12,6 +22,7 @@ interface TranscriptSegmentProps {
   sequence: number
   status?: string
   errorMessage?: string | null
+  emotion?: string | null
   isActive?: boolean
   onClick?: () => void
 }
@@ -23,6 +34,7 @@ export function TranscriptSegmentItem({
   sequence,
   status = "classified",
   errorMessage,
+  emotion,
   isActive,
   onClick,
 }: TranscriptSegmentProps) {
@@ -30,6 +42,7 @@ export function TranscriptSegmentItem({
 
   const isFailed = status === "failed_transcription" || status === "failed_classification"
   const isPending = status === "transcribed"
+  const emotionInfo = emotion && emotion !== "neutral" ? EMOTION_CONFIG[emotion] : null
 
   return (
     <div
@@ -72,6 +85,14 @@ export function TranscriptSegmentItem({
           >
             {isMedicallyRelevant ? t("Relevant") : t("Small Talk")}
           </Badge>
+        )}
+        {emotionInfo && (
+          <span
+            className={cn("text-xs", emotionInfo.className)}
+            title={emotion ?? undefined}
+          >
+            {emotionInfo.emoji}
+          </span>
         )}
       </div>
       {status === "failed_transcription" ? (

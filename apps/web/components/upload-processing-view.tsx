@@ -66,6 +66,7 @@ interface TranscriptSegment {
   status: string
   error_message: string | null
   speaker_label: string | null
+  emotion: string | null
   timestamp_start_ms: number
   timestamp_end_ms: number
 }
@@ -391,6 +392,7 @@ export function UploadProcessingView({
                   sequence={seg.sequence_number}
                   status={seg.status}
                   errorMessage={seg.error_message}
+                  emotion={seg.emotion}
                   isActive={seg.id === activeSegmentId}
                   onClick={
                     audio?.url && seg.timestamp_start_ms > 0
@@ -520,6 +522,7 @@ export function UploadProcessingView({
                     sequence={seg.sequence_number}
                     status={seg.status}
                     errorMessage={seg.error_message}
+                    emotion={seg.emotion}
                   />
                 ))}
               </div>
@@ -603,6 +606,7 @@ export function UploadProcessingView({
                         sequence={seg.sequence}
                         status={seg.status}
                         errorMessage={seg.errorMessage}
+                        emotion={seg.emotion}
                       />
                     </div>
                   ))}

@@ -12,6 +12,7 @@ class TranscriptSegment(BaseModel):
     status: str
     error_message: str | None
     speaker_label: str | None
+    emotion: str | None
     timestamp_start_ms: int
     timestamp_end_ms: int
 

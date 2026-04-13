@@ -58,12 +58,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     if settings.sandbox_ai:
         from app.services.sandbox_client import SandboxAIClient
+        from app.services.sandbox_streaming_stt import SandboxStreamingSTT
 
         app.state.dashscope_client = SandboxAIClient(
             latency=settings.sandbox_ai_latency,
         )
+        app.state.streaming_stt = SandboxStreamingSTT(
+            latency=settings.sandbox_ai_latency,
+        )
         logger.info("Sandbox AI mode \u2014 no real API calls")
     else:
+        from app.services.streaming_stt import DashScopeStreamingSTT
+
         app.state.dashscope_client = DashScopeClient(
             base_url=settings.dashscope_base_url,
             api_key=settings.dashscope_api_key,
@@ -72,6 +78,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             soap_model=settings.qwen_soap_model or fallback,
             extraction_model=settings.qwen_extraction_model or fallback,
             prompt_registry=prompt_registry,
+        )
+        app.state.streaming_stt = DashScopeStreamingSTT(
+            api_key=settings.dashscope_api_key,
+            ws_base_url=settings.dashscope_ws_base_url,
+            model=settings.qwen_streaming_asr_model,
+            vad_threshold=settings.vad_threshold,
+            vad_silence_ms=settings.vad_silence_duration_ms,
+            vad_prefix_ms=settings.vad_prefix_padding_ms,
         )
 
     if settings.oss_endpoint:

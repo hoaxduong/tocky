@@ -22,6 +22,7 @@ export interface StreamedSegment {
   errorMessage: string | null
   timestampStartMs: number
   timestampEndMs: number
+  emotion: string | null
 }
 
 export interface ProcessingProgress {
@@ -60,6 +61,7 @@ function reducer(state: State, action: Action): State {
         errorMessage: null,
         timestampStartMs: d.timestamp_start_ms as number,
         timestampEndMs: d.timestamp_end_ms as number,
+        emotion: (d.emotion as string) ?? null,
       })
       return { ...state, segments: next }
     }
@@ -86,6 +88,7 @@ function reducer(state: State, action: Action): State {
         isMedicallyRelevant: existing?.isMedicallyRelevant ?? false,
         timestampStartMs: existing?.timestampStartMs ?? 0,
         timestampEndMs: existing?.timestampEndMs ?? 0,
+        emotion: existing?.emotion ?? null,
         status:
           d.step === "transcription"
             ? "failed_transcription"

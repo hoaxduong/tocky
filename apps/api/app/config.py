@@ -44,6 +44,15 @@ class Settings(BaseSettings):
     audio_buffer_seconds: float = 5.0
     soap_update_interval_seconds: float = 30.0
 
+    # DashScope Streaming ASR (real-time transcription via WebSocket)
+    dashscope_ws_base_url: str = "wss://dashscope-intl.aliyuncs.com"
+    qwen_streaming_asr_model: str = "qwen3-asr-flash-realtime"
+
+    # Server VAD turn detection tuning
+    vad_threshold: float = 0.5
+    vad_silence_duration_ms: int = 1200
+    vad_prefix_padding_ms: int = 300
+
     # Sandbox mode (bypass DashScope with fake AI responses)
     sandbox_ai: bool = False
     sandbox_ai_latency: float = 0.2
