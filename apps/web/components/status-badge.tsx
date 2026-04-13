@@ -26,6 +26,11 @@ const STATUS_CONFIG: Record<
     pulse: true,
   },
   completed: { variant: "default" },
+  completed_with_errors: {
+    variant: "outline",
+    className:
+      "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  },
   failed: {
     variant: "outline",
     className:

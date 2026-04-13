@@ -1,8 +1,9 @@
+import asyncio
+import logging
 import uuid
 
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     HTTPException,
     Request,
     Response,
@@ -13,6 +14,7 @@ from sqlalchemy import func, select
 
 from app import database
 from app.db_models.consultation import Consultation
+from app.db_models.transcript import Transcript
 from app.dependencies import CurrentUserDep, DbSessionDep
 from app.models.consultation import (
     ConsultationCreate,
@@ -22,6 +24,9 @@ from app.models.consultation import (
 )
 from app.services.audio_converter import convert_to_pcm, validate_audio_file
 from app.services.batch_audio_processor import BatchAudioProcessor
+from app.services.event_queue import EventQueueRegistry, StatusEvent
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
@@ -154,7 +159,6 @@ async def upload_audio(
     request: Request,
     db: DbSessionDep,
     user: CurrentUserDep,
-    background_tasks: BackgroundTasks,
 ):
     consultation = await _get_user_consultation(db, consultation_id, user["id"])
     if consultation.mode != "upload":
@@ -178,19 +182,115 @@ async def upload_audio(
     await db.refresh(consultation)
 
     dashscope_client = request.app.state.dashscope_client
+    event_registry: EventQueueRegistry = request.app.state.event_registry
     db_session_factory = database.async_session_factory
     assert db_session_factory is not None
 
+    event_registry.create_topic(consultation_id)
+
     async def _process_upload() -> None:
-        pcm_audio = await convert_to_pcm(file_bytes)
+        try:
+            pcm_audio = await convert_to_pcm(file_bytes)
+        except Exception as e:
+            # Conversion failed — mark consultation as failed and clean up
+            async with db_session_factory() as sess:
+                result = await sess.execute(
+                    select(Consultation).where(
+                        Consultation.id == consultation_id
+                    )
+                )
+                c = result.scalar_one()
+                c.status = "failed"
+                c.processing_step = None
+                c.error_message = f"Audio conversion failed: {e!s}"[:1000]
+                await sess.commit()
+            event_registry.push(
+                consultation_id,
+                StatusEvent(
+                    data={
+                        "status": "failed",
+                        "error_message": f"Audio conversion failed: {e!s}"[
+                            :500
+                        ],
+                    }
+                ),
+            )
+            event_registry.remove_topic(consultation_id)
+            return
+
         processor = BatchAudioProcessor(
             consultation_id=consultation_id,
             model_client=dashscope_client,
             db_session_factory=db_session_factory,
+            event_registry=event_registry,
         )
         await processor.process(pcm_audio)
 
-    background_tasks.add_task(_process_upload)
+    task = asyncio.create_task(_process_upload())
+    # Hold a reference so GC doesn't collect the running task
+    request.app.state.background_tasks.add(task)
+    task.add_done_callback(request.app.state.background_tasks.discard)
+
+    return ConsultationResponse.model_validate(consultation)
+
+
+@router.post(
+    "/{consultation_id}/retry-processing",
+    response_model=ConsultationResponse,
+)
+async def retry_processing(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    consultation = await _get_user_consultation(db, consultation_id, user["id"])
+
+    if consultation.status not in ("failed", "completed_with_errors"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only retry failed or partially failed consultations",
+        )
+
+    # Check transcripts exist
+    result = await db.execute(
+        select(func.count())
+        .select_from(Transcript)
+        .where(Transcript.consultation_id == consultation_id)
+    )
+    transcript_count = result.scalar_one()
+    if transcript_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No transcripts found. Please re-upload the audio file.",
+        )
+
+    consultation.status = "processing"
+    consultation.error_message = None
+    consultation.processing_progress = 50
+    await db.commit()
+    await db.refresh(consultation)
+
+    dashscope_client = request.app.state.dashscope_client
+    event_registry: EventQueueRegistry = request.app.state.event_registry
+    db_session_factory = database.async_session_factory
+    assert db_session_factory is not None
+
+    event_registry.create_topic(consultation_id)
+
+    async def _retry() -> None:
+        processor = BatchAudioProcessor(
+            consultation_id=consultation_id,
+            model_client=dashscope_client,
+            db_session_factory=db_session_factory,
+            event_registry=event_registry,
+        )
+        await processor.resume()
+
+    task = asyncio.create_task(_retry())
+    request.app.state.background_tasks.add(task)
+    task.add_done_callback(request.app.state.background_tasks.discard)
+
     return ConsultationResponse.model_validate(consultation)
 
 

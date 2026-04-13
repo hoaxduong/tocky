@@ -12,12 +12,14 @@ from app.routers import (
     admin,
     auth,
     consultations,
+    events,
     health,
     scribe_ws,
     soap_notes,
     transcripts,
 )
 from app.services.dashscope_client import DashScopeClient
+from app.services.event_queue import EventQueueRegistry
 from app.services.prompt_registry import PromptRegistry
 
 
@@ -45,6 +47,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.prompt_registry = prompt_registry
 
     fallback = settings.qwen_model_name
+    app.state.event_registry = EventQueueRegistry()
+    app.state.background_tasks = set()  # prevent GC of asyncio tasks
+
     app.state.dashscope_client = DashScopeClient(
         base_url=settings.dashscope_base_url,
         api_key=settings.dashscope_api_key,
@@ -85,6 +90,7 @@ api_v1.include_router(auth.router)
 api_v1.include_router(consultations.router)
 api_v1.include_router(soap_notes.router)
 api_v1.include_router(transcripts.router)
+api_v1.include_router(events.router)
 api_v1.include_router(admin.router)
 app.include_router(api_v1)
 

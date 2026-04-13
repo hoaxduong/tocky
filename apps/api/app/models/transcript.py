@@ -9,6 +9,8 @@ class TranscriptSegment(BaseModel):
     text: str
     language: str
     is_medically_relevant: bool
+    status: str
+    error_message: str | None
     speaker_label: str | None
     timestamp_start_ms: int
     timestamp_end_ms: int

@@ -3,13 +3,27 @@ from __future__ import annotations
 import logging
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.db_models.consultation import Consultation
 from app.db_models.soap_note import SOAPNote
-from app.db_models.transcript import Transcript
+from app.db_models.transcript import (
+    STATUS_CLASSIFIED,
+    STATUS_FAILED_CLASSIFICATION,
+    STATUS_FAILED_TRANSCRIPTION,
+    STATUS_TRANSCRIBED,
+    Transcript,
+)
 from app.services.dashscope_client import DashScopeClient
+from app.services.event_queue import (
+    EventQueueRegistry,
+    ProgressEvent,
+    SegmentClassifiedEvent,
+    SegmentFailedEvent,
+    StatusEvent,
+    TranscriptSegmentEvent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,12 +37,19 @@ class BatchAudioProcessor:
         consultation_id: uuid.UUID,
         model_client: DashScopeClient,
         db_session_factory: async_sessionmaker[AsyncSession],
+        event_registry: EventQueueRegistry | None = None,
     ):
         self.consultation_id = consultation_id
         self.model_client = model_client
         self.db_session_factory = db_session_factory
+        self.event_registry = event_registry
+
+    # ------------------------------------------------------------------
+    # Public entry points
+    # ------------------------------------------------------------------
 
     async def process(self, pcm_audio: bytes) -> None:
+        """Full pipeline: chunk → transcribe → detect → classify → SOAP."""
         try:
             chunks = [
                 pcm_audio[i : i + CHUNK_BYTES]
@@ -42,9 +63,9 @@ class BatchAudioProcessor:
                 total_chunks,
             )
 
-            # --- Transcribe (auto-detect language) ---
+            # --- Transcribe (per-segment persist) ---
             await self._update_progress("transcribing", 0)
-            segments: list[dict] = []
+            seq = 0
             for i, chunk in enumerate(chunks):
                 logger.debug(
                     "Consultation %s: transcribing chunk %d/%d (%d bytes)",
@@ -53,139 +74,370 @@ class BatchAudioProcessor:
                     total_chunks,
                     len(chunk),
                 )
-                text = await self.model_client.transcribe_audio(chunk, "auto")
-                logger.debug(
-                    "Consultation %s: chunk %d returned %d chars: %s",
-                    self.consultation_id,
-                    i + 1,
-                    len(text),
-                    text[:200],
-                )
-                if text.strip():
-                    segments.append(
-                        {
-                            "sequence": len(segments) + 1,
-                            "text": text,
-                            "is_medically_relevant": False,
-                            "speaker_label": None,
-                            "timestamp_start_ms": i * 5000,
-                            "timestamp_end_ms": (i + 1) * 5000,
-                        }
+                try:
+                    text = await self.model_client.transcribe_audio(chunk, "auto")
+                    logger.debug(
+                        "Consultation %s: chunk %d returned %d chars: %s",
+                        self.consultation_id,
+                        i + 1,
+                        len(text),
+                        text[:200],
                     )
-                progress = int(((i + 1) / total_chunks) * 45)  # 0-45%
+                    if text.strip():
+                        seq += 1
+                        await self._persist_segment(
+                            sequence=seq,
+                            text=text,
+                            status=STATUS_TRANSCRIBED,
+                            language="pending",
+                            timestamp_start_ms=i * 5000,
+                            timestamp_end_ms=(i + 1) * 5000,
+                        )
+                        self._push(
+                            TranscriptSegmentEvent(
+                                data={
+                                    "sequence": seq,
+                                    "text": text,
+                                    "timestamp_start_ms": i * 5000,
+                                    "timestamp_end_ms": (i + 1) * 5000,
+                                }
+                            )
+                        )
+                except Exception as e:
+                    logger.warning(
+                        "Consultation %s: chunk %d transcription failed: %s",
+                        self.consultation_id,
+                        i + 1,
+                        e,
+                    )
+                    seq += 1
+                    await self._persist_segment(
+                        sequence=seq,
+                        text="",
+                        status=STATUS_FAILED_TRANSCRIPTION,
+                        language="pending",
+                        timestamp_start_ms=i * 5000,
+                        timestamp_end_ms=(i + 1) * 5000,
+                        error_message=str(e)[:500],
+                    )
+                    self._push(
+                        SegmentFailedEvent(
+                            data={
+                                "sequence": seq,
+                                "step": "transcription",
+                                "error_message": str(e)[:500],
+                            }
+                        )
+                    )
+
+                progress = int(((i + 1) / total_chunks) * 45)
                 await self._update_progress("transcribing", progress)
+                self._push(
+                    ProgressEvent(data={"step": "transcribing", "progress": progress})
+                )
 
-            logger.info(
-                "Consultation %s: transcription done, %d segments from %d chunks",
-                self.consultation_id,
-                len(segments),
-                total_chunks,
+            logger.info("Consultation %s: transcription done", self.consultation_id)
+
+            # Continue with detection → classification → SOAP
+            await self._post_transcription_pipeline()
+
+        except Exception as e:
+            logger.exception("Consultation %s: processing failed", self.consultation_id)
+            await self._finish("failed", str(e)[:1000])
+
+    async def resume(self) -> None:
+        """Resume processing from where it left off.
+
+        Requires transcripts to already exist in the DB.
+        """
+        try:
+            async with self.db_session_factory() as db:
+                result = await db.execute(
+                    select(func.count())
+                    .select_from(Transcript)
+                    .where(Transcript.consultation_id == self.consultation_id)
+                )
+                count = result.scalar_one()
+
+            if count == 0:
+                raise ValueError(
+                    "No transcripts found. Please re-upload the audio file."
+                )
+
+            await self._post_transcription_pipeline()
+
+        except Exception as e:
+            logger.exception("Consultation %s: resume failed", self.consultation_id)
+            await self._finish("failed", str(e)[:1000])
+
+    # ------------------------------------------------------------------
+    # Shared pipeline stages (used by both process() and resume())
+    # ------------------------------------------------------------------
+
+    async def _post_transcription_pipeline(self) -> None:
+        """Run detection → classification → SOAP on persisted transcripts."""
+
+        # --- Fetch transcribed segments ---
+        async with self.db_session_factory() as db:
+            result = await db.execute(
+                select(Transcript)
+                .where(
+                    Transcript.consultation_id == self.consultation_id,
+                    Transcript.status.in_([STATUS_TRANSCRIBED, STATUS_CLASSIFIED]),
+                )
+                .order_by(Transcript.sequence_number)
             )
+            good_segments = result.scalars().all()
 
-            full_transcript = "\n".join(seg["text"] for seg in segments)
+        if not good_segments:
+            # Check if there are ANY segments (all failed)
+            async with self.db_session_factory() as db:
+                result = await db.execute(
+                    select(func.count())
+                    .select_from(Transcript)
+                    .where(Transcript.consultation_id == self.consultation_id)
+                )
+                total = result.scalar_one()
 
-            # --- Detect language & extract metadata ---
-            await self._update_progress("detecting", 45)
-            if full_transcript.strip():
+            if total > 0:
+                await self._finish("failed", "All audio segments failed transcription")
+            else:
+                await self._finish("failed", "No audio segments to process")
+            return
+
+        full_transcript = "\n".join(seg.text for seg in good_segments if seg.text)
+
+        # --- Detect language & extract metadata (soft fail) ---
+        await self._update_progress("detecting", 45)
+        self._push(ProgressEvent(data={"step": "detecting", "progress": 45}))
+
+        detected_lang = "en"
+        if full_transcript.strip():
+            try:
                 detected_lang = await self.model_client.detect_language(full_transcript)
+            except Exception:
+                logger.warning(
+                    "Consultation %s: language detection failed, defaulting to 'en'",
+                    self.consultation_id,
+                )
+
+            metadata: dict = {"title": "", "patient_identifier": None}
+            try:
                 metadata = await self.model_client.extract_consultation_metadata(
                     full_transcript
                 )
-            else:
-                detected_lang = "en"
-                metadata = {"title": "", "patient_identifier": None}
+            except Exception:
+                logger.warning(
+                    "Consultation %s: metadata extraction failed",
+                    self.consultation_id,
+                )
 
-            logger.debug(
-                "Consultation %s: detected language=%s, title=%s",
-                self.consultation_id,
-                detected_lang,
-                metadata.get("title", ""),
-            )
-
-            # Update consultation with detected info
             await self._update_consultation_metadata(
                 language=detected_lang,
                 title=metadata.get("title", ""),
                 patient_identifier=metadata.get("patient_identifier"),
             )
 
-            # --- Classify relevance ---
-            await self._update_progress("classifying", 50)
-            relevant_texts: list[str] = []
-            total_segs = len(segments)
-            for i, seg in enumerate(segments):
-                logger.debug(
-                    "Consultation %s: classifying segment %d/%d",
-                    self.consultation_id,
-                    i + 1,
-                    total_segs,
+        # Update all transcript language fields
+        async with self.db_session_factory() as db:
+            await db.execute(
+                update(Transcript)
+                .where(
+                    Transcript.consultation_id == self.consultation_id,
+                    Transcript.language == "pending",
                 )
+                .values(language=detected_lang)
+            )
+            await db.commit()
+
+        # --- Classify relevance (per-segment error handling) ---
+        await self._update_progress("classifying", 50)
+        self._push(ProgressEvent(data={"step": "classifying", "progress": 50}))
+
+        async with self.db_session_factory() as db:
+            result = await db.execute(
+                select(Transcript)
+                .where(
+                    Transcript.consultation_id == self.consultation_id,
+                    Transcript.status.in_(
+                        [STATUS_TRANSCRIBED, STATUS_FAILED_CLASSIFICATION]
+                    ),
+                )
+                .order_by(Transcript.sequence_number)
+            )
+            to_classify = result.scalars().all()
+
+        total_segs = len(to_classify)
+        for i, seg in enumerate(to_classify):
+            logger.debug(
+                "Consultation %s: classifying segment %d/%d",
+                self.consultation_id,
+                i + 1,
+                total_segs,
+            )
+            try:
                 is_relevant = await self.model_client.classify_relevance(
-                    seg["text"], detected_lang
+                    seg.text, detected_lang
                 )
-                seg["is_medically_relevant"] = is_relevant
-                if is_relevant:
-                    relevant_texts.append(seg["text"])
+                async with self.db_session_factory() as db:
+                    await db.execute(
+                        update(Transcript)
+                        .where(Transcript.id == seg.id)
+                        .values(
+                            status=STATUS_CLASSIFIED,
+                            is_medically_relevant=is_relevant,
+                            error_message=None,
+                        )
+                    )
+                    await db.commit()
                 logger.debug(
                     "Consultation %s: segment %d → %s",
                     self.consultation_id,
-                    i + 1,
+                    seg.sequence_number,
                     "RELEVANT" if is_relevant else "IRRELEVANT",
                 )
-                progress = 50 + int(((i + 1) / max(total_segs, 1)) * 15)  # 50-65%
-                await self._update_progress("classifying", progress)
-            logger.info(
-                "Consultation %s: classification done, %d/%d relevant",
-                self.consultation_id,
-                len(relevant_texts),
-                total_segs,
-            )
-
-            # --- Persist transcripts ---
-            logger.debug(
-                "Consultation %s: persisting %d transcript segments",
-                self.consultation_id,
-                len(segments),
-            )
-            async with self.db_session_factory() as db:
-                for seg in segments:
-                    db.add(
-                        Transcript(
-                            consultation_id=self.consultation_id,
-                            sequence_number=seg["sequence"],
-                            text=seg["text"],
-                            language=detected_lang,
-                            is_medically_relevant=seg["is_medically_relevant"],
-                            speaker_label=seg["speaker_label"],
-                            timestamp_start_ms=seg["timestamp_start_ms"],
-                            timestamp_end_ms=seg["timestamp_end_ms"],
+                self._push(
+                    SegmentClassifiedEvent(
+                        data={
+                            "sequence": seg.sequence_number,
+                            "is_medically_relevant": is_relevant,
+                        }
+                    )
+                )
+            except Exception as e:
+                logger.warning(
+                    "Consultation %s: segment %d classification failed: %s",
+                    self.consultation_id,
+                    seg.sequence_number,
+                    e,
+                )
+                async with self.db_session_factory() as db:
+                    await db.execute(
+                        update(Transcript)
+                        .where(Transcript.id == seg.id)
+                        .values(
+                            status=STATUS_FAILED_CLASSIFICATION,
+                            error_message=str(e)[:500],
                         )
                     )
-                await db.commit()
+                    await db.commit()
+                self._push(
+                    SegmentFailedEvent(
+                        data={
+                            "sequence": seg.sequence_number,
+                            "step": "classification",
+                            "error_message": str(e)[:500],
+                        }
+                    )
+                )
 
-            # --- Generate SOAP ---
-            await self._update_progress("generating_soap", 65)
-            full_relevant = "\n".join(relevant_texts)
-            if full_relevant.strip():
+            progress = 50 + int(((i + 1) / max(total_segs, 1)) * 15)
+            await self._update_progress("classifying", progress)
+            self._push(
+                ProgressEvent(data={"step": "classifying", "progress": progress})
+            )
+
+        # --- Evaluate results ---
+        async with self.db_session_factory() as db:
+            result = await db.execute(
+                select(Transcript)
+                .where(
+                    Transcript.consultation_id == self.consultation_id,
+                    Transcript.status == STATUS_CLASSIFIED,
+                    Transcript.is_medically_relevant.is_(True),
+                )
+                .order_by(Transcript.sequence_number)
+            )
+            relevant_segments = result.scalars().all()
+
+            result = await db.execute(
+                select(func.count())
+                .select_from(Transcript)
+                .where(
+                    Transcript.consultation_id == self.consultation_id,
+                    Transcript.status.in_(
+                        [STATUS_FAILED_TRANSCRIPTION, STATUS_FAILED_CLASSIFICATION]
+                    ),
+                )
+            )
+            failed_count = result.scalar_one()
+
+            result = await db.execute(
+                select(func.count())
+                .select_from(Transcript)
+                .where(Transcript.consultation_id == self.consultation_id)
+            )
+            total_count = result.scalar_one()
+
+        relevant_texts = [seg.text for seg in relevant_segments]
+
+        logger.info(
+            "Consultation %s: classification done, %d/%d relevant, %d failed",
+            self.consultation_id,
+            len(relevant_texts),
+            total_count,
+            failed_count,
+        )
+
+        # --- Generate SOAP ---
+        await self._update_progress("generating_soap", 65)
+        self._push(ProgressEvent(data={"step": "generating_soap", "progress": 65}))
+
+        full_relevant = "\n".join(relevant_texts)
+        if full_relevant.strip():
+            try:
                 soap = await self.model_client.generate_soap(
                     full_relevant, detected_lang
                 )
+            except Exception as e:
+                logger.exception(
+                    "Consultation %s: SOAP generation failed",
+                    self.consultation_id,
+                )
+                await self._finish(
+                    "completed_with_errors",
+                    f"SOAP generation failed: {e!s:.500}",
+                )
+                return
+
+            try:
                 entities = await self.model_client.extract_medical_entities(
                     full_relevant, detected_lang
                 )
-            else:
-                soap = {
-                    "subjective": "",
-                    "objective": "",
-                    "assessment": "",
-                    "plan": "",
-                }
+            except Exception:
+                logger.warning(
+                    "Consultation %s: entity extraction failed, using empty",
+                    self.consultation_id,
+                )
                 entities = {}
+        else:
+            soap = {
+                "subjective": "",
+                "objective": "",
+                "assessment": "",
+                "plan": "",
+            }
+            entities = {}
 
-            await self._update_progress("extracting_entities", 85)
+        await self._update_progress("extracting_entities", 85)
+        self._push(ProgressEvent(data={"step": "extracting_entities", "progress": 85}))
 
-            # --- Persist SOAP note ---
-            async with self.db_session_factory() as db:
+        # --- Persist SOAP note ---
+        async with self.db_session_factory() as db:
+            # Delete existing SOAP note if retrying
+            result = await db.execute(
+                select(SOAPNote).where(SOAPNote.consultation_id == self.consultation_id)
+            )
+            existing_soap = result.scalar_one_or_none()
+            if existing_soap:
+                existing_soap.subjective = soap.get("subjective", "")
+                existing_soap.objective = soap.get("objective", "")
+                existing_soap.assessment = soap.get("assessment", "")
+                existing_soap.plan = soap.get("plan", "")
+                existing_soap.medical_entities = entities
+                existing_soap.is_draft = True
+                existing_soap.version += 1
+            else:
                 db.add(
                     SOAPNote(
                         consultation_id=self.consultation_id,
@@ -196,15 +448,54 @@ class BatchAudioProcessor:
                         medical_entities=entities,
                     )
                 )
-                await db.commit()
+            await db.commit()
 
-            # --- Mark complete ---
-            await self._update_status("completed", None, 100)
-            logger.info("Consultation %s: processing complete", self.consultation_id)
+        # --- Final status ---
+        if failed_count > 0:
+            await self._finish(
+                "completed_with_errors",
+                f"{failed_count} of {total_count} segments failed processing",
+            )
+        else:
+            await self._finish("completed", None)
 
-        except Exception as e:
-            logger.exception("Consultation %s: processing failed", self.consultation_id)
-            await self._update_status("failed", str(e)[:1000], None)
+        logger.info("Consultation %s: processing complete", self.consultation_id)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _push(self, event) -> None:
+        if self.event_registry:
+            self.event_registry.push(self.consultation_id, event)
+
+    async def _persist_segment(
+        self,
+        *,
+        sequence: int,
+        text: str,
+        status: str,
+        language: str,
+        timestamp_start_ms: int,
+        timestamp_end_ms: int,
+        error_message: str | None = None,
+    ) -> None:
+        async with self.db_session_factory() as db:
+            db.add(
+                Transcript(
+                    consultation_id=self.consultation_id,
+                    sequence_number=sequence,
+                    text=text,
+                    language=language,
+                    is_medically_relevant=False,
+                    status=status,
+                    error_message=error_message,
+                    speaker_label=None,
+                    timestamp_start_ms=timestamp_start_ms,
+                    timestamp_end_ms=timestamp_end_ms,
+                )
+            )
+            await db.commit()
 
     async def _update_progress(self, step: str, progress: int) -> None:
         async with self.db_session_factory() as db:
@@ -234,12 +525,8 @@ class BatchAudioProcessor:
                 c.patient_identifier = patient_identifier
             await db.commit()
 
-    async def _update_status(
-        self,
-        status: str,
-        error_message: str | None,
-        progress: int | None,
-    ) -> None:
+    async def _finish(self, status: str, error_message: str | None) -> None:
+        progress = 100 if status in ("completed", "completed_with_errors") else None
         async with self.db_session_factory() as db:
             result = await db.execute(
                 select(Consultation).where(Consultation.id == self.consultation_id)
@@ -251,3 +538,7 @@ class BatchAudioProcessor:
             if progress is not None:
                 c.processing_progress = progress
             await db.commit()
+
+        self._push(StatusEvent(data={"status": status, "error_message": error_message}))
+        if self.event_registry:
+            self.event_registry.remove_topic(self.consultation_id)

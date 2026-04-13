@@ -133,6 +133,23 @@ export function useDeleteConsultation() {
   })
 }
 
+export function useRetryProcessing(consultationId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<Consultation>(
+        `/api/v1/consultations/${consultationId}/retry-processing`,
+        { method: "POST" },
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["consultation", consultationId],
+      })
+      queryClient.invalidateQueries({ queryKey: ["consultations"] })
+    },
+  })
+}
+
 export function useUploadAudio() {
   const queryClient = useQueryClient()
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
