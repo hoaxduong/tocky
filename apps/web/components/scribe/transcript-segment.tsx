@@ -2,6 +2,7 @@
 
 import { useExtracted } from "next-intl"
 import { Badge } from "@workspace/ui/components/badge"
+import { cn } from "@workspace/ui/lib/utils"
 import { AlertCircle } from "lucide-react"
 
 interface TranscriptSegmentProps {
@@ -11,6 +12,8 @@ interface TranscriptSegmentProps {
   sequence: number
   status?: string
   errorMessage?: string | null
+  isActive?: boolean
+  onClick?: () => void
 }
 
 export function TranscriptSegmentItem({
@@ -20,6 +23,8 @@ export function TranscriptSegmentItem({
   sequence,
   status = "classified",
   errorMessage,
+  isActive,
+  onClick,
 }: TranscriptSegmentProps) {
   const t = useExtracted()
 
@@ -28,15 +33,17 @@ export function TranscriptSegmentItem({
 
   return (
     <div
-      className={`rounded-lg border p-3 ${
-        isFailed
-          ? "border-red-500/30 bg-red-500/5"
-          : isPending
-            ? "border-muted bg-muted/20"
-            : isMedicallyRelevant
-              ? "border-primary/20 bg-primary/5"
-              : "border-muted bg-muted/30 opacity-60"
-      }`}
+      id={`segment-${sequence}`}
+      className={cn(
+        "rounded-lg border p-3 transition-colors",
+        isActive && "ring-2 ring-primary border-primary/30 bg-primary/10",
+        !isActive && isFailed && "border-red-500/30 bg-red-500/5",
+        !isActive && isPending && "border-muted bg-muted/20",
+        !isActive && isMedicallyRelevant && "border-primary/20 bg-primary/5",
+        !isActive && !isMedicallyRelevant && !isFailed && !isPending && "border-muted bg-muted/30 opacity-60",
+        onClick && "cursor-pointer hover:bg-accent/50",
+      )}
+      onClick={onClick}
     >
       <div className="mb-1 flex items-center gap-2">
         <span className="text-muted-foreground text-xs">#{sequence}</span>

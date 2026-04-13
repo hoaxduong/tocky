@@ -2,7 +2,7 @@
 
 import { useExtracted } from "next-intl"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   CheckCircle2,
   Circle,
@@ -49,7 +49,7 @@ import { LanguageSelector } from "@/components/scribe/language-selector"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
 import { StatusBadge } from "@/components/status-badge"
 import { useProcessingEvents } from "@/hooks/use-processing-events"
-import { AudioPlayer } from "@/components/audio-player"
+import { AudioPlayer, type AudioPlayerHandle } from "@/components/audio-player"
 import { toast } from "sonner"
 
 // ---------------------------------------------------------------------------
@@ -212,6 +212,8 @@ export function UploadProcessingView({
   const updateConsultation = useUpdateConsultation(consultationId)
   const retryProcessing = useRetryProcessing(consultationId)
 
+  const playerRef = useRef<AudioPlayerHandle>(null)
+  const [currentTimeMs, setCurrentTimeMs] = useState(0)
   const transcriptListRef = useRef<HTMLDivElement>(null)
   const transcriptEndRef = useRef<HTMLDivElement>(null)
   const prevStepRef = useRef<string | null>(null)
@@ -254,6 +256,30 @@ export function UploadProcessingView({
     }
     prevClassifiedCountRef.current = classifiedCount
   }, [classifiedCount, streamedSegments])
+
+  const handleSegmentClick = useCallback((ms: number) => {
+    playerRef.current?.seekTo(ms)
+  }, [])
+
+  const segments = transcripts?.segments
+  const activeSegmentId = useMemo(() => {
+    if (!segments || currentTimeMs <= 0) return null
+    const seg = segments.find(
+      (s) => s.timestamp_start_ms <= currentTimeMs && currentTimeMs < s.timestamp_end_ms,
+    )
+    return seg?.id ?? null
+  }, [segments, currentTimeMs])
+
+  // Auto-scroll to active transcript segment during playback
+  useEffect(() => {
+    if (activeSegmentId) {
+      const activeSeg = segments?.find((s) => s.id === activeSegmentId)
+      if (activeSeg) {
+        const el = document.getElementById(`segment-${activeSeg.sequence_number}`)
+        el?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+      }
+    }
+  }, [activeSegmentId, segments])
 
   if (!consultation) return null
 
@@ -341,7 +367,12 @@ export function UploadProcessingView({
         </div>
 
         {audio?.url && (
-          <AudioPlayer src={audio.url} durationMs={audio.duration_ms} />
+          <AudioPlayer
+            ref={playerRef}
+            src={audio.url}
+            durationMs={audio.duration_ms}
+            onTimeUpdate={setCurrentTimeMs}
+          />
         )}
 
         <ScribeLayout>
@@ -359,6 +390,12 @@ export function UploadProcessingView({
                   sequence={seg.sequence_number}
                   status={seg.status}
                   errorMessage={seg.error_message}
+                  isActive={seg.id === activeSegmentId}
+                  onClick={
+                    audio?.url && seg.timestamp_start_ms > 0
+                      ? () => handleSegmentClick(seg.timestamp_start_ms)
+                      : undefined
+                  }
                 />
               ))}
               {(!transcripts || transcripts.segments.length === 0) && (

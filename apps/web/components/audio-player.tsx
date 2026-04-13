@@ -22,6 +22,7 @@ interface AudioPlayerProps {
   src: string
   durationMs: number
   className?: string
+  onTimeUpdate?: (timeMs: number) => void
 }
 
 function formatTime(seconds: number) {
@@ -31,7 +32,7 @@ function formatTime(seconds: number) {
 }
 
 export const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
-  function AudioPlayer({ src, durationMs, className }, ref) {
+  function AudioPlayer({ src, durationMs, className, onTimeUpdate }, ref) {
     const audioRef = useRef<HTMLAudioElement>(null)
     const [isPlaying, setIsPlaying] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
@@ -49,9 +50,11 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
 
     const handleTimeUpdate = useCallback(() => {
       if (!isSeeking && audioRef.current) {
-        setCurrentTime(audioRef.current.currentTime)
+        const t = audioRef.current.currentTime
+        setCurrentTime(t)
+        onTimeUpdate?.(t * 1000)
       }
-    }, [isSeeking])
+    }, [isSeeking, onTimeUpdate])
 
     const handleLoadedMetadata = useCallback(() => {
       if (audioRef.current && isFinite(audioRef.current.duration)) {
