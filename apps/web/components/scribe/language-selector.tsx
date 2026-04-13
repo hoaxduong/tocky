@@ -15,6 +15,7 @@ const LANGUAGES = [
   { value: "ar-eg", label: "العربية (مصري)" },
   { value: "ar-gulf", label: "العربية (خليجي)" },
   { value: "en", label: "English" },
+  { value: "fr", label: "Français" },
 ]
 
 interface LanguageSelectorProps {

@@ -19,6 +19,7 @@ _ASR_LANGUAGE_MAP = {
     "ar-eg": "ar",
     "ar-gulf": "ar",
     "en": "en",
+    "fr": "fr",
 }
 
 
@@ -130,6 +131,7 @@ class DashScopeClient:
                 "ar-eg": "Egyptian Arabic",
                 "ar-gulf": "Gulf Arabic",
                 "en": "English",
+                "fr": "French",
             }.get(language, "English")
             lang_instruction = f"Transcribe the audio in {language_hint}."
 
@@ -288,7 +290,7 @@ class DashScopeClient:
         response.raise_for_status()
         data = response.json()
         code = data["choices"][0]["message"]["content"].strip().lower()
-        valid_codes = {"vi", "ar-eg", "ar-gulf", "en"}
+        valid_codes = {"vi", "ar-eg", "ar-gulf", "en", "fr"}
         return code if code in valid_codes else "en"
 
     async def extract_consultation_metadata(

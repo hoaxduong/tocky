@@ -10,7 +10,10 @@ export default getRequestConfig(async () => {
     ? (raw as Locale)
     : DEFAULT_LOCALE
 
+  const messages = (await import(`../messages/${locale}.po`)).default
+
   return {
     locale,
+    messages,
   }
 })

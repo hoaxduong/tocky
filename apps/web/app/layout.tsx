@@ -48,7 +48,7 @@ export default async function RootLayout({
       <body>
         <ThemeProvider>
           <QueryProvider>
-            <NextIntlClientProvider locale={locale} messages={{}}>
+            <NextIntlClientProvider>
               <TooltipProvider>{children}</TooltipProvider>
               <Toaster />
             </NextIntlClientProvider>

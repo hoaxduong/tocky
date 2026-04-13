@@ -11,6 +11,7 @@ _SOAP_SLUG_MAP = {
     "ar-eg": "soap_ar_eg",
     "ar-gulf": "soap_ar_gulf",
     "en": "soap_en",
+    "fr": "soap_fr",
 }
 
 

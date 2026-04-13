@@ -1,8 +1,6 @@
 "use client"
 
-import { useExtracted } from "next-intl"
-import { useLocale } from "next-intl"
-import { useRouter } from "next/navigation"
+import { useExtracted, useLocale } from "next-intl"
 import {
   type LucideIcon,
   ChevronsUpDown,
@@ -53,6 +51,7 @@ const LOCALE_LABELS: Record<string, string> = {
   en: "English",
   vi: "Tiếng Việt",
   ar: "العربية",
+  fr: "Français",
 }
 
 interface NavItem {
@@ -94,7 +93,6 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   const t = useExtracted()
   const pathname = usePathname()
   const locale = useLocale()
-  const router = useRouter()
   const { data: session } = useSession()
   const { mutate: handleSignOut } = useSignOut()
   const { theme, setTheme } = useTheme()
@@ -108,7 +106,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
 
   function handleLocaleChange(value: string) {
     document.cookie = `${LOCALE_COOKIE}=${value};path=/;max-age=31536000`
-    router.refresh()
+    window.location.reload()
   }
 
   return (

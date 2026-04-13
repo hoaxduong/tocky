@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Language: en\n"
+"Language: ar\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: next-intl\n"
@@ -12,280 +12,280 @@ msgstr ""
 #: components/soap-review-form.tsx:122
 #: components/upload-processing-view.tsx:412
 msgid "63vr3O"
-msgstr "SOAP Note"
+msgstr "SOAP Note (ملاحظة سوب)"
 
 #: app/admin/consultations/page.tsx:10
 msgid "5KXcV3"
-msgstr "All Consultations"
+msgstr "جميع الاستشارات"
 
 #: app/admin/consultations/page.tsx:12
 #: app/admin/users/page.tsx:13
 #: components/admin-users-table.tsx:263
 msgid "iHN12u"
-msgstr "Admin"
+msgstr "المشرف"
 
 #: app/admin/consultations/page.tsx:13
 #: components/consultations-list.tsx:24
 #: components/consultations-list.tsx:27
 #: components/soap-review-form.tsx:121
 msgid "+WBJgJ"
-msgstr "Consultations"
+msgstr "الاستشارات"
 
 #: app/admin/consultations/page.tsx:17
 msgid "uHlhzI"
-msgstr "All consultations view coming soon."
+msgstr "عرض جميع الاستشارات قريبًا."
 
 #: app/admin/page.tsx:15
 msgid "pzvscd"
-msgstr "System Statistics"
+msgstr "إحصائيات النظام"
 
 #: app/admin/page.tsx:20
 #: components/dashboard-content.tsx:41
 msgid "s1bW4D"
-msgstr "Total Consultations"
+msgstr "إجمالي الاستشارات"
 
 #: app/admin/page.tsx:30
 msgid "+j+HRE"
-msgstr "Active Now"
+msgstr "نشط الآن"
 
 #: app/admin/page.tsx:40
 msgid "/VwiLT"
-msgstr "Total Users"
+msgstr "إجمالي المستخدمين"
 
 #: app/admin/users/page.tsx:11
 msgid "J/X6rJ"
-msgstr "User Management"
+msgstr "إدارة المستخدمين"
 
 #: app/admin/users/page.tsx:14
 msgid "YDMrKK"
-msgstr "Users"
+msgstr "المستخدمون"
 
 #: components/admin-users-table.tsx:89
 msgid "xq+TKA"
-msgstr "Role updated to doctor"
+msgstr "تم تحديث الدور إلى طبيب"
 
 #: components/admin-users-table.tsx:95
 msgid "rL2dx1"
-msgstr "Set as Doctor"
+msgstr "تعيين كطبيب"
 
 #: components/admin-users-table.tsx:103
 msgid "yamMD8"
-msgstr "Role updated to admin"
+msgstr "تم تحديث الدور إلى مشرف"
 
 #: components/admin-users-table.tsx:109
 msgid "UM0W7z"
-msgstr "Set as Admin"
+msgstr "تعيين كمشرف"
 
 #: components/admin-users-table.tsx:117
 msgid "LXobIi"
-msgstr "User unbanned"
+msgstr "تم رفع الحظر عن المستخدم"
 
 #: components/admin-users-table.tsx:122
 msgid "6U4eIn"
-msgstr "Unban"
+msgstr "رفع الحظر"
 
 #: components/admin-users-table.tsx:130
 msgid "AFjdgl"
-msgstr "User banned"
+msgstr "تم حظر المستخدم"
 
 #: components/admin-users-table.tsx:136
 msgid "XtUrMc"
-msgstr "Ban"
+msgstr "حظر"
 
 #: components/admin-users-table.tsx:143
 #: components/admin-users-table.tsx:166
 #: components/scribe/consultation-card.tsx:114
 #: components/scribe/consultation-card.tsx:148
 msgid "K3r6DQ"
-msgstr "Delete"
+msgstr "حذف"
 
 #: components/admin-users-table.tsx:150
 msgid "mJbA00"
-msgstr "Delete User"
+msgstr "حذف المستخدم"
 
 #: components/admin-users-table.tsx:152
 msgid "eCHBUe"
-msgstr "Are you sure you want to delete this user? This action cannot be undone."
+msgstr "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ لا يمكن التراجع عن هذا الإجراء."
 
 #: components/admin-users-table.tsx:158
 #: components/scribe/consultation-card.tsx:143
 #: components/soap-review-form.tsx:170
 msgid "47FYwb"
-msgstr "Cancel"
+msgstr "إلغاء"
 
 #: components/admin-users-table.tsx:162
 msgid "+zImMB"
-msgstr "User deleted"
+msgstr "تم حذف المستخدم"
 
 #: components/admin-users-table.tsx:194
 msgid "fAKMg+"
-msgstr "User created"
+msgstr "تم إنشاء المستخدم"
 
 #: components/admin-users-table.tsx:198
 msgid "9tjZ7S"
-msgstr "Failed to create user"
+msgstr "فشل إنشاء المستخدم"
 
 #: components/admin-users-table.tsx:213
 #: components/admin-users-table.tsx:218
 msgid "7c3ANV"
-msgstr "Add User"
+msgstr "إضافة مستخدم"
 
 #: components/admin-users-table.tsx:220
 msgid "sYXLf6"
-msgstr "Create a new user account."
+msgstr "إنشاء حساب مستخدم جديد."
 
 #: components/admin-users-table.tsx:225
 #: components/admin-users-table.tsx:289
 msgid "HAlOn1"
-msgstr "Name"
+msgstr "الاسم"
 
 #: components/admin-users-table.tsx:234
 #: components/admin-users-table.tsx:293
 #: components/sign-in-form.tsx:55
 #: components/sign-up-form.tsx:65
 msgid "sy+pv5"
-msgstr "Email"
+msgstr "البريد الإلكتروني"
 
 #: components/admin-users-table.tsx:244
 #: components/sign-in-form.tsx:65
 #: components/sign-up-form.tsx:75
 msgid "5sg7KC"
-msgstr "Password"
+msgstr "كلمة المرور"
 
 #: components/admin-users-table.tsx:255
 #: components/admin-users-table.tsx:297
 msgid "1ZgrhW"
-msgstr "Role"
+msgstr "الدور"
 
 #: components/admin-users-table.tsx:262
 msgid "kvlt4O"
-msgstr "Doctor"
+msgstr "طبيب"
 
 #: components/admin-users-table.tsx:272
 msgid "mRL9Vh"
-msgstr "Creating..."
+msgstr "جارٍ الإنشاء..."
 
 #: components/admin-users-table.tsx:272
 msgid "VzzYJk"
-msgstr "Create"
+msgstr "إنشاء"
 
 #: components/admin-users-table.tsx:308
 msgid "tzMNF3"
-msgstr "Status"
+msgstr "الحالة"
 
 #: components/admin-users-table.tsx:311
 msgid "xerM7K"
-msgstr "Banned"
+msgstr "محظور"
 
 #: components/admin-users-table.tsx:313
 #: components/consultations-list.tsx:37
 #: components/dashboard-content.tsx:51
 msgid "3a5wL8"
-msgstr "Active"
+msgstr "نشط"
 
 #: components/admin-users-table.tsx:318
 msgid "ORGv1Q"
-msgstr "Created"
+msgstr "تاريخ الإنشاء"
 
 #: components/admin-users-table.tsx:331
 msgid "p/iF5T"
-msgstr "Search users..."
+msgstr "البحث عن مستخدمين..."
 
 #: components/admin-users-table.tsx:340
 #: components/sign-in-form.tsx:76
 #: components/sign-up-form.tsx:87
 msgid "gjBiyj"
-msgstr "Loading..."
+msgstr "جارٍ التحميل..."
 
 #: components/app-sidebar.tsx:108
 msgid "m6lDC9"
-msgstr "Management"
+msgstr "الإدارة"
 
 #: components/app-sidebar.tsx:108
 msgid "rOZptg"
-msgstr "Workspace"
+msgstr "مساحة العمل"
 
 #: components/app-sidebar.tsx:157
 #: components/app-sidebar.tsx:166
 #: components/app-sidebar.tsx:190
 msgid "TwyMau"
-msgstr "Account"
+msgstr "الحساب"
 
 #: components/app-sidebar.tsx:204
 msgid "Pe0ogR"
-msgstr "Theme"
+msgstr "المظهر"
 
 #: components/app-sidebar.tsx:212
 msgid "3cc4Ct"
-msgstr "Light"
+msgstr "فاتح"
 
 #: components/app-sidebar.tsx:215
 msgid "tOdNiY"
-msgstr "Dark"
+msgstr "داكن"
 
 #: components/app-sidebar.tsx:218
 msgid "+CwN9C"
-msgstr "System"
+msgstr "النظام"
 
 #: components/app-sidebar.tsx:226
 #: components/scribe/language-selector.tsx:36
 msgid "y1Z3or"
-msgstr "Language"
+msgstr "اللغة"
 
 #: components/app-sidebar.tsx:249
 msgid "3Vr8ps"
-msgstr "Admin Dashboard"
+msgstr "لوحة تحكم المشرف"
 
 #: components/app-sidebar.tsx:254
 msgid "YNSpuZ"
-msgstr "Back to App"
+msgstr "العودة إلى التطبيق"
 
 #: components/app-sidebar.tsx:263
 msgid "F62y+K"
-msgstr "Sign Out"
+msgstr "تسجيل الخروج"
 
 #: components/consultations-list.tsx:26
 msgid "hzSNj4"
-msgstr "Dashboard"
+msgstr "لوحة التحكم"
 
 #: components/consultations-list.tsx:38
 msgid "0HT+Ib"
-msgstr "Archived"
+msgstr "مؤرشف"
 
 #: components/consultations-list.tsx:47
 msgid "ywPYka"
-msgstr "No archived consultations."
+msgstr "لا توجد استشارات مؤرشفة."
 
 #: components/consultations-list.tsx:48
 #: components/dashboard-content.tsx:85
 msgid "eoBnBg"
-msgstr "No consultations yet. Start your first one!"
+msgstr "لا توجد استشارات بعد. ابدأ أول استشارة!"
 
 #: components/dashboard-content.tsx:29
 msgid "UKxoV8"
-msgstr "Welcome back"
+msgstr "مرحبًا بعودتك"
 
 #: components/dashboard-content.tsx:64
 #: components/soap-review-form.tsx:127
 #: components/upload-processing-view.tsx:416
 msgid "95stPq"
-msgstr "Completed"
+msgstr "مكتمل"
 
 #: components/dashboard-content.tsx:79
 msgid "XVT1Vj"
-msgstr "Recent Consultations"
+msgstr "الاستشارات الأخيرة"
 
 #: components/new-consultation-dialog.tsx:49
 msgid "j/OW7m"
-msgstr "File too large. Maximum size is 100 MB."
+msgstr "الملف كبير جدًا. الحد الأقصى للحجم هو 100 ميجابايت."
 
 #: components/new-consultation-dialog.tsx:76
 msgid "CwluP/"
-msgstr "Audio uploaded. Processing started."
+msgstr "تم رفع الملف الصوتي. بدأت المعالجة."
 
 #: components/new-consultation-dialog.tsx:81
 msgid "yN8yyH"
-msgstr "Failed to upload audio"
+msgstr "فشل رفع الملف الصوتي"
 
 #: components/new-consultation-dialog.tsx:96
 #: components/new-consultation-dialog.tsx:103
@@ -293,380 +293,380 @@ msgstr "Failed to upload audio"
 #: components/scribe/consultation-header.tsx:32
 #: components/upload-processing-view.tsx:569
 msgid "L2NbD2"
-msgstr "New Consultation"
+msgstr "استشارة جديدة"
 
 #: components/new-consultation-dialog.tsx:105
 msgid "D0byoJ"
-msgstr "Choose how to start your consultation."
+msgstr "اختر كيفية بدء استشارتك."
 
 #: components/new-consultation-dialog.tsx:117
 msgid "e61Jf3"
-msgstr "Coming soon"
+msgstr "قريبًا"
 
 #: components/new-consultation-dialog.tsx:120
 msgid "ICmSVj"
-msgstr "Record Live"
+msgstr "تسجيل مباشر"
 
 #: components/new-consultation-dialog.tsx:127
 #: components/new-consultation-dialog.tsx:149
 msgid "qQU7XE"
-msgstr "Upload Audio"
+msgstr "رفع ملف صوتي"
 
 #: components/new-consultation-dialog.tsx:152
 msgid "h6v5l8"
-msgstr "Upload a recorded consultation. Language, title, and patient info will be auto-detected."
+msgstr "ارفع تسجيل استشارة. سيتم اكتشاف اللغة والعنوان ومعلومات المريض تلقائيًا."
 
 #: components/new-consultation-dialog.tsx:177
 msgid "sPYvFA"
-msgstr "Drag and drop or click to browse"
+msgstr "اسحب وأفلت أو انقر للتصفح"
 
 #: components/new-consultation-dialog.tsx:220
 msgid "JEsxDw"
-msgstr "Uploading..."
+msgstr "جارٍ الرفع..."
 
 #: components/new-consultation-dialog.tsx:220
 msgid "iNHvrU"
-msgstr "Upload & Process"
+msgstr "رفع ومعالجة"
 
 #: components/scribe/consultation-card.tsx:64
 msgid "XOBOTM"
-msgstr "Consultation archived"
+msgstr "تم أرشفة الاستشارة"
 
 #: components/scribe/consultation-card.tsx:65
 msgid "sJKt39"
-msgstr "Failed to archive consultation"
+msgstr "فشلت أرشفة الاستشارة"
 
 #: components/scribe/consultation-card.tsx:71
 msgid "YFqZph"
-msgstr "Consultation deleted"
+msgstr "تم حذف الاستشارة"
 
 #: components/scribe/consultation-card.tsx:72
 msgid "x297rU"
-msgstr "Failed to delete consultation"
+msgstr "فشل حذف الاستشارة"
 
 #: components/scribe/consultation-card.tsx:102
 msgid "hrgo+E"
-msgstr "Archive"
+msgstr "أرشفة"
 
 #: components/scribe/consultation-card.tsx:135
 msgid "Y0pMB6"
-msgstr "Delete Consultation?"
+msgstr "حذف الاستشارة؟"
 
 #: components/scribe/consultation-card.tsx:137
 msgid "P2jK4q"
-msgstr "This will permanently delete this consultation and all its data. This action cannot be undone."
+msgstr "سيتم حذف هذه الاستشارة وجميع بياناتها نهائيًا. لا يمكن التراجع عن هذا الإجراء."
 
 #: components/scribe/recording-controls.tsx:37
 msgid "xbQgN4"
-msgstr "Start Recording"
+msgstr "بدء التسجيل"
 
 #: components/scribe/recording-controls.tsx:52
 msgid "3y9DGg"
-msgstr "Resume"
+msgstr "استئناف"
 
 #: components/scribe/recording-controls.tsx:57
 msgid "tFFMkF"
-msgstr "Pause"
+msgstr "إيقاف مؤقت"
 
 #: components/scribe/recording-controls.tsx:68
 msgid "pXFAd/"
-msgstr "Stop Recording"
+msgstr "إيقاف التسجيل"
 
 #: components/scribe/soap-editor.tsx:19
 #: components/soap-review-form.tsx:87
 #: components/upload-processing-view.tsx:430
 msgid "R2VjIH"
-msgstr "Subjective"
+msgstr "Subjective (شكوى المريض)"
 
 #: components/scribe/soap-editor.tsx:20
 #: components/soap-review-form.tsx:88
 #: components/upload-processing-view.tsx:431
 msgid "khNSj1"
-msgstr "Objective"
+msgstr "Objective (الفحص السريري)"
 
 #: components/scribe/soap-editor.tsx:21
 #: components/soap-review-form.tsx:89
 #: components/upload-processing-view.tsx:432
 msgid "ueRCsi"
-msgstr "Assessment"
+msgstr "Assessment (التقييم)"
 
 #: components/scribe/soap-editor.tsx:22
 #: components/soap-review-form.tsx:90
 #: components/upload-processing-view.tsx:433
 msgid "fz0z4c"
-msgstr "Plan"
+msgstr "Plan (الخطة العلاجية)"
 
 #: components/scribe/soap-editor.tsx:29
 #: components/soap-review-form.tsx:127
 #: components/upload-processing-view.tsx:416
 msgid "W6nwjo"
-msgstr "Draft"
+msgstr "مسودة"
 
 #: components/scribe/soap-editor.tsx:44
 #: components/soap-review-form.tsx:155
 msgid "Zmv34N"
-msgstr "Finalize Note"
+msgstr "اعتماد الملاحظة"
 
 #: components/scribe/soap-section.tsx:33
 #: components/soap-review-form.tsx:227
 #: components/upload-processing-view.tsx:420
 msgid "TJo5E6"
-msgstr "Preview"
+msgstr "معاينة"
 
 #: components/scribe/soap-section.tsx:34
 #: components/soap-review-form.tsx:228
 #: components/upload-processing-view.tsx:421
 msgid "nV0wNv"
-msgstr "Raw"
+msgstr "نص خام"
 
 #: components/scribe/soap-section.tsx:43
 #: components/soap-review-form.tsx:237
 #: components/upload-processing-view.tsx:447
 msgid "6de2Su"
-msgstr "No content yet"
+msgstr "لا يوجد محتوى بعد"
 
 #: components/scribe/transcript-panel.tsx:19
 #: components/upload-processing-view.tsx:383
 #: components/upload-processing-view.tsx:590
 msgid "TztQA0"
-msgstr "Transcript"
+msgstr "النص المكتوب"
 
 #: components/scribe/transcript-panel.tsx:22
 msgid "9Kw/ze"
-msgstr "Recording..."
+msgstr "جارٍ التسجيل..."
 
 #: components/scribe/transcript-segment.tsx:74
 #: components/upload-processing-view.tsx:668
 msgid "vXCeIi"
-msgstr "Failed"
+msgstr "فشل"
 
 #: components/scribe/transcript-segment.tsx:75
 msgid "dYPZKZ"
-msgstr "Unclassified"
+msgstr "غير مصنف"
 
 #: components/scribe/transcript-segment.tsx:79
 msgid "eKEL/g"
-msgstr "Pending"
+msgstr "قيد الانتظار"
 
 #: components/scribe/transcript-segment.tsx:86
 #: components/upload-processing-view.tsx:651
 msgid "XpZsjM"
-msgstr "Relevant"
+msgstr "ذو صلة"
 
 #: components/scribe/transcript-segment.tsx:86
 #: components/upload-processing-view.tsx:659
 msgid "NGnuCt"
-msgstr "Small Talk"
+msgstr "حديث عام"
 
 #: components/scribe/transcript-segment.tsx:101
 msgid "4dBx4I"
-msgstr "Transcription failed"
+msgstr "فشل التفريغ الصوتي"
 
 #: components/sign-in-form.tsx:35
 msgid "M77Nuo"
-msgstr "Invalid credentials"
+msgstr "بيانات الاعتماد غير صحيحة"
 
 #: components/sign-in-form.tsx:44
 msgid "3zqcWB"
-msgstr "Sign in to Tốc ký AI"
+msgstr "تسجيل الدخول إلى Tốc ký AI"
 
 #: components/sign-in-form.tsx:46
 msgid "25WwxF"
-msgstr "Don't have an account?"
+msgstr "ليس لديك حساب؟"
 
 #: components/sign-in-form.tsx:48
 #: components/sign-up-form.tsx:87
 msgid "39AHJm"
-msgstr "Sign Up"
+msgstr "إنشاء حساب"
 
 #: components/sign-in-form.tsx:76
 #: components/sign-up-form.tsx:49
 msgid "Ub+AGc"
-msgstr "Sign In"
+msgstr "تسجيل الدخول"
 
 #: components/sign-up-form.tsx:36
 msgid "QBNztl"
-msgstr "Sign up failed. Please try again."
+msgstr "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى."
 
 #: components/sign-up-form.tsx:45
 msgid "SeO7GZ"
-msgstr "Create your account"
+msgstr "إنشاء حسابك"
 
 #: components/sign-up-form.tsx:47
 msgid "uCk8r+"
-msgstr "Already have an account?"
+msgstr "لديك حساب بالفعل؟"
 
 #: components/sign-up-form.tsx:56
 msgid "TemVby"
-msgstr "Full Name"
+msgstr "الاسم الكامل"
 
 #: components/soap-review-form.tsx:96
 #: components/upload-processing-view.tsx:295
 msgid "WP4Inj"
-msgstr "Failed to save changes"
+msgstr "فشل حفظ التغييرات"
 
 #: components/soap-review-form.tsx:102
 msgid "cbHRLl"
-msgstr "SOAP note finalized"
+msgstr "تم اعتماد SOAP Note"
 
 #: components/soap-review-form.tsx:103
 msgid "Z8pSSB"
-msgstr "Failed to finalize note"
+msgstr "فشل اعتماد الملاحظة"
 
 #: components/soap-review-form.tsx:136
 #: components/upload-processing-view.tsx:357
 msgid "iNe+Ig"
-msgstr "SOAP note regenerated"
+msgstr "تم إعادة إنشاء SOAP Note"
 
 #: components/soap-review-form.tsx:138
 #: components/upload-processing-view.tsx:358
 msgid "VsY04C"
-msgstr "Failed to regenerate SOAP note"
+msgstr "فشل إعادة إنشاء SOAP Note"
 
 #: components/soap-review-form.tsx:146
 #: components/upload-processing-view.tsx:363
 msgid "n6PmWV"
-msgstr "Regenerating..."
+msgstr "جارٍ إعادة الإنشاء..."
 
 #: components/soap-review-form.tsx:147
 #: components/upload-processing-view.tsx:363
 msgid "6PgVSe"
-msgstr "Regenerate"
+msgstr "إعادة إنشاء"
 
 #: components/soap-review-form.tsx:161
 msgid "3hVwhB"
-msgstr "Finalize SOAP Note?"
+msgstr "اعتماد SOAP Note؟"
 
 #: components/soap-review-form.tsx:164
 msgid "3AWe+Q"
-msgstr "Running the QA reviewer and preparing playback audio. This takes a few seconds and locks the note for editing."
+msgstr "سيتم تشغيل مراجع ضمان الجودة وتحضير الصوت للتشغيل. يستغرق هذا بضع ثوانٍ ويقفل الملاحظة للتعديل."
 
 #: components/soap-review-form.tsx:172
 msgid "J9w6+G"
-msgstr "Finalize"
+msgstr "اعتماد"
 
 #: components/soap-review-form.tsx:195
 msgid "zNor7p"
-msgstr "Reviewer Flags"
+msgstr "ملاحظات المراجع"
 
 #: components/soap-review-form.tsx:260
 msgid "mk75EB"
-msgstr "Medical Entities"
+msgstr "الكيانات الطبية"
 
 #: components/upload-processing-view.tsx:115
 msgid "vQyVep"
-msgstr "Converting audio"
+msgstr "جارٍ تحويل الصوت"
 
 #: components/upload-processing-view.tsx:116
 msgid "9pYgwb"
-msgstr "Transcribing"
+msgstr "جارٍ التفريغ الصوتي"
 
 #: components/upload-processing-view.tsx:117
 msgid "jiDB18"
-msgstr "Detecting language & metadata"
+msgstr "جارٍ اكتشاف اللغة والبيانات الوصفية"
 
 #: components/upload-processing-view.tsx:118
 msgid "/cY75V"
-msgstr "Filtering relevance"
+msgstr "جارٍ تصفية المحتوى ذي الصلة"
 
 #: components/upload-processing-view.tsx:119
 msgid "2t3PDB"
-msgstr "Generating SOAP note"
+msgstr "جارٍ إنشاء SOAP Note"
 
 #: components/upload-processing-view.tsx:120
 msgid "OZfUhq"
-msgstr "Extracting medical entities"
+msgstr "جارٍ استخراج الكيانات الطبية"
 
 #: components/upload-processing-view.tsx:304
 msgid "9tBA7K"
-msgstr "Completed with errors"
+msgstr "اكتمل مع أخطاء"
 
 #: components/upload-processing-view.tsx:314
 #: components/upload-processing-view.tsx:494
 msgid "lQnFkI"
-msgstr "Retrying failed segments..."
+msgstr "جارٍ إعادة محاولة الأجزاء الفاشلة..."
 
 #: components/upload-processing-view.tsx:316
 #: components/upload-processing-view.tsx:496
 msgid "IeZnKQ"
-msgstr "Retry failed"
+msgstr "فشلت إعادة المحاولة"
 
 #: components/upload-processing-view.tsx:321
 msgid "VwEw0a"
-msgstr "Retry Failed"
+msgstr "إعادة محاولة الفاشلة"
 
 #: components/upload-processing-view.tsx:330
 msgid "9a9+ww"
-msgstr "Title"
+msgstr "العنوان"
 
 #: components/upload-processing-view.tsx:333
 msgid "TiaHwd"
-msgstr "Consultation title"
+msgstr "عنوان الاستشارة"
 
 #: components/upload-processing-view.tsx:338
 msgid "r+X7r8"
-msgstr "Patient Identifier"
+msgstr "معرّف المريض"
 
 #: components/upload-processing-view.tsx:341
 msgid "V4KNjk"
-msgstr "optional"
+msgstr "اختياري"
 
 #: components/upload-processing-view.tsx:366
 msgid "lEn0JO"
-msgstr "Review SOAP Note"
+msgstr "مراجعة SOAP Note"
 
 #: components/upload-processing-view.tsx:405
 msgid "M/pnee"
-msgstr "No transcript segments found."
+msgstr "لم يتم العثور على مقاطع نصية."
 
 #: components/upload-processing-view.tsx:453
 msgid "+RhnH+"
-msgstr "Empty"
+msgstr "فارغ"
 
 #: components/upload-processing-view.tsx:462
 msgid "9oXioq"
-msgstr "SOAP note not found."
+msgstr "لم يتم العثور على SOAP Note."
 
 #: components/upload-processing-view.tsx:482
 msgid "dQsSr5"
-msgstr "Processing Failed"
+msgstr "فشلت المعالجة"
 
 #: components/upload-processing-view.tsx:484
 msgid "3c9Xiy"
-msgstr "An unknown error occurred."
+msgstr "حدث خطأ غير معروف."
 
 #: components/upload-processing-view.tsx:501
 msgid "62nsdy"
-msgstr "Retry"
+msgstr "إعادة المحاولة"
 
 #: components/upload-processing-view.tsx:505
 msgid "cyR7Kh"
-msgstr "Back"
+msgstr "رجوع"
 
 #: components/upload-processing-view.tsx:514
 msgid "4dhEE7"
-msgstr "Partial Transcripts"
+msgstr "نصوص مكتوبة جزئية"
 
 #: components/upload-processing-view.tsx:534
 msgid "T/WF1b"
-msgstr "SOAP note could not be generated due to processing errors."
+msgstr "تعذر إنشاء SOAP Note بسبب أخطاء في المعالجة."
 
 #: components/upload-processing-view.tsx:542
 msgid "zvaWw2"
-msgstr "No transcripts were produced. Please try uploading the audio file again."
+msgstr "لم يتم إنتاج أي نصوص مكتوبة. يرجى محاولة رفع الملف الصوتي مرة أخرى."
 
 #: components/upload-processing-view.tsx:545
 msgid "F4LeRw"
-msgstr "Back to Consultations"
+msgstr "العودة إلى الاستشارات"
 
 #: components/upload-processing-view.tsx:617
 msgid "kFd8T3"
-msgstr "Waiting for transcription to begin..."
+msgstr "في انتظار بدء التفريغ الصوتي..."
 
 #: components/upload-processing-view.tsx:628
 msgid "1Ia8qN"
-msgstr "Processing"
+msgstr "قيد المعالجة"
 
 #: components/upload-processing-view.tsx:643
 msgid "fAsQ0N"
-msgstr "Transcribed"
+msgstr "تم التفريغ"
