@@ -50,6 +50,7 @@ import { ScribeLayout } from "@/components/scribe/scribe-layout"
 import { StatusBadge } from "@/components/status-badge"
 import { useProcessingEvents } from "@/hooks/use-processing-events"
 import { AudioPlayer, type AudioPlayerHandle } from "@/components/audio-player"
+import { UploadProcessingSkeleton } from "@/components/skeletons"
 import { toast } from "sonner"
 
 // ---------------------------------------------------------------------------
@@ -281,7 +282,7 @@ export function UploadProcessingView({
     }
   }, [activeSegmentId, segments])
 
-  if (!consultation) return null
+  if (!consultation) return <UploadProcessingSkeleton />
 
   // ==================================================================
   // Completed view (with or without errors)

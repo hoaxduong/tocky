@@ -18,6 +18,7 @@ import { ScribeLayout } from "@/components/scribe/scribe-layout"
 import { UploadProcessingView } from "@/components/upload-processing-view"
 import { AudioPlayer } from "@/components/audio-player"
 import { Button } from "@workspace/ui/components/button"
+import { ScribePageSkeleton } from "@/components/skeletons"
 import Link from "next/link"
 
 export default function ScribePage({
@@ -26,7 +27,11 @@ export default function ScribePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-  const { data: consultation } = useConsultation(id)
+  const { data: consultation, isLoading } = useConsultation(id)
+
+  if (isLoading) {
+    return <ScribePageSkeleton />
+  }
 
   // Show upload processing view for upload-mode consultations
   if (consultation?.mode === "upload") {
