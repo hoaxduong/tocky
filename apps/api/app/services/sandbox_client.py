@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Transcript segments from real consultation 63d9d4b1-ac97-4cf6-8c75-2bda0c58c581
+# Transcript segments from real consultation 3ac9a7af-ac77-4be6-b16b-e632f5269632
 # ---------------------------------------------------------------------------
 _TRANSCRIPT_SEGMENTS: list[str] = [
     "Hi, Mark. Come on in. Have a seat.",
@@ -62,79 +62,61 @@ _TRANSCRIPT_SEGMENTS: list[str] = [
 # ---------------------------------------------------------------------------
 _SOAP_NOTE: dict[str, str] = {
     "subjective": (
-        "**Chief Complaint:** Follow-up on laboratory results and fatigue.\n\n"
-        "**History of Present Illness:**\n"
-        "Patient is a male presenting for follow-up regarding recent blood work. "
-        "Reports a three-year gap since last comprehensive physical examination. "
-        "Patient describes persistent fatigue, characterized by significant "
-        "mid-afternoon energy crashes (14:00\u201315:00). Reports sleep disturbance "
-        "due to nocturia, waking 2\u20133 times nightly to void. Endorses polydipsia "
-        "and xerostomia, noting constant need to refill water container throughout "
-        "the workday. Patient attributes symptoms initially to age and work stress.\n\n"
-        "**Past Medical History:**\n"
-        "Hyperlipidemia (previously monitored).\n\n"
-        "**Family History:**\n"
-        "Significant for Type 2 Diabetes Mellitus in mother (diagnosed late 50s) "
-        "and maternal grandfather (required insulin therapy).\n\n"
-        "**Social History:**\n"
-        "Employed in sedentary desk position (9 hours/day). Dietary habits include "
-        "high intake of refined carbohydrates and sugars: daily bagel with sweetened "
-        "coffee, deli sandwiches or pizza for lunch, and two regular sodas daily. "
-        "Dinner frequently consists of takeout (pasta, Thai, hamburgers). Physical "
-        "activity is limited to a 15-minute evening dog walk. Denies tobacco use; "
-        "alcohol use not discussed.\n\n"
-        "**Review of Systems:**\n"
-        "*   **Constitutional:** Positive for fatigue.\n"
-        "*   **Endocrine:** Positive for polydipsia.\n"
-        "*   **Genitourinary:** Positive for nocturia.\n"
-        "*   **Neurological:** Denies numbness or tingling (not explicitly discussed, "
-        "but no complaints voiced)."
+        "**History of Present Illness:** Patient presents for follow-up of routine "
+        "laboratory work completed prior to visit. Reports persistent fatigue, "
+        "specifically mid-afternoon crashes (14:00\u201315:00). Reports nocturia 2\u20133 "
+        "times per night disrupting sleep. Reports polydipsia and dry mouth despite "
+        "increased fluid intake.\n"
+        "**Social History:** Sedentary occupation (desk job, 9 hours/day). Dietary "
+        "intake high in refined carbohydrates and simple sugars (daily bagel, 2 "
+        "regular sodas, frequent takeout). Physical activity limited to 15-minute "
+        "dog walk daily.\n"
+        "**Family History:** Significant for Type 2 Diabetes Mellitus (Mother "
+        "diagnosed late 50s; Maternal Grandfather required insulin therapy).\n"
+        "**Patient Status:** Patient acknowledges diagnosis is not entirely "
+        "unexpected due to family history but reports feeling overwhelmed."
     ),
     "objective": (
-        "**Laboratory Results (Reviewed from blood draw on Tuesday):**\n"
-        "*   **Fasting Plasma Glucose:** 155 mg/dL (Reference: <100 mg/dL).\n"
-        "*   **Hemoglobin A1C:** 7.6% (Reference: <5.7%; Diabetes diagnostic "
-        "threshold \u22656.5%).\n"
-        "*   **LDL Cholesterol:** 110 mg/dL (Slightly elevated).\n\n"
-        "**Physical Examination:**\n"
-        "*   Vitals and physical exam findings not documented in provided transcript."
+        "**Laboratory Results (Reviewed):**\n"
+        "- **Fasting Plasma Glucose:** 155 mg/dL (Normal: <100 mg/dL)\n"
+        "- **Hemoglobin A1C:** 7.6% (Normal: <5.7%; Diabetes Threshold: \u22656.5%)\n"
+        "- **LDL Cholesterol:** 110 mg/dL (Slightly elevated)\n"
+        "**Review of Systems:** Positive for fatigue, polyuria, polydipsia. "
+        "Negative for chest pain or shortness of breath reported during consultation."
     ),
     "assessment": (
-        "1.  **Type 2 Diabetes Mellitus:** Newly diagnosed. Diagnosis supported by "
-        "symptomatic presentation (polydipsia, nocturia, fatigue) and confirmatory "
-        "laboratory values (Fasting Glucose 155 mg/dL, A1C 7.6%). Strong genetic "
-        "predisposition noted.\n"
-        "2.  **Hyperlipidemia:** LDL mildly elevated at 110 mg/dL.\n"
-        "3.  **Lifestyle Risk Factors:** Sedentary behavior, diet high in refined "
-        "carbohydrates and sugar-sweetened beverages."
+        "1. **Type 2 Diabetes Mellitus (New Diagnosis):** Confirmed via elevated "
+        "Fasting Glucose and HbA1c >6.5% in presence of classic hyperglycemic "
+        "symptoms.\n"
+        "2. **Hyperlipidemia:** Mild LDL elevation.\n"
+        "3. **Lifestyle Factors:** Sedentary behavior and high glycemic load diet "
+        "contributing to metabolic dysregulation."
     ),
     "plan": (
-        "**Medication:**\n"
-        "*   **Metformin:** Initiate 500 mg PO once daily with the largest meal "
-        "(dinner) to minimize gastrointestinal side effects.\n"
-        "*   **Titration:** Increase to 500 mg PO BID after two weeks if tolerated.\n"
-        "*   **Supply:** Prescription provided.\n\n"
-        "**Diagnostics/Monitoring:**\n"
-        "*   **Home Glucose Monitoring:** Prescribed glucometer and test strips. "
-        "Instructed to check blood glucose a few times per week to assess response "
-        "to dietary changes and medication. Advised against obsessive monitoring "
-        "initially.\n"
-        "*   **Follow-up Labs:** Repeat A1C and metabolic panel to be scheduled per "
-        "standard diabetes care guidelines (typically 3 months).\n\n"
-        "**Lifestyle Modifications:**\n"
-        "*   **Diet:** Eliminate sugar-sweetened beverages (regular soda) immediately. "
-        "Substitute with water, unsweetened iced tea, or diet soda. Reduce refined "
-        "carbohydrate intake (bagels, pasta, white rice).\n"
-        "*   **Exercise:** Increase physical activity from 15 minutes to 30 minutes "
-        "of walking most days of the week.\n\n"
-        "**Education:**\n"
-        "*   Discussed pathophysiology of Type 2 Diabetes and insulin resistance.\n"
-        "*   Reviewed potential side effects of Metformin (GI upset, diarrhea) and "
-        "mitigation strategies (taking with food, slow titration).\n"
-        "*   Addressed patient concerns regarding insulin therapy; clarified that "
-        "oral medication and lifestyle changes are first-line treatment.\n"
-        "*   Patient verbalized understanding of plan and expressed readiness to "
-        "implement changes."
+        "1. **Pharmacology:**\n"
+        "   - Start Metformin 500 mg PO QD with largest meal.\n"
+        "   - Titrate to 500 mg BID after 2 weeks if gastrointestinal tolerance "
+        "is maintained.\n"
+        "   - Counselled on potential side effects (GI upset, diarrhea).\n"
+        "2. **Dietary Modifications:**\n"
+        "   - Immediate cessation of sugar-sweetened beverages. Substitute with "
+        "water, unsweetened tea, or diet soda.\n"
+        "   - Reduce intake of refined carbohydrates (bagels, pasta, white rice).\n"
+        "3. **Physical Activity:**\n"
+        "   - Goal: Increase daily walking duration from 15 minutes to 30 minutes "
+        "most days of the week.\n"
+        "4. **Monitoring:**\n"
+        "   - Prescription provided for glucometer and test strips.\n"
+        "   - Instructed to monitor blood glucose several times weekly to assess "
+        "dietary response; advised against obsessive monitoring at this stage.\n"
+        "5. **Education:**\n"
+        "   - Discussed pathophysiology of insulin resistance.\n"
+        "   - Emphasized lifestyle modification as primary intervention alongside "
+        "pharmacotherapy.\n"
+        "6. **Follow-up:**\n"
+        "   - Return to clinic for medication tolerance check and potential "
+        "titration in 2 weeks.\n"
+        "   - Repeat metabolic panel per standard diabetes care guidelines."
     ),
 }
 
@@ -143,25 +125,22 @@ _SOAP_NOTE: dict[str, str] = {
 # ---------------------------------------------------------------------------
 _MEDICAL_ENTITIES: dict = {
     "symptoms": [
-        "tired",
         "fatigue",
+        "tired",
         "waking up at night",
-        "waking up to use the restroom",
         "frequent urination",
-        "increased thirst",
-        "drinking more water",
+        "thirst",
         "dry mouth",
     ],
-    "diagnoses": ["type 2 diabetes"],
-    "medications": ["metformin", "insulin"],
+    "diagnoses": ["Type 2 diabetes", "elevated LDL"],
+    "medications": ["metformin"],
     "procedures": [
-        "full physical",
         "blood draw",
-        "fasting glucose",
-        "hemoglobin A1C",
-        "monitor blood sugar",
+        "fasting glucose test",
+        "hemoglobin A1C test",
+        "blood sugar monitoring",
     ],
-    "vitals": ["LDL 110", "fasting glucose 155", "A1C 7.6%"],
+    "vitals": ["LDL 110", "Fasting glucose 155", "A1C 7.6%"],
     "allergies": [],
 }
 
@@ -219,7 +198,7 @@ class SandboxAIClient:
         await asyncio.sleep(self.latency * 0.5)
         logger.debug("sandbox extract_consultation_metadata")
         return {
-            "title": "Diagnosis and initial management of type 2 diabetes",
+            "title": "Blood work results revealing new type 2 diabetes diagnosis",
             "patient_identifier": "Mark",
         }
 
