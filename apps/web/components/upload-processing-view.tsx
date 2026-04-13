@@ -21,7 +21,12 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import { useConsultation, useUpdateConsultation } from "@/hooks/use-consultation"
+import {
+  useConsultation,
+  useConsultationStream,
+  useResumeProcessing,
+  useUpdateConsultation,
+} from "@/hooks/use-consultation"
 import { useSOAPNote, useRegenerateSOAPNote } from "@/hooks/use-soap-note"
 import { useQuery } from "@tanstack/react-query"
 import { apiFetch } from "@/lib/api"
@@ -51,7 +56,7 @@ function useTranscripts(consultationId: string, enabled: boolean) {
     queryKey: ["transcripts", consultationId],
     queryFn: () =>
       apiFetch<TranscriptResponse>(
-        `/api/v1/consultations/${consultationId}/transcripts/`,
+        `/api/v1/consultations/${consultationId}/transcripts/`
       ),
     enabled,
   })
@@ -68,7 +73,9 @@ const PROCESSING_STEP_KEYS = [
 
 function getStepIndex(step: string | null): number {
   if (!step) return -1
-  return PROCESSING_STEP_KEYS.indexOf(step as (typeof PROCESSING_STEP_KEYS)[number])
+  return PROCESSING_STEP_KEYS.indexOf(
+    step as (typeof PROCESSING_STEP_KEYS)[number]
+  )
 }
 
 function useProcessingStepLabels() {
@@ -94,14 +101,24 @@ export function UploadProcessingView({
   const router = useRouter()
   const stepLabels = useProcessingStepLabels()
   const { data: consultation } = useConsultation(consultationId, {
+    // Safety-net polling: SSE drives real-time updates, but if the stream
+    // disconnects we still pick up the latest state within a few seconds.
     refetchInterval: (query) => {
       const s = query.state.data?.status
-      return s === "processing" || s === "uploading" ? 3000 : false
+      return s === "processing" || s === "uploading" ? 8000 : false
     },
   })
 
   const isComplete = consultation?.status === "completed"
   const isFailed = consultation?.status === "failed"
+  const isStreamable =
+    consultation?.status === "processing" ||
+    consultation?.status === "uploading"
+
+  // Subscribe to real-time processing events for the live view.
+  useConsultationStream(consultationId, isStreamable)
+
+  const resumeProcessing = useResumeProcessing()
 
   const { data: transcripts } = useTranscripts(consultationId, isComplete)
   const { data: soap } = useSOAPNote(isComplete ? consultationId : "")
@@ -117,7 +134,7 @@ export function UploadProcessingView({
         { [field]: value || null },
         {
           onError: () => toast.error(t("Failed to save changes")),
-        },
+        }
       )
     }
 
@@ -134,9 +151,7 @@ export function UploadProcessingView({
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">
-                {t("Patient Identifier")}
-              </Label>
+              <Label className="text-xs">{t("Patient Identifier")}</Label>
               <Input
                 defaultValue={consultation.patient_identifier ?? ""}
                 placeholder={t("optional")}
@@ -157,8 +172,7 @@ export function UploadProcessingView({
               className="gap-2"
               onClick={() =>
                 regenerateSOAP.mutate(undefined, {
-                  onSuccess: () =>
-                    toast.success(t("SOAP note regenerated")),
+                  onSuccess: () => toast.success(t("SOAP note regenerated")),
                   onError: () =>
                     toast.error(t("Failed to regenerate SOAP note")),
                 })
@@ -195,7 +209,7 @@ export function UploadProcessingView({
                 />
               ))}
               {(!transcripts || transcripts.segments.length === 0) && (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {t("No transcript segments found.")}
                 </p>
               )}
@@ -223,7 +237,7 @@ export function UploadProcessingView({
                   ).map(({ key, label }) => (
                     <div key={key} className="space-y-1">
                       <label className="text-sm font-semibold">{label}</label>
-                      <div className="bg-muted/50 rounded-md border p-3 text-sm whitespace-pre-wrap">
+                      <div className="rounded-md border bg-muted/50 p-3 text-sm whitespace-pre-wrap">
                         {soap[key] || (
                           <span className="text-muted-foreground italic">
                             {t("Empty")}
@@ -234,7 +248,7 @@ export function UploadProcessingView({
                   ))}
                 </>
               ) : (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   {t("SOAP note not found.")}
                 </p>
               )}
@@ -247,18 +261,50 @@ export function UploadProcessingView({
 
   // Failed view
   if (isFailed) {
+    const canResume = consultation.chunks_total > 0
+    const resumedFrom = consultation.chunks_completed
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
-        <AlertCircle className="text-destructive h-12 w-12" />
+        <AlertCircle className="h-12 w-12 text-destructive" />
         <h2 className="text-lg font-semibold">{t("Processing Failed")}</h2>
         {consultation.error_message && (
-          <p className="text-muted-foreground max-w-md text-center text-sm">
+          <p className="max-w-md text-center text-sm text-muted-foreground">
             {consultation.error_message}
           </p>
         )}
-        <Button variant="outline" onClick={() => router.push("/consultations")}>
-          {t("Back to Consultations")}
-        </Button>
+        {canResume && (
+          <p className="text-xs text-muted-foreground">
+            {t("Checkpoint:")} {resumedFrom} / {consultation.chunks_total}{" "}
+            {t("chunks transcribed before the failure.")}
+          </p>
+        )}
+        <div className="flex gap-2">
+          {canResume && (
+            <Button
+              disabled={resumeProcessing.isPending}
+              className="gap-2"
+              onClick={() =>
+                resumeProcessing.mutate(consultationId, {
+                  onSuccess: () => toast.success(t("Resumed from checkpoint")),
+                  onError: () => toast.error(t("Failed to resume processing")),
+                })
+              }
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${resumeProcessing.isPending ? "animate-spin" : ""}`}
+              />
+              {resumeProcessing.isPending
+                ? t("Resuming...")
+                : t("Resume from checkpoint")}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => router.push("/consultations")}
+          >
+            {t("Back to Consultations")}
+          </Button>
+        </div>
       </div>
     )
   }
@@ -268,12 +314,12 @@ export function UploadProcessingView({
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 py-20">
-      <FileAudio className="text-primary h-12 w-12" />
+      <FileAudio className="h-12 w-12 text-primary" />
       <div className="text-center">
         <h2 className="text-xl font-semibold">
           {t("Processing your audio...")}
         </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="mt-1 text-sm text-muted-foreground">
           {t("This may take a few minutes depending on the file length.")}
         </p>
       </div>
@@ -289,21 +335,24 @@ export function UploadProcessingView({
         </CardHeader>
         <CardContent className="space-y-4">
           <Progress value={consultation.processing_progress} className="h-2" />
+          {consultation.chunks_total > 0 && (
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {t("Chunks transcribed:")} {consultation.chunks_completed} /{" "}
+              {consultation.chunks_total}
+            </p>
+          )}
           <div className="space-y-2">
             {PROCESSING_STEP_KEYS.map((key, idx) => {
               const isCurrent = idx === currentStepIdx
               const isDone = idx < currentStepIdx
               return (
-                <div
-                  key={key}
-                  className="flex items-center gap-2 text-sm"
-                >
+                <div key={key} className="flex items-center gap-2 text-sm">
                   {isDone ? (
-                    <CheckCircle2 className="text-primary h-4 w-4 shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
                   ) : isCurrent ? (
-                    <Loader2 className="text-primary h-4 w-4 shrink-0 animate-spin" />
+                    <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
                   ) : (
-                    <Circle className="text-muted-foreground/40 h-4 w-4 shrink-0" />
+                    <Circle className="h-4 w-4 shrink-0 text-muted-foreground/40" />
                   )}
                   <span
                     className={

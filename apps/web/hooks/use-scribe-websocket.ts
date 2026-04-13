@@ -21,9 +21,7 @@ export function useScribeWebSocket({
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
 
-    const ws = new WebSocket(
-      `${WS_BASE}/ws/scribe/${consultationId}`,
-    )
+    const ws = new WebSocket(`${WS_BASE}/ws/scribe/${consultationId}`)
     wsRef.current = ws
 
     ws.onopen = () => {
@@ -91,10 +89,10 @@ export function useScribeWebSocket({
           data,
           sequence,
           timestamp_ms: timestampMs,
-        }),
+        })
       )
     },
-    [],
+    []
   )
 
   const sendControl = useCallback(
@@ -102,7 +100,7 @@ export function useScribeWebSocket({
       if (wsRef.current?.readyState !== WebSocket.OPEN) return
       wsRef.current.send(JSON.stringify({ type }))
     },
-    [],
+    []
   )
 
   useEffect(() => {

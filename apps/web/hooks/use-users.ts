@@ -36,8 +36,7 @@ export function useUsers(offset = 0, limit = 20, search?: string) {
 
   return useQuery({
     queryKey: ["admin-users", offset, limit, search],
-    queryFn: () =>
-      apiFetch<UserListResponse>(`/api/v1/admin/users?${params}`),
+    queryFn: () => apiFetch<UserListResponse>(`/api/v1/admin/users?${params}`),
   })
 }
 

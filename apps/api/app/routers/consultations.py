@@ -1,4 +1,7 @@
+import asyncio
+import json
 import uuid
+from collections.abc import AsyncIterator
 
 from fastapi import (
     APIRouter,
@@ -9,6 +12,7 @@ from fastapi import (
     UploadFile,
     status,
 )
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select
 
 from app import database
@@ -22,8 +26,12 @@ from app.models.consultation import (
 )
 from app.services.audio_converter import convert_to_pcm, validate_audio_file
 from app.services.batch_audio_processor import BatchAudioProcessor
+from app.services.event_bus import event_bus
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
+
+# Status values from which resume is allowed.
+_RESUMABLE_STATUSES = {"failed", "processing"}
 
 
 @router.get("/", response_model=ConsultationListResponse)
@@ -178,6 +186,7 @@ async def upload_audio(
     await db.refresh(consultation)
 
     dashscope_client = request.app.state.dashscope_client
+    oss_client = request.app.state.oss_client
     db_session_factory = database.async_session_factory
     assert db_session_factory is not None
 
@@ -187,11 +196,126 @@ async def upload_audio(
             consultation_id=consultation_id,
             model_client=dashscope_client,
             db_session_factory=db_session_factory,
+            oss_client=oss_client,
         )
-        await processor.process(pcm_audio)
+        await processor.start(pcm_audio)
 
     background_tasks.add_task(_process_upload)
     return ConsultationResponse.model_validate(consultation)
+
+
+@router.post(
+    "/{consultation_id}/resume",
+    response_model=ConsultationResponse,
+)
+async def resume_processing(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+    background_tasks: BackgroundTasks,
+):
+    """Resume a failed (or stuck) transcription run from the last checkpoint."""
+    consultation = await _get_user_consultation(db, consultation_id, user["id"])
+    if consultation.status not in _RESUMABLE_STATUSES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Cannot resume from status '{consultation.status}'. "
+                f"Expected one of: {sorted(_RESUMABLE_STATUSES)}"
+            ),
+        )
+    if consultation.pcm_audio_oss_key is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "No persisted audio checkpoint to resume from. "
+                "Re-upload the audio to restart processing."
+            ),
+        )
+
+    consultation.status = "processing"
+    consultation.error_message = None
+    await db.commit()
+    await db.refresh(consultation)
+
+    dashscope_client = request.app.state.dashscope_client
+    oss_client = request.app.state.oss_client
+    db_session_factory = database.async_session_factory
+    assert db_session_factory is not None
+
+    async def _resume() -> None:
+        processor = BatchAudioProcessor(
+            consultation_id=consultation_id,
+            model_client=dashscope_client,
+            db_session_factory=db_session_factory,
+            oss_client=oss_client,
+        )
+        await processor.resume()
+
+    background_tasks.add_task(_resume)
+    return ConsultationResponse.model_validate(consultation)
+
+
+@router.get("/{consultation_id}/events")
+async def stream_consultation_events(
+    consultation_id: uuid.UUID,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    """Server-Sent Events stream of processing progress + transcript updates.
+
+    Emits an initial ``snapshot`` event with the current consultation state so
+    clients can render immediately, then forwards events from the background
+    processor as they happen. Completes with a ``status: completed`` or
+    ``status: failed`` event.
+    """
+    consultation = await _get_user_consultation(db, consultation_id, user["id"])
+
+    async def event_stream() -> AsyncIterator[bytes]:
+        # Initial snapshot so reconnecting clients catch up without polling.
+        snapshot = {
+            "type": "snapshot",
+            "status": consultation.status,
+            "step": consultation.processing_step,
+            "progress": consultation.processing_progress,
+            "chunks_total": consultation.chunks_total,
+            "chunks_completed": consultation.chunks_completed,
+            "error": consultation.error_message,
+        }
+        yield _sse_format(snapshot)
+
+        # If the run is already in a terminal state, no need to subscribe.
+        if consultation.status in ("completed", "failed"):
+            return
+
+        subscription = event_bus.subscribe(consultation_id)
+        try:
+            async for event in subscription:
+                yield _sse_format(event)
+                # Close the stream once the run reaches a terminal state.
+                if event.get("type") == "status" and event.get("status") in (
+                    "completed",
+                    "failed",
+                ):
+                    break
+        except asyncio.CancelledError:
+            # Client disconnected; processing continues independently.
+            raise
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+def _sse_format(payload: dict) -> bytes:
+    return f"data: {json.dumps(payload)}\n\n".encode()
 
 
 async def _get_user_consultation(

@@ -27,13 +27,16 @@ export function TranscriptSegmentItem({
       }`}
     >
       <div className="mb-1 flex items-center gap-2">
-        <span className="text-muted-foreground text-xs">#{sequence}</span>
+        <span className="text-xs text-muted-foreground">#{sequence}</span>
         {speakerLabel && (
           <Badge variant="outline" className="text-xs">
             {speakerLabel}
           </Badge>
         )}
-        <Badge variant={isMedicallyRelevant ? "default" : "secondary"} className="text-xs">
+        <Badge
+          variant={isMedicallyRelevant ? "default" : "secondary"}
+          className="text-xs"
+        >
           {isMedicallyRelevant ? t("Relevant") : t("Small Talk")}
         </Badge>
       </div>

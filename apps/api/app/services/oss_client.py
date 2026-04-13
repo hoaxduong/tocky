@@ -40,3 +40,13 @@ class OSSClient:
         oss_key = f"audio/{consultation_id}/full.{extension}"
         self.bucket.put_object(oss_key, audio_bytes)
         return oss_key
+
+    def upload_pcm(
+        self,
+        consultation_id: uuid.UUID,
+        pcm_bytes: bytes,
+    ) -> str:
+        """Persist converted PCM so a failed transcription run can resume."""
+        oss_key = f"audio/{consultation_id}/source.pcm"
+        self.bucket.put_object(oss_key, pcm_bytes)
+        return oss_key

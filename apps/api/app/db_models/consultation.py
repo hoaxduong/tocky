@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -20,8 +20,19 @@ class Consultation(Base):
     processing_step: Mapped[str | None] = mapped_column(String(50))
     processing_progress: Mapped[int] = mapped_column(Integer, default=0)
     error_message: Mapped[str | None] = mapped_column(Text)
+
+    # Final stitched audio (populated on finalize)
     full_audio_oss_key: Mapped[str | None] = mapped_column(String(500))
     full_audio_duration_ms: Mapped[int | None] = mapped_column()
+
+    # Transcription checkpoint: persisted PCM + per-chunk progress so a failed
+    # batch run can resume without re-uploading or re-transcribing.
+    pcm_audio_oss_key: Mapped[str | None] = mapped_column(String(500))
+    pcm_audio_size_bytes: Mapped[int | None] = mapped_column(Integer)
+    chunks_total: Mapped[int] = mapped_column(Integer, default=0)
+    chunks_completed: Mapped[int] = mapped_column(Integer, default=0)
+    soap_generated: Mapped[bool] = mapped_column(Boolean, default=False)
+
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

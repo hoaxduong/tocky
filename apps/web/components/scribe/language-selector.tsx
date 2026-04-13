@@ -31,7 +31,9 @@ export function LanguageSelector({
 
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium">{t("Consultation Language")}</label>
+      <label className="text-sm font-medium">
+        {t("Consultation Language")}
+      </label>
       <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger className="w-full">
           <SelectValue />

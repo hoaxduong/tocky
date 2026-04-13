@@ -235,7 +235,7 @@ class DashScopeClient:
         response = await self.client.post(
             "/chat/completions",
             json={
-                "model": self.model_name,
+                "model": self.soap_model,
                 "messages": messages,
                 "max_tokens": 1500,
                 "temperature": 0.1,

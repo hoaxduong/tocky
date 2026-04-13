@@ -33,7 +33,7 @@ export function ConsultationHeader({
         <Badge variant="outline">{language}</Badge>
         <StatusBadge status={status} />
       </div>
-      <div className="text-muted-foreground font-mono text-lg tabular-nums">
+      <div className="font-mono text-lg text-muted-foreground tabular-nums">
         {formatElapsed(elapsedMs)}
       </div>
     </div>

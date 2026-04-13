@@ -46,9 +46,7 @@ export function useSOAPNote(consultationId: string) {
   return useQuery({
     queryKey: ["soap-note", consultationId],
     queryFn: () =>
-      apiFetch<SOAPNote>(
-        `/api/v1/consultations/${consultationId}/soap-note/`,
-      ),
+      apiFetch<SOAPNote>(`/api/v1/consultations/${consultationId}/soap-note/`),
     enabled: !!consultationId,
   })
 }
@@ -57,13 +55,10 @@ export function useUpdateSOAPNote(consultationId: string) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (update: SOAPNoteUpdate) =>
-      apiFetch<SOAPNote>(
-        `/api/v1/consultations/${consultationId}/soap-note/`,
-        {
-          method: "PUT",
-          body: JSON.stringify(update),
-        },
-      ),
+      apiFetch<SOAPNote>(`/api/v1/consultations/${consultationId}/soap-note/`, {
+        method: "PUT",
+        body: JSON.stringify(update),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["soap-note", consultationId],
@@ -78,7 +73,7 @@ export function useFinalizeSOAPNote(consultationId: string) {
     mutationFn: () =>
       apiFetch<SOAPNote>(
         `/api/v1/consultations/${consultationId}/soap-note/finalize`,
-        { method: "POST" },
+        { method: "POST" }
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -96,15 +91,12 @@ interface ConsultationAudio {
   duration_ms: number
 }
 
-export function useConsultationAudio(
-  consultationId: string,
-  enabled: boolean,
-) {
+export function useConsultationAudio(consultationId: string, enabled: boolean) {
   return useQuery({
     queryKey: ["consultation-audio", consultationId],
     queryFn: () =>
       apiFetch<ConsultationAudio>(
-        `/api/v1/consultations/${consultationId}/soap-note/audio`,
+        `/api/v1/consultations/${consultationId}/soap-note/audio`
       ),
     enabled: enabled && !!consultationId,
     staleTime: 30 * 60 * 1000,
@@ -132,7 +124,7 @@ export function useTranscripts(consultationId: string, enabled = true) {
     queryKey: ["transcripts", consultationId],
     queryFn: () =>
       apiFetch<TranscriptResponse>(
-        `/api/v1/consultations/${consultationId}/transcripts/`,
+        `/api/v1/consultations/${consultationId}/transcripts/`
       ),
     enabled: enabled && !!consultationId,
   })
@@ -144,7 +136,7 @@ export function useRegenerateSOAPNote(consultationId: string) {
     mutationFn: () =>
       apiFetch<SOAPNote>(
         `/api/v1/consultations/${consultationId}/soap-note/regenerate`,
-        { method: "POST" },
+        { method: "POST" }
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({

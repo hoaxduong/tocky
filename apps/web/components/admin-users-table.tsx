@@ -86,9 +86,8 @@ function UserActions({ user }: { user: User }) {
                 updateRole.mutate(
                   { userId: user.id, role: "doctor" },
                   {
-                    onSuccess: () =>
-                      toast.success(t("Role updated to doctor")),
-                  },
+                    onSuccess: () => toast.success(t("Role updated to doctor")),
+                  }
                 )
               }
             >
@@ -101,9 +100,8 @@ function UserActions({ user }: { user: User }) {
                 updateRole.mutate(
                   { userId: user.id, role: "admin" },
                   {
-                    onSuccess: () =>
-                      toast.success(t("Role updated to admin")),
-                  },
+                    onSuccess: () => toast.success(t("Role updated to admin")),
+                  }
                 )
               }
             >
@@ -130,7 +128,7 @@ function UserActions({ user }: { user: User }) {
                   { userId: user.id },
                   {
                     onSuccess: () => toast.success(t("User banned")),
-                  },
+                  }
                 )
               }
             >
@@ -152,7 +150,7 @@ function UserActions({ user }: { user: User }) {
           <AlertDialogTitle>{t("Delete User")}</AlertDialogTitle>
           <AlertDialogDescription>
             {t(
-              "Are you sure you want to delete this user? This action cannot be undone.",
+              "Are you sure you want to delete this user? This action cannot be undone."
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -259,7 +257,7 @@ function CreateUserDialog() {
               id="create-role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="border-input bg-background ring-offset-background flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
             >
               <option value="doctor">{t("Doctor")}</option>
               <option value="admin">{t("Admin")}</option>
@@ -298,7 +296,9 @@ export function AdminUsersTable() {
       accessorKey: "role",
       header: t("Role"),
       cell: ({ row }) => (
-        <Badge variant={row.original.role === "admin" ? "default" : "secondary"}>
+        <Badge
+          variant={row.original.role === "admin" ? "default" : "secondary"}
+        >
           {row.original.role}
         </Badge>
       ),
@@ -316,8 +316,7 @@ export function AdminUsersTable() {
     {
       accessorKey: "created_at",
       header: t("Created"),
-      cell: ({ row }) =>
-        new Date(row.original.created_at).toLocaleDateString(),
+      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
     },
     {
       id: "actions",
@@ -337,7 +336,7 @@ export function AdminUsersTable() {
         <CreateUserDialog />
       </div>
       {isLoading ? (
-        <div className="text-muted-foreground py-8 text-center">
+        <div className="py-8 text-center text-muted-foreground">
           {t("Loading...")}
         </div>
       ) : (

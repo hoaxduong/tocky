@@ -5,7 +5,11 @@ import { cn } from "@workspace/ui/lib/utils"
 
 const STATUS_CONFIG: Record<
   string,
-  { variant: "default" | "secondary" | "outline"; className?: string; pulse?: boolean }
+  {
+    variant: "default" | "secondary" | "outline"
+    className?: string
+    pulse?: boolean
+  }
 > = {
   recording: {
     variant: "outline",
@@ -28,8 +32,7 @@ const STATUS_CONFIG: Record<
   completed: { variant: "default" },
   failed: {
     variant: "outline",
-    className:
-      "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400",
+    className: "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400",
   },
   archived: {
     variant: "secondary",

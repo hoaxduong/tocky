@@ -30,14 +30,14 @@ class SOAPReviewer:
         "2. Flag only concerns a physician would actually want surfaced. "
         "Skip stylistic preferences.\n"
         "3. Return confidence as one of: low, medium, high.\n"
-        "4. If nothing is worth flagging, return {\"flags\": []}.\n\n"
+        '4. If nothing is worth flagging, return {"flags": []}.\n\n'
         "Respond with a single valid JSON object in this shape:\n"
-        "{\"flags\": ["
-        "{\"section\": \"subjective|objective|assessment|plan\", "
-        "\"quoted_span\": \"<text copied verbatim>\", "
-        "\"issue_type\": \"<one of the issue types>\", "
-        "\"suggestion\": \"<what the physician should verify or consider>\", "
-        "\"confidence\": \"low|medium|high\"}"
+        '{"flags": ['
+        '{"section": "subjective|objective|assessment|plan", '
+        '"quoted_span": "<text copied verbatim>", '
+        '"issue_type": "<one of the issue types>", '
+        '"suggestion": "<what the physician should verify or consider>", '
+        '"confidence": "low|medium|high"}'
         "]}\n"
         "Output ONLY the JSON. No prose, no markdown fence."
     )

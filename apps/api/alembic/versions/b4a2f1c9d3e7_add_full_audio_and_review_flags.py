@@ -1,7 +1,7 @@
 """add full audio columns and review flags
 
 Revision ID: b4a2f1c9d3e7
-Revises: e68c28e51b31
+Revises: 2e1ad0cc1690
 Create Date: 2026-04-12 20:00:00.000000
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = 'b4a2f1c9d3e7'
-down_revision: Union[str, Sequence[str], None] = 'e68c28e51b31'
+down_revision: Union[str, Sequence[str], None] = '2e1ad0cc1690'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

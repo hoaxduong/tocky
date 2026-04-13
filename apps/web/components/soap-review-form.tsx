@@ -56,8 +56,12 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const { data: audio } = useConsultationAudio(consultationId, hasAudio)
 
   const flagTranscriptMatches = useMemo(
-    () => matchFlagsToTranscript(soap?.review_flags ?? [], transcripts?.segments ?? []),
-    [soap?.review_flags, transcripts?.segments],
+    () =>
+      matchFlagsToTranscript(
+        soap?.review_flags ?? [],
+        transcripts?.segments ?? []
+      ),
+    [soap?.review_flags, transcripts?.segments]
   )
 
   if (isLoading) {
@@ -78,7 +82,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   function handleSave(section: string, value: string) {
     updateSOAP.mutate(
       { [section]: value },
-      { onError: () => toast.error(t("Failed to save changes")) },
+      { onError: () => toast.error(t("Failed to save changes")) }
     )
   }
 
@@ -97,7 +101,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   }
 
   const visibleFlags = (soap.review_flags ?? []).filter(
-    (_, i) => !dismissedFlags.has(i),
+    (_, i) => !dismissedFlags.has(i)
   )
 
   return (
@@ -121,8 +125,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                 className="gap-2"
                 onClick={() =>
                   regenerateSOAP.mutate(undefined, {
-                    onSuccess: () =>
-                      toast.success(t("SOAP note regenerated")),
+                    onSuccess: () => toast.success(t("SOAP note regenerated")),
                     onError: () =>
                       toast.error(t("Failed to regenerate SOAP note")),
                   })
@@ -151,7 +154,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       {t(
-                        "Running the QA reviewer and preparing playback audio. This takes a few seconds and locks the note for editing.",
+                        "Running the QA reviewer and preparing playback audio. This takes a few seconds and locks the note for editing."
                       )}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
@@ -202,7 +205,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                 <FlagCard
                   key={i}
                   flag={flag}
-                  match={flagTranscriptMatches[i]}
+                  match={flagTranscriptMatches[i] ?? null}
                   canSeek={!!audio?.url}
                   onSeek={seekTo}
                   onDismiss={() =>
@@ -210,7 +213,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                   }
                   t={t}
                 />
-              ),
+              )
             )}
           </CardContent>
         </Card>
@@ -250,7 +253,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                       <Badge key={`${category}-${i}`} variant="outline">
                         {category}: {entity}
                       </Badge>
-                    )),
+                    ))
                 )}
               </div>
             </CardContent>
@@ -269,21 +272,25 @@ interface FlagCardProps {
   t: (s: string) => string
 }
 
-function FlagCard({ flag, match, canSeek, onSeek, onDismiss, t }: FlagCardProps) {
+function FlagCard({
+  flag,
+  match,
+  canSeek,
+  onSeek,
+  onDismiss,
+  t,
+}: FlagCardProps) {
   const issueLabel = ISSUE_LABELS[flag.issue_type] ?? flag.issue_type
 
   return (
-    <div className="rounded-md border bg-muted/30 p-3 space-y-2">
+    <div className="space-y-2 rounded-md border bg-muted/30 p-3">
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="capitalize">
             {flag.section}
           </Badge>
           <Badge variant="outline">{t(issueLabel)}</Badge>
-          <Badge
-            variant="outline"
-            className={confidenceClass(flag.confidence)}
-          >
+          <Badge variant="outline" className={confidenceClass(flag.confidence)}>
             {flag.confidence}
           </Badge>
         </div>
@@ -291,7 +298,7 @@ function FlagCard({ flag, match, canSeek, onSeek, onDismiss, t }: FlagCardProps)
           {t("Dismiss")}
         </Button>
       </div>
-      <blockquote className="text-sm italic border-l-2 pl-2">
+      <blockquote className="border-l-2 pl-2 text-sm italic">
         "{flag.quoted_span}"
       </blockquote>
       <p className="text-sm">{flag.suggestion}</p>
@@ -335,14 +342,12 @@ function formatMs(ms: number) {
 
 function matchFlagsToTranscript(
   flags: ReviewFlag[],
-  segments: TranscriptSegment[],
+  segments: TranscriptSegment[]
 ): (TranscriptSegment | null)[] {
   return flags.map((flag) => {
     const needle = flag.quoted_span.trim().toLowerCase()
     if (!needle) return null
-    const direct = segments.find((s) =>
-      s.text.toLowerCase().includes(needle),
-    )
+    const direct = segments.find((s) => s.text.toLowerCase().includes(needle))
     if (direct) return direct
     const words = needle.split(/\s+/).filter((w) => w.length > 3)
     if (words.length === 0) return null
@@ -351,7 +356,7 @@ function matchFlagsToTranscript(
       const lower = seg.text.toLowerCase()
       const score = words.reduce(
         (acc, w) => (lower.includes(w) ? acc + 1 : acc),
-        0,
+        0
       )
       if (score > 0 && (!best || score > best.score)) {
         best = { seg, score }

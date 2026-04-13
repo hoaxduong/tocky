@@ -71,7 +71,7 @@ export function SignInForm() {
               required
             />
           </div>
-          {error && <p className="text-destructive text-sm">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? t("Loading...") : t("Sign In")}
           </Button>
