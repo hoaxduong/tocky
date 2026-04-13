@@ -37,6 +37,7 @@ import {
 } from "@workspace/ui/components/alert"
 import {
   useConsultation,
+  useConsultationAudio,
   useUpdateConsultation,
   useRetryProcessing,
 } from "@/hooks/use-consultation"
@@ -48,6 +49,7 @@ import { LanguageSelector } from "@/components/scribe/language-selector"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
 import { StatusBadge } from "@/components/status-badge"
 import { useProcessingEvents } from "@/hooks/use-processing-events"
+import { AudioPlayer } from "@/components/audio-player"
 import { toast } from "sonner"
 
 // ---------------------------------------------------------------------------
@@ -203,6 +205,10 @@ export function UploadProcessingView({
   const regenerateSOAP = useRegenerateSOAPNote(
     isComplete || isCompletedWithErrors ? consultationId : "",
   )
+  const { data: audio } = useConsultationAudio(
+    consultationId,
+    isComplete || isCompletedWithErrors,
+  )
   const updateConsultation = useUpdateConsultation(consultationId)
   const retryProcessing = useRetryProcessing(consultationId)
 
@@ -333,6 +339,10 @@ export function UploadProcessingView({
             </Button>
           </div>
         </div>
+
+        {audio?.url && (
+          <AudioPlayer src={audio.url} durationMs={audio.duration_ms} />
+        )}
 
         <ScribeLayout>
           <ScribeLayout.Left>

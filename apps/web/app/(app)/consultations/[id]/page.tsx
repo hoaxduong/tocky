@@ -3,7 +3,10 @@
 import { use, useCallback, useEffect, useRef } from "react"
 import { useExtracted } from "next-intl"
 import { useScribeStore } from "@/lib/stores/use-scribe-store"
-import { useConsultation } from "@/hooks/use-consultation"
+import {
+  useConsultation,
+  useConsultationAudio,
+} from "@/hooks/use-consultation"
 import { useScribeWebSocket } from "@/hooks/use-scribe-websocket"
 import { useAudioRecorder } from "@/hooks/use-audio-recorder"
 import { ConsultationHeader } from "@/components/scribe/consultation-header"
@@ -13,6 +16,7 @@ import { TranscriptPanel } from "@/components/scribe/transcript-panel"
 import { SOAPEditor } from "@/components/scribe/soap-editor"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
 import { UploadProcessingView } from "@/components/upload-processing-view"
+import { AudioPlayer } from "@/components/audio-player"
 import { Button } from "@workspace/ui/components/button"
 import Link from "next/link"
 
@@ -37,6 +41,11 @@ function LiveScribeView({ id }: { id: string }) {
   const { data: consultation } = useConsultation(id)
   const { status, elapsedMs, setConsultationId, setStatus, reset } =
     useScribeStore()
+
+  const { data: audio } = useConsultationAudio(
+    id,
+    !!consultation?.has_audio && status === "completed"
+  )
 
   const { connect, disconnect, sendAudioChunk, sendControl } =
     useScribeWebSocket({ consultationId: id })
@@ -130,6 +139,10 @@ function LiveScribeView({ id }: { id: string }) {
         />
         <AudioVisualizer level={audioLevel} isRecording={isRecording} />
       </div>
+
+      {audio?.url && (
+        <AudioPlayer src={audio.url} durationMs={audio.duration_ms} />
+      )}
 
       <ScribeLayout>
         <ScribeLayout.Left>

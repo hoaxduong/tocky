@@ -1,6 +1,10 @@
 "use client"
 
 import { useMemo, useRef, useState } from "react"
+import {
+  AudioPlayer,
+  type AudioPlayerHandle,
+} from "@/components/audio-player"
 import { useExtracted } from "next-intl"
 import { AlertTriangle, Check, Play, RefreshCw } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
@@ -51,7 +55,7 @@ interface SOAPReviewFormProps {
 
 export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const t = useExtracted()
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const playerRef = useRef<AudioPlayerHandle>(null)
   const [dismissedFlags, setDismissedFlags] = useState<Set<number>>(new Set())
 
   const { data: soap, isLoading } = useSOAPNote(consultationId)
@@ -101,10 +105,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   }
 
   function seekTo(ms: number) {
-    const el = audioRef.current
-    if (!el) return
-    el.currentTime = ms / 1000
-    void el.play().catch(() => {})
+    playerRef.current?.seekTo(ms)
   }
 
   const visibleFlags = (soap.review_flags ?? []).filter(
@@ -179,22 +180,11 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
       />
 
       {audio?.url && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t("Consultation Audio")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <audio
-              ref={audioRef}
-              src={audio.url}
-              controls
-              preload="metadata"
-              className="w-full"
-            />
-          </CardContent>
-        </Card>
+        <AudioPlayer
+          ref={playerRef}
+          src={audio.url}
+          durationMs={audio.duration_ms}
+        />
       )}
 
       {visibleFlags.length > 0 && (

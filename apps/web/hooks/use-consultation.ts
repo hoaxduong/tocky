@@ -14,6 +14,7 @@ export interface Consultation {
   processing_step: string | null
   processing_progress: number
   error_message: string | null
+  has_audio: boolean
   started_at: string
   ended_at: string | null
   created_at: string
@@ -147,6 +148,27 @@ export function useRetryProcessing(consultationId: string) {
       })
       queryClient.invalidateQueries({ queryKey: ["consultations"] })
     },
+  })
+}
+
+export interface ConsultationAudio {
+  url: string
+  duration_ms: number
+}
+
+export function useConsultationAudio(
+  consultationId: string,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ["consultation-audio", consultationId],
+    queryFn: () =>
+      apiFetch<ConsultationAudio>(
+        `/api/v1/consultations/${consultationId}/audio`,
+      ),
+    enabled: enabled && !!consultationId,
+    staleTime: 30 * 60 * 1000,
+    retry: false,
   })
 }
 

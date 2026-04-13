@@ -23,6 +23,7 @@ from app.models.consultation import (
     ConsultationUpdate,
 )
 from app.services.audio_converter import convert_to_pcm, validate_audio_file
+from app.services.audio_stitcher import AudioStitcher, _wrap_pcm_as_wav
 from app.services.batch_audio_processor import BatchAudioProcessor
 from app.services.event_queue import EventQueueRegistry, StatusEvent
 
@@ -292,6 +293,59 @@ async def retry_processing(
     task.add_done_callback(request.app.state.background_tasks.discard)
 
     return ConsultationResponse.model_validate(consultation)
+
+
+@router.get("/{consultation_id}/audio")
+async def get_consultation_audio(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    consultation = await _get_user_consultation(db, consultation_id, user["id"])
+    oss_client = getattr(request.app.state, "oss_client", None)
+    if oss_client is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Audio storage not configured",
+        )
+
+    # Fast path: already stitched
+    if consultation.full_audio_oss_key:
+        url = oss_client.get_audio_url(consultation.full_audio_oss_key, expires=3600)
+        return {"url": url, "duration_ms": consultation.full_audio_duration_ms}
+
+    # Try stitching from AudioSegment rows
+    stitcher = AudioStitcher(oss_client)
+    stitched = await stitcher.stitch_consultation(db, consultation_id)
+    if stitched:
+        consultation.full_audio_oss_key, consultation.full_audio_duration_ms = stitched
+        await db.commit()
+        url = oss_client.get_audio_url(consultation.full_audio_oss_key, expires=3600)
+        return {"url": url, "duration_ms": consultation.full_audio_duration_ms}
+
+    # Wrap source PCM as WAV (upload mode)
+    if consultation.pcm_audio_oss_key:
+        pcm_data = await asyncio.to_thread(
+            oss_client.download_object, consultation.pcm_audio_oss_key
+        )
+        sample_rate = 16000
+        wav_bytes = _wrap_pcm_as_wav(pcm_data, sample_rate)
+        # 16-bit mono: 2 bytes per sample
+        duration_ms = (len(pcm_data) * 1000) // (sample_rate * 2)
+        oss_key = await asyncio.to_thread(
+            oss_client.upload_full_audio, consultation_id, wav_bytes, "wav"
+        )
+        consultation.full_audio_oss_key = oss_key
+        consultation.full_audio_duration_ms = duration_ms
+        await db.commit()
+        url = oss_client.get_audio_url(oss_key, expires=3600)
+        return {"url": url, "duration_ms": duration_ms}
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No audio available for this consultation",
+    )
 
 
 async def _get_user_consultation(
