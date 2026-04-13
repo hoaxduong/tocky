@@ -202,5 +202,28 @@ class SandboxAIClient:
             "patient_identifier": "Mark",
         }
 
+    async def suggest_icd10_codes(
+        self, clinical_context: str, diagnoses: list[str]
+    ) -> list[dict]:
+        await asyncio.sleep(self.latency)
+        logger.debug("sandbox suggest_icd10_codes")
+        return [
+            {
+                "diagnosis": "Type 2 diabetes",
+                "code": "E11.9",
+                "description": "Type 2 diabetes mellitus, unspecified",
+            },
+            {
+                "diagnosis": "Type 2 diabetes",
+                "code": "E11.65",
+                "description": "Type 2 diabetes mellitus with hyperglycaemia",
+            },
+            {
+                "diagnosis": "elevated LDL",
+                "code": "E78.5",
+                "description": "Hyperlipidaemia, unspecified",
+            },
+        ]
+
     async def close(self) -> None:
         pass

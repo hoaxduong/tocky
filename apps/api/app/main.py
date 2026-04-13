@@ -16,6 +16,7 @@ from app.routers import (
     consultations,
     events,
     health,
+    icd10,
     scribe_ws,
     soap_notes,
     transcripts,
@@ -154,6 +155,7 @@ api_v1.include_router(consultations.router)
 api_v1.include_router(soap_notes.router)
 api_v1.include_router(transcripts.router)
 api_v1.include_router(events.router)
+api_v1.include_router(icd10.router)
 api_v1.include_router(admin.router)
 app.include_router(api_v1)
 

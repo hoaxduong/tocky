@@ -8,8 +8,8 @@ msgstr ""
 
 #: app/(app)/consultations/[id]/page.tsx:164
 #: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:118
-#: components/soap-review-form.tsx:122
+#: components/soap-review-form.tsx:129
+#: components/soap-review-form.tsx:133
 #: components/upload-processing-view.tsx:412
 msgid "63vr3O"
 msgstr "SOAP Note"
@@ -27,7 +27,7 @@ msgstr "Admin"
 #: app/admin/consultations/page.tsx:13
 #: components/consultations-list.tsx:24
 #: components/consultations-list.tsx:27
-#: components/soap-review-form.tsx:121
+#: components/soap-review-form.tsx:132
 msgid "+WBJgJ"
 msgstr "Consultations"
 
@@ -109,7 +109,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est 
 
 #: components/admin-users-table.tsx:158
 #: components/scribe/consultation-card.tsx:143
-#: components/soap-review-form.tsx:170
+#: components/soap-review-form.tsx:181
 msgid "47FYwb"
 msgstr "Annuler"
 
@@ -266,7 +266,7 @@ msgid "UKxoV8"
 msgstr "Bon retour"
 
 #: components/dashboard-content.tsx:64
-#: components/soap-review-form.tsx:127
+#: components/soap-review-form.tsx:138
 #: components/upload-processing-view.tsx:416
 msgid "95stPq"
 msgstr "Terminée"
@@ -274,6 +274,50 @@ msgstr "Terminée"
 #: components/dashboard-content.tsx:79
 msgid "XVT1Vj"
 msgstr "Consultations récentes"
+
+#: components/icd10-code-card.tsx:77
+msgid "rgFz3V"
+msgstr ""
+
+#: components/icd10-code-card.tsx:94
+msgid "dnr/he"
+msgstr ""
+
+#: components/icd10-code-card.tsx:94
+msgid "wlN7UZ"
+msgstr ""
+
+#: components/icd10-code-card.tsx:100
+msgid "CTUP7e"
+msgstr ""
+
+#: components/icd10-code-card.tsx:122
+msgid "JyafjS"
+msgstr ""
+
+#: components/icd10-code-card.tsx:156
+msgid "sWCC50"
+msgstr ""
+
+#: components/icd10-code-card.tsx:158
+msgid "C1ezJL"
+msgstr ""
+
+#: components/icd10-code-card.tsx:159
+msgid "KpLCzK"
+msgstr ""
+
+#: components/icd10-code-card.tsx:171
+msgid "dM+p3/"
+msgstr ""
+
+#: components/icd10-code-card.tsx:183
+msgid "N2IrpM"
+msgstr ""
+
+#: components/icd10-code-card.tsx:194
+msgid "VzIOKf"
+msgstr ""
 
 #: components/new-consultation-dialog.tsx:49
 msgid "j/OW7m"
@@ -373,54 +417,54 @@ msgid "pXFAd/"
 msgstr "Arrêter l'enregistrement"
 
 #: components/scribe/soap-editor.tsx:19
-#: components/soap-review-form.tsx:87
+#: components/soap-review-form.tsx:91
 #: components/upload-processing-view.tsx:430
 msgid "R2VjIH"
 msgstr "Subjective"
 
 #: components/scribe/soap-editor.tsx:20
-#: components/soap-review-form.tsx:88
+#: components/soap-review-form.tsx:92
 #: components/upload-processing-view.tsx:431
 msgid "khNSj1"
 msgstr "Objective"
 
 #: components/scribe/soap-editor.tsx:21
-#: components/soap-review-form.tsx:89
+#: components/soap-review-form.tsx:93
 #: components/upload-processing-view.tsx:432
 msgid "ueRCsi"
 msgstr "Assessment"
 
 #: components/scribe/soap-editor.tsx:22
-#: components/soap-review-form.tsx:90
+#: components/soap-review-form.tsx:94
 #: components/upload-processing-view.tsx:433
 msgid "fz0z4c"
 msgstr "Plan"
 
 #: components/scribe/soap-editor.tsx:29
-#: components/soap-review-form.tsx:127
+#: components/soap-review-form.tsx:138
 #: components/upload-processing-view.tsx:416
 msgid "W6nwjo"
 msgstr "Brouillon"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:155
+#: components/soap-review-form.tsx:166
 msgid "Zmv34N"
 msgstr "Finaliser la note"
 
 #: components/scribe/soap-section.tsx:33
-#: components/soap-review-form.tsx:227
+#: components/soap-review-form.tsx:238
 #: components/upload-processing-view.tsx:420
 msgid "TJo5E6"
 msgstr "Aperçu"
 
 #: components/scribe/soap-section.tsx:34
-#: components/soap-review-form.tsx:228
+#: components/soap-review-form.tsx:239
 #: components/upload-processing-view.tsx:421
 msgid "nV0wNv"
 msgstr "Brut"
 
 #: components/scribe/soap-section.tsx:43
-#: components/soap-review-form.tsx:237
+#: components/soap-review-form.tsx:248
 #: components/upload-processing-view.tsx:447
 msgid "6de2Su"
 msgstr "Pas encore de contenu"
@@ -500,56 +544,65 @@ msgstr "Vous avez déjà un compte ?"
 msgid "TemVby"
 msgstr "Nom complet"
 
-#: components/soap-review-form.tsx:96
+#: components/soap-review-form.tsx:100
+#: components/soap-review-form.tsx:107
 #: components/upload-processing-view.tsx:295
 msgid "WP4Inj"
 msgstr "Échec de l'enregistrement des modifications"
 
-#: components/soap-review-form.tsx:102
+#: components/soap-review-form.tsx:113
 msgid "cbHRLl"
 msgstr "SOAP note finalisée"
 
-#: components/soap-review-form.tsx:103
+#: components/soap-review-form.tsx:114
 msgid "Z8pSSB"
 msgstr "Échec de la finalisation de la note"
 
-#: components/soap-review-form.tsx:136
+#: components/soap-review-form.tsx:147
 #: components/upload-processing-view.tsx:357
 msgid "iNe+Ig"
 msgstr "SOAP note régénérée"
 
-#: components/soap-review-form.tsx:138
+#: components/soap-review-form.tsx:149
 #: components/upload-processing-view.tsx:358
 msgid "VsY04C"
 msgstr "Échec de la régénération de la SOAP note"
 
-#: components/soap-review-form.tsx:146
+#: components/soap-review-form.tsx:157
 #: components/upload-processing-view.tsx:363
 msgid "n6PmWV"
 msgstr "Régénération..."
 
-#: components/soap-review-form.tsx:147
+#: components/soap-review-form.tsx:158
 #: components/upload-processing-view.tsx:363
 msgid "6PgVSe"
 msgstr "Régénérer"
 
-#: components/soap-review-form.tsx:161
+#: components/soap-review-form.tsx:172
 msgid "3hVwhB"
 msgstr "Finaliser la SOAP Note ?"
 
-#: components/soap-review-form.tsx:164
+#: components/soap-review-form.tsx:175
 msgid "3AWe+Q"
 msgstr "Exécution du réviseur QA et préparation de l'audio de lecture. Cela prend quelques secondes et verrouille la note pour modification."
 
-#: components/soap-review-form.tsx:172
+#: components/soap-review-form.tsx:183
 msgid "J9w6+G"
 msgstr "Finaliser"
 
-#: components/soap-review-form.tsx:195
+#: components/soap-review-form.tsx:206
 msgid "zNor7p"
 msgstr "Signalements du réviseur"
 
-#: components/soap-review-form.tsx:260
+#: components/soap-review-form.tsx:272
+msgid "McM8W7"
+msgstr ""
+
+#: components/soap-review-form.tsx:273
+msgid "ryF3/U"
+msgstr ""
+
+#: components/soap-review-form.tsx:284
 msgid "mk75EB"
 msgstr "Entités médicales"
 

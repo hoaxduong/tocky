@@ -19,6 +19,14 @@ export interface ReviewFlag {
   confidence: "low" | "medium" | "high"
 }
 
+export interface ICD10Code {
+  code: string
+  description: string
+  description_en?: string
+  diagnosis: string
+  status: "suggested" | "confirmed" | "rejected"
+}
+
 interface SOAPNote {
   id: string
   consultation_id: string
@@ -28,6 +36,7 @@ interface SOAPNote {
   plan: string
   medical_entities: Record<string, string[]>
   review_flags: ReviewFlag[]
+  icd10_codes: ICD10Code[]
   is_draft: boolean
   version: number
   created_at: string
@@ -39,6 +48,7 @@ interface SOAPNoteUpdate {
   objective?: string
   assessment?: string
   plan?: string
+  icd10_codes?: ICD10Code[]
   is_draft?: boolean
 }
 
@@ -143,5 +153,39 @@ export function useRegenerateSOAPNote(consultationId: string) {
         queryKey: ["soap-note", consultationId],
       })
     },
+  })
+}
+
+export function useResuggestICD10(consultationId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<SOAPNote>(
+        `/api/v1/consultations/${consultationId}/soap-note/suggest-icd10`,
+        { method: "POST" }
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["soap-note", consultationId],
+      })
+    },
+  })
+}
+
+interface ICD10SearchResult {
+  code: string
+  description: string
+  description_en: string
+}
+
+export function useICD10Search(query: string, lang = "en") {
+  return useQuery({
+    queryKey: ["icd10-search", query, lang],
+    queryFn: () =>
+      apiFetch<ICD10SearchResult[]>(
+        `/api/v1/icd10/search?q=${encodeURIComponent(query)}&lang=${lang}&limit=10`
+      ),
+    enabled: query.length >= 2,
+    staleTime: 5 * 60 * 1000,
   })
 }

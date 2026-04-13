@@ -134,7 +134,55 @@ async def regenerate_soap_note(
     soap.assessment = new_soap.get("assessment", "")
     soap.plan = new_soap.get("plan", "")
     soap.medical_entities = entities
+
+    # Auto-suggest ICD-10 codes from full clinical context
+    try:
+        from app.services.icd10_suggester import suggest_codes
+
+        soap.icd10_codes = await suggest_codes(
+            entities,
+            new_soap.get("assessment", ""),
+            dashscope_client,
+            db,
+            language=consultation.language,
+        )
+    except Exception:
+        logger.exception("ICD-10 suggestion failed during regeneration")
+        soap.icd10_codes = []
+
     soap.is_draft = True
+    soap.version += 1
+    await db.commit()
+    await db.refresh(soap)
+    return SOAPNoteResponse.model_validate(soap)
+
+
+@router.post("/suggest-icd10", response_model=SOAPNoteResponse)
+async def suggest_icd10_codes(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    consultation = await _get_consultation(db, consultation_id, user["id"])
+    soap = await _get_soap_note_row(db, consultation_id)
+
+    entities = soap.medical_entities or {}
+    if not entities.get("diagnoses"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No diagnoses found in medical entities",
+        )
+
+    from app.services.icd10_suggester import suggest_codes
+
+    soap.icd10_codes = await suggest_codes(
+        entities,
+        soap.assessment,
+        request.app.state.dashscope_client,
+        db,
+        language=consultation.language,
+    )
     soap.version += 1
     await db.commit()
     await db.refresh(soap)

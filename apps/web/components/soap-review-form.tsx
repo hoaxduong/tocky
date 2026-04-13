@@ -38,9 +38,11 @@ import {
   useConsultationAudio,
   useFinalizeSOAPNote,
   useRegenerateSOAPNote,
+  useResuggestICD10,
   useSOAPNote,
   useTranscripts,
   useUpdateSOAPNote,
+  type ICD10Code,
   type ReviewFlag,
   type SOAPSection,
   type TranscriptSegment,
@@ -48,6 +50,7 @@ import {
 import { toast } from "sonner"
 import { SOAPFormSkeleton } from "@/components/skeletons"
 import { PageHeader } from "@/components/page-header"
+import { ICD10CodeCard } from "@/components/icd10-code-card"
 
 interface SOAPReviewFormProps {
   consultationId: string
@@ -62,6 +65,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const updateSOAP = useUpdateSOAPNote(consultationId)
   const finalizeSOAP = useFinalizeSOAPNote(consultationId)
   const regenerateSOAP = useRegenerateSOAPNote(consultationId)
+  const resuggestICD10 = useResuggestICD10(consultationId)
   const { data: transcripts } = useTranscripts(consultationId)
   const hasAudio = !!soap && !soap.is_draft
   const { data: audio } = useConsultationAudio(consultationId, hasAudio)
@@ -93,6 +97,13 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   function handleSave(section: string, value: string) {
     updateSOAP.mutate(
       { [section]: value },
+      { onError: () => toast.error(t("Failed to save changes")) }
+    )
+  }
+
+  function handleSaveICD10(codes: ICD10Code[]) {
+    updateSOAP.mutate(
+      { icd10_codes: codes },
       { onError: () => toast.error(t("Failed to save changes")) }
     )
   }
@@ -251,6 +262,19 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
           </CardContent>
         </Card>
       ))}
+
+      <ICD10CodeCard
+        codes={soap.icd10_codes ?? []}
+        isDraft={soap.is_draft}
+        onUpdate={handleSaveICD10}
+        onResuggest={() =>
+          resuggestICD10.mutate(undefined, {
+            onSuccess: () => toast.success(t("ICD-10 codes re-suggested")),
+            onError: () => toast.error(t("Failed to suggest ICD-10 codes")),
+          })
+        }
+        isResuggesting={resuggestICD10.isPending}
+      />
 
       {soap.medical_entities &&
         Object.keys(soap.medical_entities).length > 0 && (

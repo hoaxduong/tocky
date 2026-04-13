@@ -140,6 +140,23 @@ async def scribe_websocket(
                             )
                         )
 
+                    # Auto-suggest ICD-10 codes from clinical context
+                    icd10_codes: list[dict] = []
+                    entities = soap_data.get("medical_entities", {})
+                    if entities.get("diagnoses"):
+                        try:
+                            from app.services.icd10_suggester import suggest_codes
+
+                            icd10_codes = await suggest_codes(
+                                entities,
+                                soap_data.get("assessment", ""),
+                                dashscope_client,
+                                db,
+                                language=language,
+                            )
+                        except Exception:
+                            pass  # non-critical, proceed without codes
+
                     # Persist SOAP note
                     db.add(
                         SOAPNote(
@@ -148,7 +165,8 @@ async def scribe_websocket(
                             objective=soap_data.get("objective", ""),
                             assessment=soap_data.get("assessment", ""),
                             plan=soap_data.get("plan", ""),
-                            medical_entities=soap_data.get("medical_entities", {}),
+                            medical_entities=entities,
+                            icd10_codes=icd10_codes,
                         )
                     )
 
@@ -198,6 +216,22 @@ async def scribe_websocket(
                 )
             sections = ("subjective", "objective", "assessment", "plan")
             if any(soap_data.get(s) for s in sections):
+                # Auto-suggest ICD-10 codes
+                disconnect_icd10: list[dict] = []
+                disconnect_entities = soap_data.get("medical_entities", {})
+                if disconnect_entities.get("diagnoses"):
+                    try:
+                        from app.services.icd10_suggester import suggest_codes
+
+                        disconnect_icd10 = await suggest_codes(
+                            disconnect_entities,
+                            soap_data.get("assessment", ""),
+                            dashscope_client,
+                            db,
+                        )
+                    except Exception:
+                        pass
+
                 db.add(
                     SOAPNote(
                         consultation_id=consultation_id,
@@ -205,7 +239,8 @@ async def scribe_websocket(
                         objective=soap_data.get("objective", ""),
                         assessment=soap_data.get("assessment", ""),
                         plan=soap_data.get("plan", ""),
-                        medical_entities=soap_data.get("medical_entities", {}),
+                        medical_entities=disconnect_entities,
+                        icd10_codes=disconnect_icd10,
                     )
                 )
             result = await db.execute(

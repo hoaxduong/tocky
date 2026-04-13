@@ -13,6 +13,7 @@ class SOAPNoteResponse(BaseModel):
     plan: str
     medical_entities: dict
     review_flags: list = []
+    icd10_codes: list[dict] = []
     is_draft: bool
     version: int
     created_at: datetime
@@ -26,4 +27,5 @@ class SOAPNoteUpdate(BaseModel):
     objective: str | None = None
     assessment: str | None = None
     plan: str | None = None
+    icd10_codes: list[dict] | None = None
     is_draft: bool | None = None

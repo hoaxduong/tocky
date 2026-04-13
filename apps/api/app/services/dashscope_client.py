@@ -327,5 +327,39 @@ class DashScopeClient:
         except (json.JSONDecodeError, TypeError):
             return {"title": "", "patient_identifier": None}
 
+    async def suggest_icd10_codes(
+        self, clinical_context: str, diagnoses: list[str]
+    ) -> list[dict]:
+        """Use AI to map clinical context to ICD-10 codes."""
+        system_prompt = self.prompts.get("icd10_suggestion")
+        user_content = (
+            f"Clinical context:\n{clinical_context}\n\n"
+            f"Diagnoses to code:\n"
+            + "\n".join(f"- {d}" for d in diagnoses)
+        )
+        response = await self.client.post(
+            "/chat/completions",
+            json={
+                "model": self.extraction_model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content},
+                ],
+                "max_tokens": 1000,
+                "temperature": 0.1,
+            },
+        )
+        response.raise_for_status()
+        data = response.json()
+        content = data["choices"][0]["message"]["content"]
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            logger.warning(
+                "Failed to parse ICD-10 suggestion response: %s",
+                content[:200],
+            )
+            return []
+
     async def close(self) -> None:
         await self.client.aclose()
