@@ -16,6 +16,8 @@ import { cn } from "@workspace/ui/lib/utils"
 
 export interface AudioPlayerHandle {
   seekTo: (ms: number) => void
+  togglePlay: () => void
+  seekRelative: (deltaMs: number) => void
 }
 
 interface AudioPlayerProps {
@@ -39,6 +41,25 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
     const [duration, setDuration] = useState(durationMs / 1000)
     const [isSeeking, setIsSeeking] = useState(false)
 
+    const togglePlay = useCallback(() => {
+      const el = audioRef.current
+      if (!el) return
+      if (el.paused) {
+        void el.play().catch(() => {})
+      } else {
+        el.pause()
+      }
+    }, [])
+
+    const seekRelative = useCallback((deltaMs: number) => {
+      const el = audioRef.current
+      if (!el) return
+      el.currentTime = Math.max(
+        0,
+        Math.min(el.duration || 0, el.currentTime + deltaMs / 1000),
+      )
+    }, [])
+
     useImperativeHandle(ref, () => ({
       seekTo(ms: number) {
         const el = audioRef.current
@@ -46,6 +67,8 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
         el.currentTime = ms / 1000
         void el.play().catch(() => {})
       },
+      togglePlay,
+      seekRelative,
     }))
 
     const handleTimeUpdate = useCallback(() => {
@@ -62,6 +85,9 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
       }
     }, [])
 
+    const handlePlay = useCallback(() => setIsPlaying(true), [])
+    const handlePause = useCallback(() => setIsPlaying(false), [])
+
     const handleEnded = useCallback(() => {
       setIsPlaying(false)
       setCurrentTime(0)
@@ -72,25 +98,17 @@ export const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
       if (!el) return
       el.addEventListener("timeupdate", handleTimeUpdate)
       el.addEventListener("loadedmetadata", handleLoadedMetadata)
+      el.addEventListener("play", handlePlay)
+      el.addEventListener("pause", handlePause)
       el.addEventListener("ended", handleEnded)
       return () => {
         el.removeEventListener("timeupdate", handleTimeUpdate)
         el.removeEventListener("loadedmetadata", handleLoadedMetadata)
+        el.removeEventListener("play", handlePlay)
+        el.removeEventListener("pause", handlePause)
         el.removeEventListener("ended", handleEnded)
       }
-    }, [handleTimeUpdate, handleLoadedMetadata, handleEnded])
-
-    function togglePlay() {
-      const el = audioRef.current
-      if (!el) return
-      if (isPlaying) {
-        el.pause()
-        setIsPlaying(false)
-      } else {
-        void el.play().catch(() => {})
-        setIsPlaying(true)
-      }
-    }
+    }, [handleTimeUpdate, handleLoadedMetadata, handlePlay, handlePause, handleEnded])
 
     function handleSeek(value: number[]) {
       const time = value[0] ?? 0

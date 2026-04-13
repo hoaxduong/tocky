@@ -45,28 +45,30 @@ class PromptRegistry:
             await self._load_active(db, slug=slug)
 
     async def _seed_if_empty(self, db: AsyncSession) -> None:
-        count = (
-            await db.execute(select(func.count()).select_from(PromptTemplate))
-        ).scalar_one()
-        if count > 0:
-            return
+        result = await db.execute(select(PromptTemplate.slug))
+        existing_slugs = {row[0] for row in result.all()}
 
-        logger.info("Seeding prompt templates from %s", PROMPTS_DIR)
+        added = 0
         for path in sorted(PROMPTS_DIR.glob("*.md")):
             meta, content = _parse_prompt_file(path)
+            slug = meta["slug"]
+            if slug in existing_slugs:
+                continue
             db.add(
                 PromptTemplate(
-                    slug=meta["slug"],
+                    slug=slug,
                     version=1,
                     is_active=True,
-                    title=meta.get("title", meta["slug"]),
+                    title=meta.get("title", slug),
                     description=meta.get("description", ""),
                     content=content,
                     variables=meta.get("variables", ""),
                 )
             )
-        await db.commit()
-        logger.info("Seeded %d prompt templates", len(list(PROMPTS_DIR.glob("*.md"))))
+            added += 1
+        if added:
+            await db.commit()
+            logger.info("Seeded %d new prompt template(s) from %s", added, PROMPTS_DIR)
 
     async def _load_active(self, db: AsyncSession, *, slug: str | None = None) -> None:
         query = select(PromptTemplate).where(

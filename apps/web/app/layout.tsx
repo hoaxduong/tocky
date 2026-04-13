@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 }
 import { QueryProvider } from "@/components/query-provider"
 import { ThemeProvider } from "@/components/theme-provider"
+import { HotkeysProvider } from "@/components/hotkeys-provider"
 import { Toaster } from "@workspace/ui/components/sonner"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
 import { cn } from "@workspace/ui/lib/utils"
@@ -49,7 +50,9 @@ export default async function RootLayout({
         <ThemeProvider>
           <QueryProvider>
             <NextIntlClientProvider>
-              <TooltipProvider>{children}</TooltipProvider>
+              <HotkeysProvider>
+                <TooltipProvider>{children}</TooltipProvider>
+              </HotkeysProvider>
               <Toaster />
             </NextIntlClientProvider>
           </QueryProvider>

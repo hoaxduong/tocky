@@ -6,13 +6,44 @@ msgstr ""
 "X-Generator: next-intl\n"
 "X-Crowdin-SourceKey: msgstr\n"
 
-#: app/(app)/consultations/[id]/page.tsx:164
-#: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:129
-#: components/soap-review-form.tsx:133
-#: components/upload-processing-view.tsx:412
-msgid "63vr3O"
-msgstr "SOAP Note"
+#: app/(app)/consultations/[id]/page.tsx:138
+#: app/admin/consultations/page.tsx:13
+#: components/consultations-list.tsx:24
+#: components/consultations-list.tsx:27
+#: components/soap-review-form.tsx:185
+#: components/upload-processing-view.tsx:332
+#: components/upload-processing-view.tsx:597
+msgid "+WBJgJ"
+msgstr "Consultations"
+
+#: app/(app)/consultations/[id]/page.tsx:139
+#: components/consultation-context-bar.tsx:115
+#: components/new-consultation-dialog.tsx:96
+#: components/new-consultation-dialog.tsx:103
+#: components/scribe/consultation-card.tsx:83
+#: components/scribe/consultation-header.tsx:32
+#: components/upload-processing-view.tsx:598
+msgid "L2NbD2"
+msgstr "Nouvelle consultation"
+
+#: app/(app)/consultations/[id]/page.tsx:168
+msgid "7T8ag0"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:172
+#: components/upload-processing-view.tsx:390
+msgid "MnCxQd"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:172
+#: components/upload-processing-view.tsx:393
+msgid "u6csBB"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:178
+#: components/upload-processing-view.tsx:352
+msgid "lEn0JO"
+msgstr "Consulter la SOAP Note"
 
 #: app/admin/consultations/page.tsx:10
 msgid "5KXcV3"
@@ -23,13 +54,6 @@ msgstr "Toutes les consultations"
 #: components/admin-users-table.tsx:263
 msgid "iHN12u"
 msgstr "Admin"
-
-#: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:24
-#: components/consultations-list.tsx:27
-#: components/soap-review-form.tsx:132
-msgid "+WBJgJ"
-msgstr "Consultations"
 
 #: app/admin/consultations/page.tsx:17
 msgid "uHlhzI"
@@ -109,7 +133,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est 
 
 #: components/admin-users-table.tsx:158
 #: components/scribe/consultation-card.tsx:143
-#: components/soap-review-form.tsx:181
+#: components/soap-review-form.tsx:242
 msgid "47FYwb"
 msgstr "Annuler"
 
@@ -244,6 +268,14 @@ msgstr "Retour à l'application"
 msgid "F62y+K"
 msgstr "Déconnexion"
 
+#: components/consultation-context-bar.tsx:136
+msgid "p4N05H"
+msgstr ""
+
+#: components/consultation-context-bar.tsx:136
+msgid "Dn82AL"
+msgstr ""
+
 #: components/consultations-list.tsx:26
 msgid "hzSNj4"
 msgstr "Tableau de bord"
@@ -266,8 +298,7 @@ msgid "UKxoV8"
 msgstr "Bon retour"
 
 #: components/dashboard-content.tsx:64
-#: components/soap-review-form.tsx:138
-#: components/upload-processing-view.tsx:416
+#: components/upload-processing-view.tsx:443
 msgid "95stPq"
 msgstr "Terminée"
 
@@ -279,11 +310,11 @@ msgstr "Consultations récentes"
 msgid "rgFz3V"
 msgstr ""
 
-#: components/icd10-code-card.tsx:94
+#: components/icd10-code-card.tsx:93
 msgid "dnr/he"
 msgstr ""
 
-#: components/icd10-code-card.tsx:94
+#: components/icd10-code-card.tsx:93
 msgid "wlN7UZ"
 msgstr ""
 
@@ -330,14 +361,6 @@ msgstr "Audio téléversé. Traitement démarré."
 #: components/new-consultation-dialog.tsx:81
 msgid "yN8yyH"
 msgstr "Échec du téléversement de l'audio"
-
-#: components/new-consultation-dialog.tsx:96
-#: components/new-consultation-dialog.tsx:103
-#: components/scribe/consultation-card.tsx:83
-#: components/scribe/consultation-header.tsx:32
-#: components/upload-processing-view.tsx:569
-msgid "L2NbD2"
-msgstr "Nouvelle consultation"
 
 #: components/new-consultation-dialog.tsx:105
 msgid "D0byoJ"
@@ -417,61 +440,67 @@ msgid "pXFAd/"
 msgstr "Arrêter l'enregistrement"
 
 #: components/scribe/soap-editor.tsx:19
-#: components/soap-review-form.tsx:91
-#: components/upload-processing-view.tsx:430
+#: components/soap-review-form.tsx:111
+#: components/upload-processing-view.tsx:457
 msgid "R2VjIH"
 msgstr "Subjective"
 
 #: components/scribe/soap-editor.tsx:20
-#: components/soap-review-form.tsx:92
-#: components/upload-processing-view.tsx:431
+#: components/soap-review-form.tsx:116
+#: components/upload-processing-view.tsx:458
 msgid "khNSj1"
 msgstr "Objective"
 
 #: components/scribe/soap-editor.tsx:21
-#: components/soap-review-form.tsx:93
-#: components/upload-processing-view.tsx:432
+#: components/soap-review-form.tsx:121
+#: components/upload-processing-view.tsx:459
 msgid "ueRCsi"
 msgstr "Assessment"
 
 #: components/scribe/soap-editor.tsx:22
-#: components/soap-review-form.tsx:94
-#: components/upload-processing-view.tsx:433
+#: components/soap-review-form.tsx:126
+#: components/upload-processing-view.tsx:460
 msgid "fz0z4c"
 msgstr "Plan"
 
+#: components/scribe/soap-editor.tsx:28
+#: components/soap-review-form.tsx:190
+#: components/upload-processing-view.tsx:439
+msgid "63vr3O"
+msgstr "SOAP Note"
+
 #: components/scribe/soap-editor.tsx:29
-#: components/soap-review-form.tsx:138
-#: components/upload-processing-view.tsx:416
+#: components/soap-review-form.tsx:195
+#: components/upload-processing-view.tsx:443
 msgid "W6nwjo"
 msgstr "Brouillon"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:166
+#: components/soap-review-form.tsx:227
 msgid "Zmv34N"
 msgstr "Finaliser la note"
 
 #: components/scribe/soap-section.tsx:33
-#: components/soap-review-form.tsx:238
-#: components/upload-processing-view.tsx:420
+#: components/soap-review-form.tsx:368
+#: components/upload-processing-view.tsx:447
 msgid "TJo5E6"
 msgstr "Aperçu"
 
 #: components/scribe/soap-section.tsx:34
-#: components/soap-review-form.tsx:239
-#: components/upload-processing-view.tsx:421
+#: components/soap-review-form.tsx:369
+#: components/upload-processing-view.tsx:448
 msgid "nV0wNv"
 msgstr "Brut"
 
 #: components/scribe/soap-section.tsx:43
-#: components/soap-review-form.tsx:248
-#: components/upload-processing-view.tsx:447
+#: components/soap-review-form.tsx:378
+#: components/upload-processing-view.tsx:474
 msgid "6de2Su"
 msgstr "Pas encore de contenu"
 
 #: components/scribe/transcript-panel.tsx:19
-#: components/upload-processing-view.tsx:383
-#: components/upload-processing-view.tsx:590
+#: components/upload-processing-view.tsx:410
+#: components/upload-processing-view.tsx:618
 msgid "TztQA0"
 msgstr "Transcription"
 
@@ -480,7 +509,7 @@ msgid "9Kw/ze"
 msgstr "Enregistrement en cours..."
 
 #: components/scribe/transcript-segment.tsx:74
-#: components/upload-processing-view.tsx:668
+#: components/upload-processing-view.tsx:696
 msgid "vXCeIi"
 msgstr "Échoué"
 
@@ -493,12 +522,12 @@ msgid "eKEL/g"
 msgstr "En attente"
 
 #: components/scribe/transcript-segment.tsx:86
-#: components/upload-processing-view.tsx:651
+#: components/upload-processing-view.tsx:679
 msgid "XpZsjM"
 msgstr "Pertinent"
 
 #: components/scribe/transcript-segment.tsx:86
-#: components/upload-processing-view.tsx:659
+#: components/upload-processing-view.tsx:687
 msgid "NGnuCt"
 msgstr "Bavardage"
 
@@ -544,65 +573,86 @@ msgstr "Vous avez déjà un compte ?"
 msgid "TemVby"
 msgstr "Nom complet"
 
-#: components/soap-review-form.tsx:100
-#: components/soap-review-form.tsx:107
+#: components/soap-review-form.tsx:134
+#: components/soap-review-form.tsx:141
 #: components/upload-processing-view.tsx:295
 msgid "WP4Inj"
 msgstr "Échec de l'enregistrement des modifications"
 
-#: components/soap-review-form.tsx:113
+#: components/soap-review-form.tsx:147
 msgid "cbHRLl"
 msgstr "SOAP note finalisée"
 
-#: components/soap-review-form.tsx:114
+#: components/soap-review-form.tsx:148
 msgid "Z8pSSB"
 msgstr "Échec de la finalisation de la note"
 
-#: components/soap-review-form.tsx:147
-#: components/upload-processing-view.tsx:357
+#: components/soap-review-form.tsx:187
+#: components/upload-processing-view.tsx:333
+msgid "l0cx8s"
+msgstr ""
+
+#: components/soap-review-form.tsx:205
+#: components/upload-processing-view.tsx:343
 msgid "iNe+Ig"
 msgstr "SOAP note régénérée"
 
-#: components/soap-review-form.tsx:149
-#: components/upload-processing-view.tsx:358
+#: components/soap-review-form.tsx:207
+#: components/upload-processing-view.tsx:344
 msgid "VsY04C"
 msgstr "Échec de la régénération de la SOAP note"
 
-#: components/soap-review-form.tsx:157
-#: components/upload-processing-view.tsx:363
+#: components/soap-review-form.tsx:215
+#: components/upload-processing-view.tsx:349
 msgid "n6PmWV"
 msgstr "Régénération..."
 
-#: components/soap-review-form.tsx:158
-#: components/upload-processing-view.tsx:363
+#: components/soap-review-form.tsx:216
+#: components/upload-processing-view.tsx:349
 msgid "6PgVSe"
 msgstr "Régénérer"
 
-#: components/soap-review-form.tsx:172
+#: components/soap-review-form.tsx:233
 msgid "3hVwhB"
 msgstr "Finaliser la SOAP Note ?"
 
-#: components/soap-review-form.tsx:175
+#: components/soap-review-form.tsx:236
 msgid "3AWe+Q"
 msgstr "Exécution du réviseur QA et préparation de l'audio de lecture. Cela prend quelques secondes et verrouille la note pour modification."
 
-#: components/soap-review-form.tsx:183
+#: components/soap-review-form.tsx:244
 msgid "J9w6+G"
 msgstr "Finaliser"
 
-#: components/soap-review-form.tsx:206
+#: components/soap-review-form.tsx:276
+msgid "Ed112w"
+msgstr ""
+
+#: components/soap-review-form.tsx:287
+msgid "VVIAZN"
+msgstr ""
+
+#: components/soap-review-form.tsx:294
+msgid "I3b4hn"
+msgstr ""
+
+#: components/soap-review-form.tsx:303
+msgid "CFLecQ"
+msgstr ""
+
+#: components/soap-review-form.tsx:321
 msgid "zNor7p"
 msgstr "Signalements du réviseur"
 
-#: components/soap-review-form.tsx:272
+#: components/soap-review-form.tsx:352
 msgid "McM8W7"
 msgstr ""
 
-#: components/soap-review-form.tsx:273
+#: components/soap-review-form.tsx:353
 msgid "ryF3/U"
 msgstr ""
 
-#: components/soap-review-form.tsx:284
+#: components/soap-review-form.tsx:401
 msgid "mk75EB"
 msgstr "Entités médicales"
 
@@ -635,12 +685,12 @@ msgid "9tBA7K"
 msgstr "Terminé avec des erreurs"
 
 #: components/upload-processing-view.tsx:314
-#: components/upload-processing-view.tsx:494
+#: components/upload-processing-view.tsx:521
 msgid "lQnFkI"
 msgstr "Nouvelle tentative des segments échoués..."
 
 #: components/upload-processing-view.tsx:316
-#: components/upload-processing-view.tsx:496
+#: components/upload-processing-view.tsx:523
 msgid "IeZnKQ"
 msgstr "Échec de la nouvelle tentative"
 
@@ -648,78 +698,78 @@ msgstr "Échec de la nouvelle tentative"
 msgid "VwEw0a"
 msgstr "Réessayer les échecs"
 
-#: components/upload-processing-view.tsx:330
+#: components/upload-processing-view.tsx:361
 msgid "9a9+ww"
 msgstr "Titre"
 
-#: components/upload-processing-view.tsx:333
+#: components/upload-processing-view.tsx:364
 msgid "TiaHwd"
 msgstr "Titre de la consultation"
 
-#: components/upload-processing-view.tsx:338
+#: components/upload-processing-view.tsx:369
 msgid "r+X7r8"
 msgstr "Identifiant du patient"
 
-#: components/upload-processing-view.tsx:341
+#: components/upload-processing-view.tsx:372
 msgid "V4KNjk"
 msgstr "facultatif"
 
-#: components/upload-processing-view.tsx:366
-msgid "lEn0JO"
-msgstr "Consulter la SOAP Note"
+#: components/upload-processing-view.tsx:387
+msgid "v+jROP"
+msgstr ""
 
-#: components/upload-processing-view.tsx:405
+#: components/upload-processing-view.tsx:432
 msgid "M/pnee"
 msgstr "Aucun segment de transcription trouvé."
 
-#: components/upload-processing-view.tsx:453
+#: components/upload-processing-view.tsx:480
 msgid "+RhnH+"
 msgstr "Vide"
 
-#: components/upload-processing-view.tsx:462
+#: components/upload-processing-view.tsx:489
 msgid "9oXioq"
 msgstr "SOAP note introuvable."
 
-#: components/upload-processing-view.tsx:482
+#: components/upload-processing-view.tsx:509
 msgid "dQsSr5"
 msgstr "Échec du traitement"
 
-#: components/upload-processing-view.tsx:484
+#: components/upload-processing-view.tsx:511
 msgid "3c9Xiy"
 msgstr "Une erreur inconnue s'est produite."
 
-#: components/upload-processing-view.tsx:501
+#: components/upload-processing-view.tsx:528
 msgid "62nsdy"
 msgstr "Réessayer"
 
-#: components/upload-processing-view.tsx:505
+#: components/upload-processing-view.tsx:532
 msgid "cyR7Kh"
 msgstr "Retour"
 
-#: components/upload-processing-view.tsx:514
+#: components/upload-processing-view.tsx:541
 msgid "4dhEE7"
 msgstr "Transcriptions partielles"
 
-#: components/upload-processing-view.tsx:534
+#: components/upload-processing-view.tsx:561
 msgid "T/WF1b"
 msgstr "La SOAP note n'a pas pu être générée en raison d'erreurs de traitement."
 
-#: components/upload-processing-view.tsx:542
+#: components/upload-processing-view.tsx:569
 msgid "zvaWw2"
 msgstr "Aucune transcription n'a été produite. Veuillez réessayer de téléverser le fichier audio."
 
-#: components/upload-processing-view.tsx:545
+#: components/upload-processing-view.tsx:572
 msgid "F4LeRw"
 msgstr "Retour aux consultations"
 
-#: components/upload-processing-view.tsx:617
+#: components/upload-processing-view.tsx:645
 msgid "kFd8T3"
 msgstr "En attente du début de la transcription..."
 
-#: components/upload-processing-view.tsx:628
+#: components/upload-processing-view.tsx:656
 msgid "1Ia8qN"
 msgstr "Traitement"
 
-#: components/upload-processing-view.tsx:643
+#: components/upload-processing-view.tsx:671
 msgid "fAsQ0N"
 msgstr "Transcrit"

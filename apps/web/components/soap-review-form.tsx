@@ -6,7 +6,19 @@ import {
   type AudioPlayerHandle,
 } from "@/components/audio-player"
 import { useExtracted } from "next-intl"
-import { AlertTriangle, Check, Play, RefreshCw } from "lucide-react"
+import {
+  Activity,
+  AlertTriangle,
+  Check,
+  FlaskConical,
+  Play,
+  Pill,
+  RefreshCw,
+  Stethoscope,
+  Syringe,
+  Tag,
+} from "lucide-react"
+import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
 import { MarkdownPreview } from "@/components/markdown-preview"
 import { Badge } from "@workspace/ui/components/badge"
@@ -47,10 +59,12 @@ import {
   type SOAPSection,
   type TranscriptSegment,
 } from "@/hooks/use-soap-note"
+import { useConsultation } from "@/hooks/use-consultation"
 import { toast } from "sonner"
 import { SOAPFormSkeleton } from "@/components/skeletons"
-import { PageHeader } from "@/components/page-header"
+import { ConsultationContextBar } from "@/components/consultation-context-bar"
 import { ICD10CodeCard } from "@/components/icd10-code-card"
+import { useAudioHotkeys } from "@/hooks/use-audio-hotkeys"
 
 interface SOAPReviewFormProps {
   consultationId: string
@@ -61,7 +75,10 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const playerRef = useRef<AudioPlayerHandle>(null)
   const [dismissedFlags, setDismissedFlags] = useState<Set<number>>(new Set())
 
+  const { data: consultation } = useConsultation(consultationId)
   const { data: soap, isLoading } = useSOAPNote(consultationId)
+  const hasAudioForHotkeys = !!soap && !soap.is_draft
+  useAudioHotkeys(playerRef, hasAudioForHotkeys)
   const updateSOAP = useUpdateSOAPNote(consultationId)
   const finalizeSOAP = useFinalizeSOAPNote(consultationId)
   const regenerateSOAP = useRegenerateSOAPNote(consultationId)
@@ -87,11 +104,31 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
     return <p className="text-muted-foreground">SOAP note not found</p>
   }
 
-  const sections: { key: SOAPSection; label: string }[] = [
-    { key: "subjective", label: t("Subjective") },
-    { key: "objective", label: t("Objective") },
-    { key: "assessment", label: t("Assessment") },
-    { key: "plan", label: t("Plan") },
+  const sections: {
+    key: SOAPSection
+    label: string
+    borderClass: string
+  }[] = [
+    {
+      key: "subjective",
+      label: t("Subjective"),
+      borderClass: "border-l-4 border-l-blue-500",
+    },
+    {
+      key: "objective",
+      label: t("Objective"),
+      borderClass: "border-l-4 border-l-emerald-500",
+    },
+    {
+      key: "assessment",
+      label: t("Assessment"),
+      borderClass: "border-l-4 border-l-amber-500",
+    },
+    {
+      key: "plan",
+      label: t("Plan"),
+      borderClass: "border-l-4 border-l-violet-500",
+    },
   ]
 
   function handleSave(section: string, value: string) {
@@ -119,76 +156,157 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
     playerRef.current?.seekTo(ms)
   }
 
+  function scrollToSection(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })
+  }
+
   const visibleFlags = (soap.review_flags ?? []).filter(
     (_, i) => !dismissedFlags.has(i)
   )
 
+  const confirmedCodes = (soap.icd10_codes ?? []).filter(
+    (c) => c.status === "confirmed"
+  ).length
+  const totalCodes = (soap.icd10_codes ?? []).filter(
+    (c) => c.status !== "rejected"
+  ).length
+  const entityCount = soap.medical_entities
+    ? Object.values(soap.medical_entities).reduce(
+        (acc, v) => acc + (Array.isArray(v) ? v.length : 0),
+        0
+      )
+    : 0
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <PageHeader
-        title={t("SOAP Note")}
-        backHref={`/consultations/${consultationId}`}
-        breadcrumbs={[
-          { label: t("Consultations"), href: "/consultations" },
-          { label: t("SOAP Note") },
-        ]}
-        actions={
-          <>
-            <Badge variant={soap.is_draft ? "secondary" : "default"}>
-              {soap.is_draft ? t("Draft") : t("Completed")}
-            </Badge>
-            {soap.is_draft && (
-              <Button
-                variant="outline"
-                disabled={regenerateSOAP.isPending}
-                className="gap-2"
-                onClick={() =>
-                  regenerateSOAP.mutate(undefined, {
-                    onSuccess: () => toast.success(t("SOAP note regenerated")),
-                    onError: () =>
-                      toast.error(t("Failed to regenerate SOAP note")),
-                  })
-                }
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`}
-                />
-                {regenerateSOAP.isPending
-                  ? t("Regenerating...")
-                  : t("Regenerate")}
-              </Button>
+    <div className="space-y-6">
+      {consultation && (
+        <ConsultationContextBar
+          consultation={consultation}
+          audioDurationMs={audio?.duration_ms}
+          backHref={`/consultations/${consultationId}`}
+          breadcrumbs={[
+            { label: t("Consultations"), href: "/consultations" },
+            {
+              label: consultation.title || t("Consultation"),
+              href: `/consultations/${consultationId}`,
+            },
+            { label: t("SOAP Note") },
+          ]}
+          actions={
+            <>
+              {soap.is_draft && (
+                <Badge variant="secondary">{t("Draft")}</Badge>
+              )}
+              {soap.is_draft && (
+                <Button
+                  variant="outline"
+                  disabled={regenerateSOAP.isPending}
+                  className="gap-2"
+                  onClick={() =>
+                    regenerateSOAP.mutate(undefined, {
+                      onSuccess: () =>
+                        toast.success(t("SOAP note regenerated")),
+                      onError: () =>
+                        toast.error(t("Failed to regenerate SOAP note")),
+                    })
+                  }
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`}
+                  />
+                  {regenerateSOAP.isPending
+                    ? t("Regenerating...")
+                    : t("Regenerate")}
+                </Button>
+              )}
+              {soap.is_draft && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      disabled={finalizeSOAP.isPending}
+                      className="gap-2"
+                    >
+                      <Check className="h-4 w-4" />
+                      {t("Finalize Note")}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {t("Finalize SOAP Note?")}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t(
+                          "Running the QA reviewer and preparing playback audio. This takes a few seconds and locks the note for editing."
+                        )}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleFinalize}>
+                        {t("Finalize")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </>
+          }
+        />
+      )}
+
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <button
+          type="button"
+          className={cn(
+            "rounded-lg border p-3 text-left transition-colors hover:bg-accent/50",
+            visibleFlags.length > 0 &&
+              "border-amber-500/30 bg-amber-500/5"
+          )}
+          onClick={() => scrollToSection("reviewer-flags")}
+        >
+          <div
+            className={cn(
+              "text-2xl font-bold tabular-nums",
+              visibleFlags.length > 0
+                ? "text-amber-600 dark:text-amber-400"
+                : "text-muted-foreground"
             )}
-            {soap.is_draft && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button disabled={finalizeSOAP.isPending} className="gap-2">
-                    <Check className="h-4 w-4" />
-                    {t("Finalize Note")}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {t("Finalize SOAP Note?")}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {t(
-                        "Running the QA reviewer and preparing playback audio. This takes a few seconds and locks the note for editing."
-                      )}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleFinalize}>
-                      {t("Finalize")}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-          </>
-        }
-      />
+          >
+            {visibleFlags.length}
+          </div>
+          <div className="text-xs text-muted-foreground">{t("Flags")}</div>
+        </button>
+        <button
+          type="button"
+          className="rounded-lg border p-3 text-left transition-colors hover:bg-accent/50"
+          onClick={() => scrollToSection("icd10-codes")}
+        >
+          <div className="text-2xl font-bold tabular-nums">
+            {confirmedCodes}/{totalCodes}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {t("ICD-10 Confirmed")}
+          </div>
+        </button>
+        <div className="rounded-lg border p-3">
+          <div className="text-2xl font-bold tabular-nums text-muted-foreground">
+            v{soap.version}
+          </div>
+          <div className="text-xs text-muted-foreground">{t("Version")}</div>
+        </div>
+        <button
+          type="button"
+          className="rounded-lg border p-3 text-left transition-colors hover:bg-accent/50"
+          onClick={() => scrollToSection("medical-entities")}
+        >
+          <div className="text-2xl font-bold tabular-nums">{entityCount}</div>
+          <div className="text-xs text-muted-foreground">
+            {t("Entities")}
+          </div>
+        </button>
+      </div>
 
       {audio?.url && (
         <AudioPlayer
@@ -199,7 +317,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
       )}
 
       {visibleFlags.length > 0 && (
-        <Card>
+        <Card id="reviewer-flags">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <AlertTriangle className="h-4 w-4 text-amber-600" />
@@ -227,8 +345,23 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
         </Card>
       )}
 
-      {sections.map(({ key, label }) => (
-        <Card key={key}>
+      <div id="icd10-codes">
+        <ICD10CodeCard
+          codes={soap.icd10_codes ?? []}
+          isDraft={soap.is_draft}
+          onUpdate={handleSaveICD10}
+          onResuggest={() =>
+            resuggestICD10.mutate(undefined, {
+              onSuccess: () => toast.success(t("ICD-10 codes re-suggested")),
+              onError: () => toast.error(t("Failed to suggest ICD-10 codes")),
+            })
+          }
+          isResuggesting={resuggestICD10.isPending}
+        />
+      </div>
+
+      {sections.map(({ key, label, borderClass }) => (
+        <Card key={key} id={`soap-${key}`} className={borderClass}>
           <CardHeader>
             <CardTitle className="text-base">{label}</CardTitle>
           </CardHeader>
@@ -263,22 +396,9 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
         </Card>
       ))}
 
-      <ICD10CodeCard
-        codes={soap.icd10_codes ?? []}
-        isDraft={soap.is_draft}
-        onUpdate={handleSaveICD10}
-        onResuggest={() =>
-          resuggestICD10.mutate(undefined, {
-            onSuccess: () => toast.success(t("ICD-10 codes re-suggested")),
-            onError: () => toast.error(t("Failed to suggest ICD-10 codes")),
-          })
-        }
-        isResuggesting={resuggestICD10.isPending}
-      />
-
       {soap.medical_entities &&
         Object.keys(soap.medical_entities).length > 0 && (
-          <Card>
+          <Card id="medical-entities">
             <CardHeader>
               <CardTitle className="text-base">
                 {t("Medical Entities")}
@@ -286,13 +406,22 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Object.entries(soap.medical_entities).map(
+                {sortEntityCategories(
+                  Object.entries(soap.medical_entities)
+                ).map(
                   ([category, entities]) =>
                     Array.isArray(entities) &&
                     entities.length > 0 && (
                       <div key={category} className="space-y-1.5">
-                        <h4 className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                        <h4 className="flex items-center gap-1.5 text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                          <EntityCategoryIcon category={category} />
                           {category}
+                          <Badge
+                            variant="secondary"
+                            className="ml-1 text-[10px]"
+                          >
+                            {entities.length}
+                          </Badge>
                         </h4>
                         <div className="flex flex-wrap gap-1.5">
                           {entities.map((entity, i) => (
@@ -414,5 +543,50 @@ function matchFlagsToTranscript(
     return best && best.score >= Math.max(2, Math.ceil(words.length / 2))
       ? best.seg
       : null
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Medical entity helpers
+// ---------------------------------------------------------------------------
+
+const ENTITY_CATEGORY_ORDER = [
+  "symptoms",
+  "diagnoses",
+  "medications",
+  "vitals",
+  "procedures",
+  "lab_results",
+]
+
+const ENTITY_CATEGORY_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
+  symptoms: Stethoscope,
+  diagnoses: Activity,
+  medications: Pill,
+  vitals: Activity,
+  procedures: Syringe,
+  lab_results: FlaskConical,
+}
+
+function EntityCategoryIcon({ category }: { category: string }) {
+  const key = category.toLowerCase().replace(/\s+/g, "_")
+  const Icon = ENTITY_CATEGORY_ICONS[key] ?? Tag
+  return <Icon className="h-3.5 w-3.5" />
+}
+
+function sortEntityCategories(
+  entries: [string, unknown][]
+): [string, unknown][] {
+  return [...entries].sort((a, b) => {
+    const aKey = a[0].toLowerCase().replace(/\s+/g, "_")
+    const bKey = b[0].toLowerCase().replace(/\s+/g, "_")
+    const aIdx = ENTITY_CATEGORY_ORDER.indexOf(aKey)
+    const bIdx = ENTITY_CATEGORY_ORDER.indexOf(bKey)
+    const aOrder = aIdx === -1 ? ENTITY_CATEGORY_ORDER.length : aIdx
+    const bOrder = bIdx === -1 ? ENTITY_CATEGORY_ORDER.length : bIdx
+    return aOrder - bOrder
   })
 }

@@ -47,9 +47,10 @@ import { apiFetch } from "@/lib/api"
 import { TranscriptSegmentItem } from "@/components/scribe/transcript-segment"
 import { LanguageSelector } from "@/components/scribe/language-selector"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
-import { StatusBadge } from "@/components/status-badge"
+import { ConsultationContextBar } from "@/components/consultation-context-bar"
 import { useProcessingEvents } from "@/hooks/use-processing-events"
 import { AudioPlayer, type AudioPlayerHandle } from "@/components/audio-player"
+import { useAudioHotkeys } from "@/hooks/use-audio-hotkeys"
 import { UploadProcessingSkeleton } from "@/components/skeletons"
 import { toast } from "sonner"
 
@@ -215,6 +216,7 @@ export function UploadProcessingView({
   const retryProcessing = useRetryProcessing(consultationId)
 
   const playerRef = useRef<AudioPlayerHandle>(null)
+  useAudioHotkeys(playerRef, (isComplete || isCompletedWithErrors) && !!audio?.url)
   const [currentTimeMs, setCurrentTimeMs] = useState(0)
   const transcriptListRef = useRef<HTMLDivElement>(null)
   const transcriptEndRef = useRef<HTMLDivElement>(null)
@@ -324,49 +326,76 @@ export function UploadProcessingView({
           </Alert>
         )}
 
-        <div className="flex items-end justify-between border-b pb-4">
-          <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="space-y-1">
-              <Label className="text-xs">{t("Title")}</Label>
-              <Input
-                defaultValue={consultation.title}
-                placeholder={t("Consultation title")}
-                onBlur={(e) => handleFieldSave("title", e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">{t("Patient Identifier")}</Label>
-              <Input
-                defaultValue={consultation.patient_identifier ?? ""}
-                placeholder={t("optional")}
-                onBlur={(e) => handleFieldSave("patient_identifier", e.target.value)}
-              />
-            </div>
-            <LanguageSelector
-              value={consultation.language}
-              onChange={(lang) => handleFieldSave("language", lang)}
+        <ConsultationContextBar
+          consultation={consultation}
+          audioDurationMs={audio?.duration_ms}
+          backHref="/consultations"
+          breadcrumbs={[
+            { label: t("Consultations"), href: "/consultations" },
+            { label: consultation.title || t("Consultation") },
+          ]}
+          actions={
+            <>
+              <Button
+                variant="outline"
+                disabled={regenerateSOAP.isPending}
+                className="gap-2"
+                onClick={() =>
+                  regenerateSOAP.mutate(undefined, {
+                    onSuccess: () => toast.success(t("SOAP note regenerated")),
+                    onError: () => toast.error(t("Failed to regenerate SOAP note")),
+                  })
+                }
+              >
+                <RefreshCw className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`} />
+                {regenerateSOAP.isPending ? t("Regenerating...") : t("Regenerate")}
+              </Button>
+              <Button onClick={() => router.push(`/consultations/${consultationId}/soap`)}>
+                {t("Review SOAP Note")}
+              </Button>
+            </>
+          }
+        />
+
+        {/* Editable fields */}
+        <div className="grid grid-cols-1 gap-3 border-b pb-4 sm:grid-cols-3">
+          <div className="space-y-1">
+            <Label className="text-xs">{t("Title")}</Label>
+            <Input
+              defaultValue={consultation.title}
+              placeholder={t("Consultation title")}
+              onBlur={(e) => handleFieldSave("title", e.target.value)}
             />
           </div>
-          <div className="ml-4 flex shrink-0 gap-2">
-            <Button
-              variant="outline"
-              disabled={regenerateSOAP.isPending}
-              className="gap-2"
-              onClick={() =>
-                regenerateSOAP.mutate(undefined, {
-                  onSuccess: () => toast.success(t("SOAP note regenerated")),
-                  onError: () => toast.error(t("Failed to regenerate SOAP note")),
-                })
-              }
-            >
-              <RefreshCw className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`} />
-              {regenerateSOAP.isPending ? t("Regenerating...") : t("Regenerate")}
-            </Button>
-            <Button onClick={() => router.push(`/consultations/${consultationId}/soap`)}>
-              {t("Review SOAP Note")}
-            </Button>
+          <div className="space-y-1">
+            <Label className="text-xs">{t("Patient Identifier")}</Label>
+            <Input
+              defaultValue={consultation.patient_identifier ?? ""}
+              placeholder={t("optional")}
+              onBlur={(e) => handleFieldSave("patient_identifier", e.target.value)}
+            />
           </div>
+          <LanguageSelector
+            value={consultation.language}
+            onChange={(lang) => handleFieldSave("language", lang)}
+          />
         </div>
+
+        {/* Stats row */}
+        {transcripts && transcripts.segments.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            {audio?.duration_ms != null && audio.duration_ms > 0 && (
+              <span className="font-mono tabular-nums">
+                {Math.floor(audio.duration_ms / 60000)}:{String(Math.floor((audio.duration_ms / 1000) % 60)).padStart(2, "0")} {t("duration")}
+              </span>
+            )}
+            <span>{transcripts.segments.length} {t("segments")}</span>
+            <span>
+              {transcripts.segments.filter((s) => s.is_medically_relevant).length}{" "}
+              {t("relevant")}
+            </span>
+          </div>
+        )}
 
         {audio?.url && (
           <AudioPlayer
@@ -562,19 +591,20 @@ export function UploadProcessingView({
 
   return (
     <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
-      {/* Header — matches live mode ConsultationHeader pattern */}
-      <div className="flex items-center justify-between border-b pb-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">
-            {consultation.title || t("New Consultation")}
-          </h1>
-          <Badge variant="outline">{consultation.language}</Badge>
-          <StatusBadge status="processing" />
-        </div>
-        <div className="text-muted-foreground font-mono text-lg tabular-nums">
-          {currentProgress}%
-        </div>
-      </div>
+      <ConsultationContextBar
+        consultation={consultation}
+        statusOverride="processing"
+        backHref="/consultations"
+        breadcrumbs={[
+          { label: t("Consultations"), href: "/consultations" },
+          { label: consultation.title || t("New Consultation") },
+        ]}
+        actions={
+          <div className="text-muted-foreground font-mono text-lg tabular-nums">
+            {currentProgress}%
+          </div>
+        }
+      />
 
       {/* Progress bar */}
       <div className="flex items-center gap-3">

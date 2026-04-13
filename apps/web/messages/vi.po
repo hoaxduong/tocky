@@ -6,13 +6,44 @@ msgstr ""
 "X-Generator: next-intl\n"
 "X-Crowdin-SourceKey: msgstr\n"
 
-#: app/(app)/consultations/[id]/page.tsx:164
-#: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:129
-#: components/soap-review-form.tsx:133
-#: components/upload-processing-view.tsx:412
-msgid "63vr3O"
-msgstr "SOAP Note"
+#: app/(app)/consultations/[id]/page.tsx:138
+#: app/admin/consultations/page.tsx:13
+#: components/consultations-list.tsx:24
+#: components/consultations-list.tsx:27
+#: components/soap-review-form.tsx:185
+#: components/upload-processing-view.tsx:332
+#: components/upload-processing-view.tsx:597
+msgid "+WBJgJ"
+msgstr "Buổi khám"
+
+#: app/(app)/consultations/[id]/page.tsx:139
+#: components/consultation-context-bar.tsx:115
+#: components/new-consultation-dialog.tsx:96
+#: components/new-consultation-dialog.tsx:103
+#: components/scribe/consultation-card.tsx:83
+#: components/scribe/consultation-header.tsx:32
+#: components/upload-processing-view.tsx:598
+msgid "L2NbD2"
+msgstr "Buổi khám mới"
+
+#: app/(app)/consultations/[id]/page.tsx:168
+msgid "7T8ag0"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:172
+#: components/upload-processing-view.tsx:390
+msgid "MnCxQd"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:172
+#: components/upload-processing-view.tsx:393
+msgid "u6csBB"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:178
+#: components/upload-processing-view.tsx:352
+msgid "lEn0JO"
+msgstr "Xem lại SOAP Note"
 
 #: app/admin/consultations/page.tsx:10
 msgid "5KXcV3"
@@ -23,13 +54,6 @@ msgstr "Tất cả buổi khám"
 #: components/admin-users-table.tsx:263
 msgid "iHN12u"
 msgstr "Quản trị"
-
-#: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:24
-#: components/consultations-list.tsx:27
-#: components/soap-review-form.tsx:132
-msgid "+WBJgJ"
-msgstr "Buổi khám"
 
 #: app/admin/consultations/page.tsx:17
 msgid "uHlhzI"
@@ -109,7 +133,7 @@ msgstr "Bạn có chắc chắn muốn xóa người dùng này? Hành động n
 
 #: components/admin-users-table.tsx:158
 #: components/scribe/consultation-card.tsx:143
-#: components/soap-review-form.tsx:181
+#: components/soap-review-form.tsx:242
 msgid "47FYwb"
 msgstr "Hủy"
 
@@ -244,6 +268,14 @@ msgstr "Quay lại ứng dụng"
 msgid "F62y+K"
 msgstr "Đăng xuất"
 
+#: components/consultation-context-bar.tsx:136
+msgid "p4N05H"
+msgstr ""
+
+#: components/consultation-context-bar.tsx:136
+msgid "Dn82AL"
+msgstr ""
+
 #: components/consultations-list.tsx:26
 msgid "hzSNj4"
 msgstr "Trang chủ"
@@ -266,8 +298,7 @@ msgid "UKxoV8"
 msgstr "Chào mừng trở lại"
 
 #: components/dashboard-content.tsx:64
-#: components/soap-review-form.tsx:138
-#: components/upload-processing-view.tsx:416
+#: components/upload-processing-view.tsx:443
 msgid "95stPq"
 msgstr "Hoàn thành"
 
@@ -279,11 +310,11 @@ msgstr "Buổi khám gần đây"
 msgid "rgFz3V"
 msgstr ""
 
-#: components/icd10-code-card.tsx:94
+#: components/icd10-code-card.tsx:93
 msgid "dnr/he"
 msgstr ""
 
-#: components/icd10-code-card.tsx:94
+#: components/icd10-code-card.tsx:93
 msgid "wlN7UZ"
 msgstr ""
 
@@ -330,14 +361,6 @@ msgstr "Đã tải lên âm thanh. Bắt đầu xử lý."
 #: components/new-consultation-dialog.tsx:81
 msgid "yN8yyH"
 msgstr "Tải lên âm thanh thất bại"
-
-#: components/new-consultation-dialog.tsx:96
-#: components/new-consultation-dialog.tsx:103
-#: components/scribe/consultation-card.tsx:83
-#: components/scribe/consultation-header.tsx:32
-#: components/upload-processing-view.tsx:569
-msgid "L2NbD2"
-msgstr "Buổi khám mới"
 
 #: components/new-consultation-dialog.tsx:105
 msgid "D0byoJ"
@@ -417,61 +440,67 @@ msgid "pXFAd/"
 msgstr "Dừng ghi âm"
 
 #: components/scribe/soap-editor.tsx:19
-#: components/soap-review-form.tsx:91
-#: components/upload-processing-view.tsx:430
+#: components/soap-review-form.tsx:111
+#: components/upload-processing-view.tsx:457
 msgid "R2VjIH"
 msgstr "Subjective (Chủ quan)"
 
 #: components/scribe/soap-editor.tsx:20
-#: components/soap-review-form.tsx:92
-#: components/upload-processing-view.tsx:431
+#: components/soap-review-form.tsx:116
+#: components/upload-processing-view.tsx:458
 msgid "khNSj1"
 msgstr "Objective (Khách quan)"
 
 #: components/scribe/soap-editor.tsx:21
-#: components/soap-review-form.tsx:93
-#: components/upload-processing-view.tsx:432
+#: components/soap-review-form.tsx:121
+#: components/upload-processing-view.tsx:459
 msgid "ueRCsi"
 msgstr "Assessment (Đánh giá)"
 
 #: components/scribe/soap-editor.tsx:22
-#: components/soap-review-form.tsx:94
-#: components/upload-processing-view.tsx:433
+#: components/soap-review-form.tsx:126
+#: components/upload-processing-view.tsx:460
 msgid "fz0z4c"
 msgstr "Plan (Kế hoạch)"
 
+#: components/scribe/soap-editor.tsx:28
+#: components/soap-review-form.tsx:190
+#: components/upload-processing-view.tsx:439
+msgid "63vr3O"
+msgstr "SOAP Note"
+
 #: components/scribe/soap-editor.tsx:29
-#: components/soap-review-form.tsx:138
-#: components/upload-processing-view.tsx:416
+#: components/soap-review-form.tsx:195
+#: components/upload-processing-view.tsx:443
 msgid "W6nwjo"
 msgstr "Bản nháp"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:166
+#: components/soap-review-form.tsx:227
 msgid "Zmv34N"
 msgstr "Hoàn tất ghi chú"
 
 #: components/scribe/soap-section.tsx:33
-#: components/soap-review-form.tsx:238
-#: components/upload-processing-view.tsx:420
+#: components/soap-review-form.tsx:368
+#: components/upload-processing-view.tsx:447
 msgid "TJo5E6"
 msgstr "Xem trước"
 
 #: components/scribe/soap-section.tsx:34
-#: components/soap-review-form.tsx:239
-#: components/upload-processing-view.tsx:421
+#: components/soap-review-form.tsx:369
+#: components/upload-processing-view.tsx:448
 msgid "nV0wNv"
 msgstr "Thô"
 
 #: components/scribe/soap-section.tsx:43
-#: components/soap-review-form.tsx:248
-#: components/upload-processing-view.tsx:447
+#: components/soap-review-form.tsx:378
+#: components/upload-processing-view.tsx:474
 msgid "6de2Su"
 msgstr "Chưa có nội dung"
 
 #: components/scribe/transcript-panel.tsx:19
-#: components/upload-processing-view.tsx:383
-#: components/upload-processing-view.tsx:590
+#: components/upload-processing-view.tsx:410
+#: components/upload-processing-view.tsx:618
 msgid "TztQA0"
 msgstr "Bản ghi lời nói"
 
@@ -480,7 +509,7 @@ msgid "9Kw/ze"
 msgstr "Đang ghi âm..."
 
 #: components/scribe/transcript-segment.tsx:74
-#: components/upload-processing-view.tsx:668
+#: components/upload-processing-view.tsx:696
 msgid "vXCeIi"
 msgstr "Thất bại"
 
@@ -493,12 +522,12 @@ msgid "eKEL/g"
 msgstr "Đang chờ"
 
 #: components/scribe/transcript-segment.tsx:86
-#: components/upload-processing-view.tsx:651
+#: components/upload-processing-view.tsx:679
 msgid "XpZsjM"
 msgstr "Liên quan"
 
 #: components/scribe/transcript-segment.tsx:86
-#: components/upload-processing-view.tsx:659
+#: components/upload-processing-view.tsx:687
 msgid "NGnuCt"
 msgstr "Trò chuyện xã giao"
 
@@ -544,65 +573,86 @@ msgstr "Đã có tài khoản?"
 msgid "TemVby"
 msgstr "Họ và tên"
 
-#: components/soap-review-form.tsx:100
-#: components/soap-review-form.tsx:107
+#: components/soap-review-form.tsx:134
+#: components/soap-review-form.tsx:141
 #: components/upload-processing-view.tsx:295
 msgid "WP4Inj"
 msgstr "Lưu thay đổi thất bại"
 
-#: components/soap-review-form.tsx:113
+#: components/soap-review-form.tsx:147
 msgid "cbHRLl"
 msgstr "Đã hoàn tất SOAP note"
 
-#: components/soap-review-form.tsx:114
+#: components/soap-review-form.tsx:148
 msgid "Z8pSSB"
 msgstr "Hoàn tất ghi chú thất bại"
 
-#: components/soap-review-form.tsx:147
-#: components/upload-processing-view.tsx:357
+#: components/soap-review-form.tsx:187
+#: components/upload-processing-view.tsx:333
+msgid "l0cx8s"
+msgstr ""
+
+#: components/soap-review-form.tsx:205
+#: components/upload-processing-view.tsx:343
 msgid "iNe+Ig"
 msgstr "Đã tạo lại SOAP note"
 
-#: components/soap-review-form.tsx:149
-#: components/upload-processing-view.tsx:358
+#: components/soap-review-form.tsx:207
+#: components/upload-processing-view.tsx:344
 msgid "VsY04C"
 msgstr "Tạo lại SOAP note thất bại"
 
-#: components/soap-review-form.tsx:157
-#: components/upload-processing-view.tsx:363
+#: components/soap-review-form.tsx:215
+#: components/upload-processing-view.tsx:349
 msgid "n6PmWV"
 msgstr "Đang tạo lại..."
 
-#: components/soap-review-form.tsx:158
-#: components/upload-processing-view.tsx:363
+#: components/soap-review-form.tsx:216
+#: components/upload-processing-view.tsx:349
 msgid "6PgVSe"
 msgstr "Tạo lại"
 
-#: components/soap-review-form.tsx:172
+#: components/soap-review-form.tsx:233
 msgid "3hVwhB"
 msgstr "Hoàn tất SOAP Note?"
 
-#: components/soap-review-form.tsx:175
+#: components/soap-review-form.tsx:236
 msgid "3AWe+Q"
 msgstr "Chạy kiểm tra QA và chuẩn bị âm thanh phát lại. Quá trình này mất vài giây và sẽ khóa ghi chú không cho chỉnh sửa."
 
-#: components/soap-review-form.tsx:183
+#: components/soap-review-form.tsx:244
 msgid "J9w6+G"
 msgstr "Hoàn tất"
 
-#: components/soap-review-form.tsx:206
+#: components/soap-review-form.tsx:276
+msgid "Ed112w"
+msgstr ""
+
+#: components/soap-review-form.tsx:287
+msgid "VVIAZN"
+msgstr ""
+
+#: components/soap-review-form.tsx:294
+msgid "I3b4hn"
+msgstr ""
+
+#: components/soap-review-form.tsx:303
+msgid "CFLecQ"
+msgstr ""
+
+#: components/soap-review-form.tsx:321
 msgid "zNor7p"
 msgstr "Cờ đánh dấu của người kiểm tra"
 
-#: components/soap-review-form.tsx:272
+#: components/soap-review-form.tsx:352
 msgid "McM8W7"
 msgstr ""
 
-#: components/soap-review-form.tsx:273
+#: components/soap-review-form.tsx:353
 msgid "ryF3/U"
 msgstr ""
 
-#: components/soap-review-form.tsx:284
+#: components/soap-review-form.tsx:401
 msgid "mk75EB"
 msgstr "Thực thể y khoa"
 
@@ -635,12 +685,12 @@ msgid "9tBA7K"
 msgstr "Hoàn thành với lỗi"
 
 #: components/upload-processing-view.tsx:314
-#: components/upload-processing-view.tsx:494
+#: components/upload-processing-view.tsx:521
 msgid "lQnFkI"
 msgstr "Đang thử lại các đoạn thất bại..."
 
 #: components/upload-processing-view.tsx:316
-#: components/upload-processing-view.tsx:496
+#: components/upload-processing-view.tsx:523
 msgid "IeZnKQ"
 msgstr "Thử lại thất bại"
 
@@ -648,78 +698,78 @@ msgstr "Thử lại thất bại"
 msgid "VwEw0a"
 msgstr "Thử lại lỗi"
 
-#: components/upload-processing-view.tsx:330
+#: components/upload-processing-view.tsx:361
 msgid "9a9+ww"
 msgstr "Tiêu đề"
 
-#: components/upload-processing-view.tsx:333
+#: components/upload-processing-view.tsx:364
 msgid "TiaHwd"
 msgstr "Tiêu đề buổi khám"
 
-#: components/upload-processing-view.tsx:338
+#: components/upload-processing-view.tsx:369
 msgid "r+X7r8"
 msgstr "Mã bệnh nhân"
 
-#: components/upload-processing-view.tsx:341
+#: components/upload-processing-view.tsx:372
 msgid "V4KNjk"
 msgstr "không bắt buộc"
 
-#: components/upload-processing-view.tsx:366
-msgid "lEn0JO"
-msgstr "Xem lại SOAP Note"
+#: components/upload-processing-view.tsx:387
+msgid "v+jROP"
+msgstr ""
 
-#: components/upload-processing-view.tsx:405
+#: components/upload-processing-view.tsx:432
 msgid "M/pnee"
 msgstr "Không tìm thấy đoạn bản ghi nào."
 
-#: components/upload-processing-view.tsx:453
+#: components/upload-processing-view.tsx:480
 msgid "+RhnH+"
 msgstr "Trống"
 
-#: components/upload-processing-view.tsx:462
+#: components/upload-processing-view.tsx:489
 msgid "9oXioq"
 msgstr "Không tìm thấy SOAP note."
 
-#: components/upload-processing-view.tsx:482
+#: components/upload-processing-view.tsx:509
 msgid "dQsSr5"
 msgstr "Xử lý thất bại"
 
-#: components/upload-processing-view.tsx:484
+#: components/upload-processing-view.tsx:511
 msgid "3c9Xiy"
 msgstr "Đã xảy ra lỗi không xác định."
 
-#: components/upload-processing-view.tsx:501
+#: components/upload-processing-view.tsx:528
 msgid "62nsdy"
 msgstr "Thử lại"
 
-#: components/upload-processing-view.tsx:505
+#: components/upload-processing-view.tsx:532
 msgid "cyR7Kh"
 msgstr "Quay lại"
 
-#: components/upload-processing-view.tsx:514
+#: components/upload-processing-view.tsx:541
 msgid "4dhEE7"
 msgstr "Bản ghi một phần"
 
-#: components/upload-processing-view.tsx:534
+#: components/upload-processing-view.tsx:561
 msgid "T/WF1b"
 msgstr "Không thể tạo SOAP note do lỗi xử lý."
 
-#: components/upload-processing-view.tsx:542
+#: components/upload-processing-view.tsx:569
 msgid "zvaWw2"
 msgstr "Không có bản ghi nào được tạo. Vui lòng thử tải lên lại tệp âm thanh."
 
-#: components/upload-processing-view.tsx:545
+#: components/upload-processing-view.tsx:572
 msgid "F4LeRw"
 msgstr "Quay lại danh sách buổi khám"
 
-#: components/upload-processing-view.tsx:617
+#: components/upload-processing-view.tsx:645
 msgid "kFd8T3"
 msgstr "Đang chờ phiên âm bắt đầu..."
 
-#: components/upload-processing-view.tsx:628
+#: components/upload-processing-view.tsx:656
 msgid "1Ia8qN"
 msgstr "Đang xử lý"
 
-#: components/upload-processing-view.tsx:643
+#: components/upload-processing-view.tsx:671
 msgid "fAsQ0N"
 msgstr "Đã phiên âm"
