@@ -20,6 +20,7 @@ from app.routers import (
 )
 from app.services.dashscope_client import DashScopeClient
 from app.services.event_queue import EventQueueRegistry
+from app.services.oss_client import OSSClient
 from app.services.prompt_registry import PromptRegistry
 
 
@@ -58,6 +59,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         soap_model=settings.qwen_soap_model or fallback,
         extraction_model=settings.qwen_extraction_model or fallback,
         prompt_registry=prompt_registry,
+    )
+
+    app.state.oss_client = OSSClient(
+        access_key_id=settings.oss_access_key_id,
+        access_key_secret=settings.oss_access_key_secret,
+        endpoint=settings.oss_endpoint,
+        bucket_name=settings.oss_bucket_name,
     )
 
     yield

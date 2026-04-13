@@ -15,14 +15,13 @@ export function AudioVisualizer({ level, isRecording }: AudioVisualizerProps) {
         <div
           key={i}
           className={`w-1 rounded-full transition-all duration-75 ${
-            isRecording && i < activeCount
-              ? "bg-primary"
-              : "bg-muted"
+            isRecording && i < activeCount ? "bg-primary" : "bg-muted"
           }`}
           style={{
-            height: isRecording && i < activeCount
-              ? `${Math.max(4, (level * 32 * (1 + Math.sin(i * 0.5))))}px`
-              : "4px",
+            height:
+              isRecording && i < activeCount
+                ? `${Math.max(4, level * 32 * (1 + Math.sin(i * 0.5)))}px`
+                : "4px",
           }}
         />
       ))}

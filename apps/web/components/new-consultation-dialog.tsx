@@ -108,7 +108,7 @@ export function NewConsultationDialog() {
             <div className="grid grid-cols-2 gap-3 py-4">
               <button
                 disabled
-                className="border-muted bg-muted/50 text-muted-foreground relative flex flex-col items-center gap-3 rounded-lg border p-6 opacity-60"
+                className="relative flex flex-col items-center gap-3 rounded-lg border border-muted bg-muted/50 p-6 text-muted-foreground opacity-60"
               >
                 <Badge
                   variant="secondary"
@@ -117,18 +117,14 @@ export function NewConsultationDialog() {
                   {t("Coming soon")}
                 </Badge>
                 <Mic className="h-8 w-8" />
-                <span className="text-sm font-medium">
-                  {t("Record Live")}
-                </span>
+                <span className="text-sm font-medium">{t("Record Live")}</span>
               </button>
               <button
                 onClick={() => setStep("upload-form")}
-                className="border-border hover:border-primary hover:bg-accent flex flex-col items-center gap-3 rounded-lg border p-6 transition-colors"
+                className="flex flex-col items-center gap-3 rounded-lg border border-border p-6 transition-colors hover:border-primary hover:bg-accent"
               >
                 <Upload className="h-8 w-8" />
-                <span className="text-sm font-medium">
-                  {t("Upload Audio")}
-                </span>
+                <span className="text-sm font-medium">{t("Upload Audio")}</span>
               </button>
             </div>
           </>
@@ -154,7 +150,7 @@ export function NewConsultationDialog() {
               </div>
               <DialogDescription>
                 {t(
-                  "Upload a recorded consultation. Language, title, and patient info will be auto-detected.",
+                  "Upload a recorded consultation. Language, title, and patient info will be auto-detected."
                 )}
               </DialogDescription>
             </DialogHeader>
@@ -173,14 +169,14 @@ export function NewConsultationDialog() {
                     "flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed p-8 text-center transition-colors",
                     isDragging
                       ? "border-primary bg-primary/5"
-                      : "border-muted-foreground/25 hover:border-primary/50",
+                      : "border-muted-foreground/25 hover:border-primary/50"
                   )}
                 >
-                  <Upload className="text-muted-foreground h-8 w-8" />
-                  <p className="text-muted-foreground text-sm">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
                     {t("Drag and drop or click to browse")}
                   </p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-xs text-muted-foreground">
                     MP3, WAV, M4A, OGG, FLAC, WebM, AAC ({MAX_FILE_SIZE_MB}
                     MB max)
                   </p>
@@ -195,11 +191,11 @@ export function NewConsultationDialog() {
                   />
                 </div>
               ) : (
-                <div className="bg-muted/50 flex items-center gap-3 rounded-lg border p-3">
-                  <Upload className="text-muted-foreground h-5 w-5 shrink-0" />
+                <div className="flex items-center gap-3 rounded-lg border bg-muted/50 p-3">
+                  <Upload className="h-5 w-5 shrink-0 text-muted-foreground" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{file.name}</p>
-                    <p className="text-muted-foreground text-xs">
+                    <p className="text-xs text-muted-foreground">
                       {(file.size / 1024 / 1024).toFixed(1)} MB
                     </p>
                   </div>
@@ -221,9 +217,7 @@ export function NewConsultationDialog() {
                   className="w-full"
                   disabled={!file || isSubmitting}
                 >
-                  {isSubmitting
-                    ? t("Uploading...")
-                    : t("Upload & Process")}
+                  {isSubmitting ? t("Uploading...") : t("Upload & Process")}
                 </Button>
               </DialogFooter>
             </form>

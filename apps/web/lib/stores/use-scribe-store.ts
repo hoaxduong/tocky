@@ -38,10 +38,7 @@ interface ScribeState {
   setConsultationId: (id: string | null) => void
   setStatus: (status: ScribeStatus) => void
   addTranscriptSegment: (segment: TranscriptSegment) => void
-  updateSOAPSection: (
-    section: keyof SOAPNote,
-    content: string,
-  ) => void
+  updateSOAPSection: (section: keyof SOAPNote, content: string) => void
   setLanguage: (lang: string) => void
   setElapsedMs: (ms: number) => void
   setError: (message: string | null) => void

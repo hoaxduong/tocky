@@ -45,7 +45,7 @@ function LiveScribeView({ id }: { id: string }) {
     (data: string, sequence: number, timestampMs: number) => {
       sendAudioChunk(data, sequence, timestampMs)
     },
-    [sendAudioChunk],
+    [sendAudioChunk]
   )
 
   const {
@@ -117,9 +117,7 @@ function LiveScribeView({ id }: { id: string }) {
         elapsedMs={elapsedMs}
       />
 
-      {audioError && (
-        <p className="text-destructive text-sm">{audioError}</p>
-      )}
+      {audioError && <p className="text-sm text-destructive">{audioError}</p>}
 
       <div className="flex items-center gap-4">
         <RecordingControls

@@ -19,9 +19,7 @@ export function TranscriptPanel() {
       <h3 className="mb-3 text-lg font-semibold">{t("Transcript")}</h3>
       <div className="flex-1 space-y-2 overflow-y-auto">
         {segments.length === 0 && (
-          <p className="text-muted-foreground text-sm">
-            {t("Recording...")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("Recording...")}</p>
         )}
         {segments.map((seg, i) => (
           <TranscriptSegmentItem

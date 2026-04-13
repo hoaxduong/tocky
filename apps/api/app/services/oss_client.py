@@ -26,3 +26,27 @@ class OSSClient:
 
     def get_audio_url(self, oss_key: str, expires: int = 3600) -> str:
         return self.bucket.sign_url("GET", oss_key, expires)
+
+    def download_object(self, oss_key: str) -> bytes:
+        result = self.bucket.get_object(oss_key)
+        return result.read()
+
+    def upload_full_audio(
+        self,
+        consultation_id: uuid.UUID,
+        audio_bytes: bytes,
+        extension: str = "wav",
+    ) -> str:
+        oss_key = f"audio/{consultation_id}/full.{extension}"
+        self.bucket.put_object(oss_key, audio_bytes)
+        return oss_key
+
+    def upload_pcm(
+        self,
+        consultation_id: uuid.UUID,
+        pcm_bytes: bytes,
+    ) -> str:
+        """Persist converted PCM so a failed transcription run can resume."""
+        oss_key = f"audio/{consultation_id}/source.pcm"
+        self.bucket.put_object(oss_key, pcm_bytes)
+        return oss_key

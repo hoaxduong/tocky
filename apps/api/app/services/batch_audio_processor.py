@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
 
@@ -24,6 +25,7 @@ from app.services.event_queue import (
     StatusEvent,
     TranscriptSegmentEvent,
 )
+from app.services.oss_client import OSSClient
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +40,13 @@ class BatchAudioProcessor:
         model_client: DashScopeClient,
         db_session_factory: async_sessionmaker[AsyncSession],
         event_registry: EventQueueRegistry | None = None,
+        oss_client: OSSClient | None = None,
     ):
         self.consultation_id = consultation_id
         self.model_client = model_client
         self.db_session_factory = db_session_factory
         self.event_registry = event_registry
+        self.oss_client = oss_client
 
     # ------------------------------------------------------------------
     # Public entry points
@@ -51,6 +55,10 @@ class BatchAudioProcessor:
     async def process(self, pcm_audio: bytes) -> None:
         """Full pipeline: chunk → transcribe → detect → classify → SOAP."""
         try:
+            # Persist PCM to OSS so a run that fails mid-transcription can
+            # retry only the failed chunks without a re-upload.
+            await self._persist_pcm_checkpoint(pcm_audio)
+
             chunks = [
                 pcm_audio[i : i + CHUNK_BYTES]
                 for i in range(0, len(pcm_audio), CHUNK_BYTES)
@@ -148,7 +156,9 @@ class BatchAudioProcessor:
     async def resume(self) -> None:
         """Resume processing from where it left off.
 
-        Requires transcripts to already exist in the DB.
+        Re-transcribes any chunks flagged STATUS_FAILED_TRANSCRIPTION if the
+        PCM checkpoint is still in OSS, then continues with the post-
+        transcription pipeline. Requires transcripts to already exist.
         """
         try:
             async with self.db_session_factory() as db:
@@ -164,11 +174,130 @@ class BatchAudioProcessor:
                     "No transcripts found. Please re-upload the audio file."
                 )
 
+            await self._retry_failed_transcription_chunks()
             await self._post_transcription_pipeline()
 
         except Exception as e:
             logger.exception("Consultation %s: resume failed", self.consultation_id)
             await self._finish("failed", str(e)[:1000])
+
+    async def _retry_failed_transcription_chunks(self) -> None:
+        """Re-run transcription on segments flagged STATUS_FAILED_TRANSCRIPTION.
+
+        Skips silently if the PCM checkpoint isn't in OSS (first-generation
+        consultations created before the checkpoint feature).
+        """
+        if self.oss_client is None:
+            return
+
+        async with self.db_session_factory() as db:
+            consultation = (
+                await db.execute(
+                    select(Consultation).where(Consultation.id == self.consultation_id)
+                )
+            ).scalar_one()
+            pcm_key = consultation.pcm_audio_oss_key
+
+            result = await db.execute(
+                select(Transcript)
+                .where(
+                    Transcript.consultation_id == self.consultation_id,
+                    Transcript.status == STATUS_FAILED_TRANSCRIPTION,
+                )
+                .order_by(Transcript.sequence_number)
+            )
+            failed = result.scalars().all()
+
+        if not failed or pcm_key is None:
+            return
+
+        logger.info(
+            "Consultation %s: retrying %d failed chunks from PCM checkpoint",
+            self.consultation_id,
+            len(failed),
+        )
+        try:
+            pcm_audio = await asyncio.to_thread(
+                self.oss_client.download_object, pcm_key
+            )
+        except Exception:
+            logger.exception(
+                "Consultation %s: failed to fetch PCM checkpoint; skipping chunk retry",
+                self.consultation_id,
+            )
+            return
+
+        total = len(pcm_audio)
+        for seg in failed:
+            # Each chunk's timestamp range maps cleanly to a PCM byte slice,
+            # since we chunk on a fixed 5-second cadence.
+            start = (seg.timestamp_start_ms // 5000) * CHUNK_BYTES
+            end = min(start + CHUNK_BYTES, total)
+            if start >= total:
+                continue
+            chunk = pcm_audio[start:end]
+            try:
+                text = await self.model_client.transcribe_audio(chunk, "auto")
+            except Exception as e:
+                logger.warning(
+                    "Consultation %s: retry chunk %d still failing: %s",
+                    self.consultation_id,
+                    seg.sequence_number,
+                    e,
+                )
+                continue
+
+            if not text.strip():
+                continue
+
+            async with self.db_session_factory() as db:
+                await db.execute(
+                    update(Transcript)
+                    .where(Transcript.id == seg.id)
+                    .values(
+                        text=text,
+                        status=STATUS_TRANSCRIBED,
+                        error_message=None,
+                    )
+                )
+                await db.commit()
+            self._push(
+                TranscriptSegmentEvent(
+                    data={
+                        "sequence": seg.sequence_number,
+                        "text": text,
+                        "timestamp_start_ms": seg.timestamp_start_ms,
+                        "timestamp_end_ms": seg.timestamp_end_ms,
+                    }
+                )
+            )
+
+    async def _persist_pcm_checkpoint(self, pcm_audio: bytes) -> None:
+        """Upload PCM to OSS and record its key on the consultation row."""
+        if self.oss_client is None:
+            return
+        try:
+            oss_key = await asyncio.to_thread(
+                self.oss_client.upload_pcm,
+                self.consultation_id,
+                pcm_audio,
+            )
+        except Exception:
+            # Non-fatal: the run proceeds without checkpoint support. If it
+            # later fails, resume() will simply skip the chunk retry step.
+            logger.exception(
+                "Consultation %s: failed to persist PCM checkpoint",
+                self.consultation_id,
+            )
+            return
+        async with self.db_session_factory() as db:
+            result = await db.execute(
+                select(Consultation).where(Consultation.id == self.consultation_id)
+            )
+            c = result.scalar_one()
+            c.pcm_audio_oss_key = oss_key
+            c.pcm_audio_size_bytes = len(pcm_audio)
+            await db.commit()
 
     # ------------------------------------------------------------------
     # Shared pipeline stages (used by both process() and resume())

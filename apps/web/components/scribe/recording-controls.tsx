@@ -42,17 +42,17 @@ export function RecordingControls({
   return (
     <div className="flex items-center gap-2">
       {isPaused ? (
-        <Button onClick={onResume} variant="outline" size="lg" className="gap-2">
-          <Play className="h-5 w-5" />
-          {t("Resume")}
-        </Button>
-      ) : (
         <Button
-          onClick={onPause}
+          onClick={onResume}
           variant="outline"
           size="lg"
           className="gap-2"
         >
+          <Play className="h-5 w-5" />
+          {t("Resume")}
+        </Button>
+      ) : (
+        <Button onClick={onPause} variant="outline" size="lg" className="gap-2">
           <Pause className="h-5 w-5" />
           {t("Pause")}
         </Button>

@@ -164,7 +164,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                     <span className="truncate font-medium">
                       {user?.name ?? t("Account")}
                     </span>
-                    <span className="text-muted-foreground truncate text-xs">
+                    <span className="truncate text-xs text-muted-foreground">
                       {user?.email}
                     </span>
                   </div>
@@ -188,7 +188,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                       <span className="truncate font-medium">
                         {user?.name ?? t("Account")}
                       </span>
-                      <span className="text-muted-foreground truncate text-xs">
+                      <span className="truncate text-xs text-muted-foreground">
                         {user?.email}
                       </span>
                     </div>

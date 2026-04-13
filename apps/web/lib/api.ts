@@ -5,7 +5,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
 export class ApiError extends Error {
   constructor(
     public status: number,
-    public body: string,
+    public body: string
   ) {
     super(`API error ${status}: ${body}`)
   }
@@ -29,7 +29,7 @@ async function tryRefresh(): Promise<boolean> {
 
 export async function apiFetch<T>(
   path: string,
-  options?: RequestInit,
+  options?: RequestInit
 ): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
