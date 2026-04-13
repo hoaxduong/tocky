@@ -61,12 +61,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         prompt_registry=prompt_registry,
     )
 
-    app.state.oss_client = OSSClient(
-        access_key_id=settings.oss_access_key_id,
-        access_key_secret=settings.oss_access_key_secret,
-        endpoint=settings.oss_endpoint,
-        bucket_name=settings.oss_bucket_name,
-    )
+    if settings.oss_endpoint:
+        app.state.oss_client = OSSClient(
+            access_key_id=settings.oss_access_key_id,
+            access_key_secret=settings.oss_access_key_secret,
+            endpoint=settings.oss_endpoint,
+            bucket_name=settings.oss_bucket_name,
+        )
+    else:
+        app.state.oss_client = None
 
     yield
 
