@@ -16,7 +16,7 @@ from app.db_models.transcript import (
     STATUS_TRANSCRIBED,
     Transcript,
 )
-from app.services.dashscope_client import DashScopeClient
+from app.services.ai_protocol import AIClient
 from app.services.event_queue import (
     EventQueueRegistry,
     ProgressEvent,
@@ -37,7 +37,7 @@ class BatchAudioProcessor:
     def __init__(
         self,
         consultation_id: uuid.UUID,
-        model_client: DashScopeClient,
+        model_client: AIClient,
         db_session_factory: async_sessionmaker[AsyncSession],
         event_registry: EventQueueRegistry | None = None,
         oss_client: OSSClient | None = None,

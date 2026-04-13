@@ -23,6 +23,8 @@ from app.services.event_queue import EventQueueRegistry
 from app.services.oss_client import OSSClient
 from app.services.prompt_registry import PromptRegistry
 
+logger = logging.getLogger(__name__)
+
 
 def _configure_logging(debug: bool) -> None:
     level = logging.DEBUG if debug else logging.INFO
@@ -51,15 +53,23 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.event_registry = EventQueueRegistry()
     app.state.background_tasks = set()  # prevent GC of asyncio tasks
 
-    app.state.dashscope_client = DashScopeClient(
-        base_url=settings.dashscope_base_url,
-        api_key=settings.dashscope_api_key,
-        transcription_model=settings.qwen_transcription_model or fallback,
-        classification_model=settings.qwen_classification_model or fallback,
-        soap_model=settings.qwen_soap_model or fallback,
-        extraction_model=settings.qwen_extraction_model or fallback,
-        prompt_registry=prompt_registry,
-    )
+    if settings.sandbox_ai:
+        from app.services.sandbox_client import SandboxAIClient
+
+        app.state.dashscope_client = SandboxAIClient(
+            latency=settings.sandbox_ai_latency,
+        )
+        logger.info("Sandbox AI mode \u2014 no real API calls")
+    else:
+        app.state.dashscope_client = DashScopeClient(
+            base_url=settings.dashscope_base_url,
+            api_key=settings.dashscope_api_key,
+            transcription_model=settings.qwen_transcription_model or fallback,
+            classification_model=settings.qwen_classification_model or fallback,
+            soap_model=settings.qwen_soap_model or fallback,
+            extraction_model=settings.qwen_extraction_model or fallback,
+            prompt_registry=prompt_registry,
+        )
 
     if settings.oss_endpoint:
         app.state.oss_client = OSSClient(

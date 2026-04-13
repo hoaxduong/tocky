@@ -5,7 +5,7 @@ import uuid
 from collections.abc import Callable, Coroutine
 from typing import Any
 
-from app.services.dashscope_client import DashScopeClient
+from app.services.ai_protocol import AIClient
 
 
 class AudioProcessor:
@@ -13,7 +13,7 @@ class AudioProcessor:
         self,
         consultation_id: uuid.UUID,
         language: str,
-        model_client: DashScopeClient,
+        model_client: AIClient,
         buffer_seconds: float = 5.0,
         soap_interval_seconds: float = 30.0,
     ):

@@ -44,6 +44,10 @@ class Settings(BaseSettings):
     audio_buffer_seconds: float = 5.0
     soap_update_interval_seconds: float = 30.0
 
+    # Sandbox mode (bypass DashScope with fake AI responses)
+    sandbox_ai: bool = False
+    sandbox_ai_latency: float = 0.2
+
 
 @lru_cache
 def get_settings() -> Settings:
