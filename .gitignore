@@ -39,6 +39,9 @@ __pycache__/
 # Database
 *.db
 
+# Local audio storage (dev)
+apps/api/storage/
+
 # Misc
 .DS_Store
 *.pem

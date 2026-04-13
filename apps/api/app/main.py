@@ -1,9 +1,11 @@
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from app import database as _db
 from app.config import get_settings
@@ -20,6 +22,7 @@ from app.routers import (
 )
 from app.services.dashscope_client import DashScopeClient
 from app.services.event_queue import EventQueueRegistry
+from app.services.local_storage_client import LocalStorageClient
 from app.services.oss_client import OSSClient
 from app.services.prompt_registry import PromptRegistry
 
@@ -79,7 +82,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             bucket_name=settings.oss_bucket_name,
         )
     else:
-        app.state.oss_client = None
+        storage_dir = Path(__file__).resolve().parents[1] / "storage"
+        app.state.oss_client = LocalStorageClient(
+            storage_dir=storage_dir,
+            base_url="http://localhost:8000",
+        )
+        logger.info("Using local file storage at %s", storage_dir)
 
     yield
 
@@ -101,6 +109,26 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["set-cookie"],
 )
+
+_STORAGE_DIR = Path(__file__).resolve().parents[1] / "storage"
+
+
+@app.get("/storage/{file_path:path}")
+async def serve_local_storage(file_path: str):
+    """Serve files from local storage (dev only)."""
+    full = _STORAGE_DIR / file_path
+    if not full.resolve().is_relative_to(_STORAGE_DIR.resolve()):
+        raise HTTPException(status_code=403)
+    if not full.is_file():
+        raise HTTPException(status_code=404)
+    suffix = full.suffix.lower()
+    media_types = {
+        ".wav": "audio/wav",
+        ".pcm": "application/octet-stream",
+    }
+    content_type = media_types.get(suffix, "application/octet-stream")
+    return FileResponse(full, media_type=content_type)
+
 
 # Health check (unversioned)
 app.include_router(health.router)
