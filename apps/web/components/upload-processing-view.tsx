@@ -14,7 +14,7 @@ import {
 } from "lucide-react"
 import { Progress } from "@workspace/ui/components/progress"
 import { Button } from "@workspace/ui/components/button"
-import ReactMarkdown from "react-markdown"
+import { MarkdownPreview } from "@/components/markdown-preview"
 import { Badge } from "@workspace/ui/components/badge"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
@@ -441,7 +441,7 @@ export function UploadProcessingView({
                           <TabsContent value="preview" className="mt-0">
                             {soap[key] ? (
                               <div className="prose prose-sm dark:prose-invert max-w-none">
-                                <ReactMarkdown>{soap[key]}</ReactMarkdown>
+                                <MarkdownPreview>{soap[key]}</MarkdownPreview>
                               </div>
                             ) : (
                               <p className="text-muted-foreground text-sm italic">{t("No content yet")}</p>

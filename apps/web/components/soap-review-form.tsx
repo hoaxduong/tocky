@@ -8,7 +8,7 @@ import {
 import { useExtracted } from "next-intl"
 import { AlertTriangle, Check, Play, RefreshCw } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import ReactMarkdown from "react-markdown"
+import { MarkdownPreview } from "@/components/markdown-preview"
 import { Badge } from "@workspace/ui/components/badge"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
@@ -230,7 +230,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
               <TabsContent value="preview">
                 {soap[key] ? (
                   <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <ReactMarkdown>{soap[key]}</ReactMarkdown>
+                    <MarkdownPreview>{soap[key]}</MarkdownPreview>
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground italic">

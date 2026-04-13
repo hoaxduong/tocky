@@ -1,7 +1,7 @@
 "use client"
 
 import { useExtracted } from "next-intl"
-import ReactMarkdown from "react-markdown"
+import { MarkdownPreview } from "@/components/markdown-preview"
 import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Tabs,
@@ -36,7 +36,7 @@ export function SOAPSection({
         <TabsContent value="preview">
           {value ? (
             <div className="prose prose-sm dark:prose-invert max-w-none">
-              <ReactMarkdown>{value}</ReactMarkdown>
+              <MarkdownPreview>{value}</MarkdownPreview>
             </div>
           ) : (
             <p className="text-muted-foreground text-sm italic">

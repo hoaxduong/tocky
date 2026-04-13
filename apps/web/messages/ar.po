@@ -197,50 +197,50 @@ msgstr "البحث عن مستخدمين..."
 msgid "gjBiyj"
 msgstr "جارٍ التحميل..."
 
-#: components/app-sidebar.tsx:108
+#: components/app-sidebar.tsx:105
 msgid "m6lDC9"
 msgstr "الإدارة"
 
-#: components/app-sidebar.tsx:108
+#: components/app-sidebar.tsx:105
 msgid "rOZptg"
 msgstr "مساحة العمل"
 
-#: components/app-sidebar.tsx:157
-#: components/app-sidebar.tsx:166
-#: components/app-sidebar.tsx:190
+#: components/app-sidebar.tsx:154
+#: components/app-sidebar.tsx:163
+#: components/app-sidebar.tsx:187
 msgid "TwyMau"
 msgstr "الحساب"
 
-#: components/app-sidebar.tsx:204
+#: components/app-sidebar.tsx:201
 msgid "Pe0ogR"
 msgstr "المظهر"
 
-#: components/app-sidebar.tsx:212
+#: components/app-sidebar.tsx:209
 msgid "3cc4Ct"
 msgstr "فاتح"
 
-#: components/app-sidebar.tsx:215
+#: components/app-sidebar.tsx:212
 msgid "tOdNiY"
 msgstr "داكن"
 
-#: components/app-sidebar.tsx:218
+#: components/app-sidebar.tsx:215
 msgid "+CwN9C"
 msgstr "النظام"
 
-#: components/app-sidebar.tsx:226
+#: components/app-sidebar.tsx:223
 #: components/scribe/language-selector.tsx:36
 msgid "y1Z3or"
 msgstr "اللغة"
 
-#: components/app-sidebar.tsx:249
+#: components/app-sidebar.tsx:246
 msgid "3Vr8ps"
 msgstr "لوحة تحكم المشرف"
 
-#: components/app-sidebar.tsx:254
+#: components/app-sidebar.tsx:251
 msgid "YNSpuZ"
 msgstr "العودة إلى التطبيق"
 
-#: components/app-sidebar.tsx:263
+#: components/app-sidebar.tsx:260
 msgid "F62y+K"
 msgstr "تسجيل الخروج"
 
