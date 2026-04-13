@@ -2,30 +2,30 @@
 
 import { useExtracted } from "next-intl"
 import { useRouter } from "next/navigation"
+import { useEffect, useRef } from "react"
 import {
   CheckCircle2,
   Circle,
   Loader2,
   AlertCircle,
-  FileAudio,
+  AlertTriangle,
   RefreshCw,
+  RotateCcw,
 } from "lucide-react"
 import { Progress } from "@workspace/ui/components/progress"
 import { Button } from "@workspace/ui/components/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@workspace/ui/components/alert"
+import {
   useConsultation,
-  useConsultationStream,
-  useResumeProcessing,
   useUpdateConsultation,
+  useRetryProcessing,
 } from "@/hooks/use-consultation"
 import { useSOAPNote, useRegenerateSOAPNote } from "@/hooks/use-soap-note"
 import { useQuery } from "@tanstack/react-query"
@@ -33,7 +33,13 @@ import { apiFetch } from "@/lib/api"
 import { TranscriptSegmentItem } from "@/components/scribe/transcript-segment"
 import { LanguageSelector } from "@/components/scribe/language-selector"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
+import { StatusBadge } from "@/components/status-badge"
+import { useProcessingEvents } from "@/hooks/use-processing-events"
 import { toast } from "sonner"
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface TranscriptSegment {
   id: string
@@ -41,6 +47,8 @@ interface TranscriptSegment {
   text: string
   language: string
   is_medically_relevant: boolean
+  status: string
+  error_message: string | null
   speaker_label: string | null
   timestamp_start_ms: number
   timestamp_end_ms: number
@@ -51,16 +59,24 @@ interface TranscriptResponse {
   segments: TranscriptSegment[]
 }
 
+// ---------------------------------------------------------------------------
+// Hooks
+// ---------------------------------------------------------------------------
+
 function useTranscripts(consultationId: string, enabled: boolean) {
   return useQuery({
     queryKey: ["transcripts", consultationId],
     queryFn: () =>
       apiFetch<TranscriptResponse>(
-        `/api/v1/consultations/${consultationId}/transcripts/`
+        `/api/v1/consultations/${consultationId}/transcripts/`,
       ),
     enabled,
   })
 }
+
+// ---------------------------------------------------------------------------
+// Processing step constants
+// ---------------------------------------------------------------------------
 
 const PROCESSING_STEP_KEYS = [
   "converting",
@@ -73,9 +89,7 @@ const PROCESSING_STEP_KEYS = [
 
 function getStepIndex(step: string | null): number {
   if (!step) return -1
-  return PROCESSING_STEP_KEYS.indexOf(
-    step as (typeof PROCESSING_STEP_KEYS)[number]
-  )
+  return PROCESSING_STEP_KEYS.indexOf(step as (typeof PROCESSING_STEP_KEYS)[number])
 }
 
 function useProcessingStepLabels() {
@@ -90,6 +104,55 @@ function useProcessingStepLabels() {
   } as const
 }
 
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function StepChecklist({
+  currentStep,
+  stepLabels,
+}: {
+  currentStep: string | null
+  stepLabels: Record<string, string>
+}) {
+  const currentStepIdx = getStepIndex(currentStep)
+
+  return (
+    <div className="space-y-3">
+      {PROCESSING_STEP_KEYS.map((key, idx) => {
+        const isCurrent = idx === currentStepIdx
+        const isDone = idx < currentStepIdx
+        return (
+          <div key={key} className="flex items-center gap-2.5 text-sm">
+            {isDone ? (
+              <CheckCircle2 className="text-primary h-4 w-4 shrink-0" />
+            ) : isCurrent ? (
+              <Loader2 className="text-primary h-4 w-4 shrink-0 animate-spin" />
+            ) : (
+              <Circle className="text-muted-foreground/30 h-4 w-4 shrink-0" />
+            )}
+            <span
+              className={
+                isDone
+                  ? "text-foreground"
+                  : isCurrent
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground/50"
+              }
+            >
+              {stepLabels[key]}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
 interface UploadProcessingViewProps {
   consultationId: string
 }
@@ -101,45 +164,119 @@ export function UploadProcessingView({
   const router = useRouter()
   const stepLabels = useProcessingStepLabels()
   const { data: consultation } = useConsultation(consultationId, {
-    // Safety-net polling: SSE drives real-time updates, but if the stream
-    // disconnects we still pick up the latest state within a few seconds.
     refetchInterval: (query) => {
       const s = query.state.data?.status
-      return s === "processing" || s === "uploading" ? 8000 : false
+      return s === "processing" || s === "uploading" ? 3000 : false
     },
   })
 
   const isComplete = consultation?.status === "completed"
+  const isCompletedWithErrors = consultation?.status === "completed_with_errors"
   const isFailed = consultation?.status === "failed"
-  const isStreamable =
+  const isProcessing =
     consultation?.status === "processing" ||
     consultation?.status === "uploading"
 
-  // Subscribe to real-time processing events for the live view.
-  useConsultationStream(consultationId, isStreamable)
+  const { segments: streamedSegments, progress: sseProgress } =
+    useProcessingEvents(consultationId, isProcessing)
 
-  const resumeProcessing = useResumeProcessing()
-
-  const { data: transcripts } = useTranscripts(consultationId, isComplete)
-  const { data: soap } = useSOAPNote(isComplete ? consultationId : "")
-  const regenerateSOAP = useRegenerateSOAPNote(isComplete ? consultationId : "")
+  const { data: transcripts } = useTranscripts(
+    consultationId,
+    isComplete || isCompletedWithErrors || isFailed,
+  )
+  const { data: soap } = useSOAPNote(
+    isComplete || isCompletedWithErrors ? consultationId : "",
+  )
+  const regenerateSOAP = useRegenerateSOAPNote(
+    isComplete || isCompletedWithErrors ? consultationId : "",
+  )
   const updateConsultation = useUpdateConsultation(consultationId)
+  const retryProcessing = useRetryProcessing(consultationId)
+
+  const transcriptListRef = useRef<HTMLDivElement>(null)
+  const transcriptEndRef = useRef<HTMLDivElement>(null)
+  const prevStepRef = useRef<string | null>(null)
+  const prevClassifiedCountRef = useRef(0)
+
+  const currentProgress = sseProgress.progress || consultation?.processing_progress || 0
+  const currentStep = sseProgress.step || consultation?.processing_step || null
+
+  // During transcription: auto-scroll to bottom as new segments arrive
+  const isTranscribing = currentStep === "transcribing"
+  useEffect(() => {
+    if (isTranscribing && streamedSegments.length > 0) {
+      transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [isTranscribing, streamedSegments.length])
+
+  // When transcription finishes (step transitions away from "transcribing"): scroll to top
+  useEffect(() => {
+    if (prevStepRef.current === "transcribing" && currentStep && currentStep !== "transcribing") {
+      transcriptListRef.current?.scrollTo({ top: 0, behavior: "smooth" })
+    }
+    prevStepRef.current = currentStep
+  }, [currentStep])
+
+  // During classification: scroll to the latest classified segment
+  const classifiedCount = streamedSegments.filter(
+    (s) => s.status === "classified" || s.status === "failed_classification",
+  ).length
+  useEffect(() => {
+    if (classifiedCount > prevClassifiedCountRef.current && classifiedCount > 0) {
+      // Find the last classified segment's sequence number
+      const classified = streamedSegments.filter(
+        (s) => s.status === "classified" || s.status === "failed_classification",
+      )
+      const lastSeq = classified[classified.length - 1]?.sequence
+      if (lastSeq != null) {
+        const el = document.getElementById(`segment-${lastSeq}`)
+        el?.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+    }
+    prevClassifiedCountRef.current = classifiedCount
+  }, [classifiedCount, streamedSegments])
 
   if (!consultation) return null
 
-  // Completed view — transcript + SOAP side by side
-  if (isComplete) {
+  // ==================================================================
+  // Completed view (with or without errors)
+  // ==================================================================
+  if (isComplete || isCompletedWithErrors) {
     function handleFieldSave(field: string, value: string) {
       updateConsultation.mutate(
         { [field]: value || null },
-        {
-          onError: () => toast.error(t("Failed to save changes")),
-        }
+        { onError: () => toast.error(t("Failed to save changes")) },
       )
     }
 
     return (
       <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
+        {isCompletedWithErrors && consultation.error_message && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>{t("Completed with errors")}</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>{consultation.error_message}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-4 shrink-0 gap-1.5"
+                disabled={retryProcessing.isPending}
+                onClick={() =>
+                  retryProcessing.mutate(undefined, {
+                    onSuccess: () => toast.success(t("Retrying failed segments...")),
+                    onError: (err) =>
+                      toast.error(err instanceof Error ? err.message : t("Retry failed")),
+                  })
+                }
+              >
+                <RotateCcw className={`h-3.5 w-3.5 ${retryProcessing.isPending ? "animate-spin" : ""}`} />
+                {t("Retry Failed")}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="space-y-1">
@@ -155,9 +292,7 @@ export function UploadProcessingView({
               <Input
                 defaultValue={consultation.patient_identifier ?? ""}
                 placeholder={t("optional")}
-                onBlur={(e) =>
-                  handleFieldSave("patient_identifier", e.target.value)
-                }
+                onBlur={(e) => handleFieldSave("patient_identifier", e.target.value)}
               />
             </div>
             <LanguageSelector
@@ -173,23 +308,14 @@ export function UploadProcessingView({
               onClick={() =>
                 regenerateSOAP.mutate(undefined, {
                   onSuccess: () => toast.success(t("SOAP note regenerated")),
-                  onError: () =>
-                    toast.error(t("Failed to regenerate SOAP note")),
+                  onError: () => toast.error(t("Failed to regenerate SOAP note")),
                 })
               }
             >
-              <RefreshCw
-                className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`}
-              />
-              {regenerateSOAP.isPending
-                ? t("Regenerating...")
-                : t("Regenerate")}
+              <RefreshCw className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`} />
+              {regenerateSOAP.isPending ? t("Regenerating...") : t("Regenerate")}
             </Button>
-            <Button
-              onClick={() =>
-                router.push(`/consultations/${consultationId}/soap`)
-              }
-            >
+            <Button onClick={() => router.push(`/consultations/${consultationId}/soap`)}>
               {t("Review SOAP Note")}
             </Button>
           </div>
@@ -206,12 +332,12 @@ export function UploadProcessingView({
                   isMedicallyRelevant={seg.is_medically_relevant}
                   speakerLabel={seg.speaker_label}
                   sequence={seg.sequence_number}
+                  status={seg.status}
+                  errorMessage={seg.error_message}
                 />
               ))}
               {(!transcripts || transcripts.segments.length === 0) && (
-                <p className="text-sm text-muted-foreground">
-                  {t("No transcript segments found.")}
-                </p>
+                <p className="text-muted-foreground text-sm">{t("No transcript segments found.")}</p>
               )}
             </div>
           </ScribeLayout.Left>
@@ -237,20 +363,16 @@ export function UploadProcessingView({
                   ).map(({ key, label }) => (
                     <div key={key} className="space-y-1">
                       <label className="text-sm font-semibold">{label}</label>
-                      <div className="rounded-md border bg-muted/50 p-3 text-sm whitespace-pre-wrap">
+                      <div className="bg-muted/50 rounded-md border p-3 text-sm whitespace-pre-wrap">
                         {soap[key] || (
-                          <span className="text-muted-foreground italic">
-                            {t("Empty")}
-                          </span>
+                          <span className="text-muted-foreground italic">{t("Empty")}</span>
                         )}
                       </div>
                     </div>
                   ))}
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  {t("SOAP note not found.")}
-                </p>
+                <p className="text-muted-foreground text-sm">{t("SOAP note not found.")}</p>
               )}
             </div>
           </ScribeLayout.Right>
@@ -259,118 +381,211 @@ export function UploadProcessingView({
     )
   }
 
+  // ==================================================================
   // Failed view
+  // ==================================================================
   if (isFailed) {
-    const canResume = consultation.chunks_total > 0
-    const resumedFrom = consultation.chunks_completed
+    const hasTranscripts = transcripts && transcripts.segments.length > 0
+
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20">
-        <AlertCircle className="h-12 w-12 text-destructive" />
-        <h2 className="text-lg font-semibold">{t("Processing Failed")}</h2>
-        {consultation.error_message && (
-          <p className="max-w-md text-center text-sm text-muted-foreground">
-            {consultation.error_message}
-          </p>
-        )}
-        {canResume && (
-          <p className="text-xs text-muted-foreground">
-            {t("Checkpoint:")} {resumedFrom} / {consultation.chunks_total}{" "}
-            {t("chunks transcribed before the failure.")}
-          </p>
-        )}
-        <div className="flex gap-2">
-          {canResume && (
-            <Button
-              disabled={resumeProcessing.isPending}
-              className="gap-2"
-              onClick={() =>
-                resumeProcessing.mutate(consultationId, {
-                  onSuccess: () => toast.success(t("Resumed from checkpoint")),
-                  onError: () => toast.error(t("Failed to resume processing")),
-                })
-              }
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${resumeProcessing.isPending ? "animate-spin" : ""}`}
-              />
-              {resumeProcessing.isPending
-                ? t("Resuming...")
-                : t("Resume from checkpoint")}
+      <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t("Processing Failed")}</AlertTitle>
+          <AlertDescription className="flex items-center justify-between">
+            <span>{consultation.error_message || t("An unknown error occurred.")}</span>
+            <div className="ml-4 flex shrink-0 gap-2">
+              {hasTranscripts && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  disabled={retryProcessing.isPending}
+                  onClick={() =>
+                    retryProcessing.mutate(undefined, {
+                      onSuccess: () => toast.success(t("Retrying failed segments...")),
+                      onError: (err) =>
+                        toast.error(err instanceof Error ? err.message : t("Retry failed")),
+                    })
+                  }
+                >
+                  <RotateCcw className={`h-3.5 w-3.5 ${retryProcessing.isPending ? "animate-spin" : ""}`} />
+                  {t("Retry")}
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={() => router.push("/consultations")}>
+                {t("Back")}
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+
+        {hasTranscripts ? (
+          <ScribeLayout>
+            <ScribeLayout.Left>
+              <h3 className="mb-3 text-lg font-semibold">{t("Partial Transcripts")}</h3>
+              <div className="flex-1 space-y-2 overflow-y-auto">
+                {transcripts.segments.map((seg) => (
+                  <TranscriptSegmentItem
+                    key={seg.id}
+                    text={seg.text}
+                    isMedicallyRelevant={seg.is_medically_relevant}
+                    speakerLabel={seg.speaker_label}
+                    sequence={seg.sequence_number}
+                    status={seg.status}
+                    errorMessage={seg.error_message}
+                  />
+                ))}
+              </div>
+            </ScribeLayout.Left>
+            <ScribeLayout.Right>
+              <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                <AlertCircle className="text-muted-foreground h-10 w-10" />
+                <p className="text-muted-foreground text-sm">
+                  {t("SOAP note could not be generated due to processing errors.")}
+                </p>
+              </div>
+            </ScribeLayout.Right>
+          </ScribeLayout>
+        ) : (
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+            <p className="text-muted-foreground text-sm">
+              {t("No transcripts were produced. Please try uploading the audio file again.")}
+            </p>
+            <Button variant="outline" onClick={() => router.push("/consultations")}>
+              {t("Back to Consultations")}
             </Button>
-          )}
-          <Button
-            variant="outline"
-            onClick={() => router.push("/consultations")}
-          >
-            {t("Back to Consultations")}
-          </Button>
-        </div>
+          </div>
+        )}
       </div>
     )
   }
 
+  // ==================================================================
   // Processing view
-  const currentStepIdx = getStepIndex(consultation.processing_step)
+  // ==================================================================
+  const transcribedCount = streamedSegments.filter((s) => s.status !== "failed_transcription").length
+  const relevantCount = streamedSegments.filter((s) => s.status === "classified" && s.isMedicallyRelevant).length
+  const smallTalkCount = streamedSegments.filter((s) => s.status === "classified" && !s.isMedicallyRelevant).length
+  const failedCount = streamedSegments.filter(
+    (s) => s.status === "failed_transcription" || s.status === "failed_classification",
+  ).length
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 py-20">
-      <FileAudio className="h-12 w-12 text-primary" />
-      <div className="text-center">
-        <h2 className="text-xl font-semibold">
-          {t("Processing your audio...")}
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("This may take a few minutes depending on the file length.")}
-        </p>
+    <div className="flex h-[calc(100dvh-theme(spacing.14)-theme(spacing.12))] flex-col gap-6">
+      {/* Header — matches live mode ConsultationHeader pattern */}
+      <div className="flex items-center justify-between border-b pb-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">
+            {consultation.title || t("New Consultation")}
+          </h1>
+          <Badge variant="outline">{consultation.language}</Badge>
+          <StatusBadge status="processing" />
+        </div>
+        <div className="text-muted-foreground font-mono text-lg tabular-nums">
+          {currentProgress}%
+        </div>
       </div>
 
-      <Card className="w-full max-w-md">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between text-sm">
-            <span>{t("Progress")}</span>
-            <span className="text-muted-foreground">
-              {consultation.processing_progress}%
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Progress value={consultation.processing_progress} className="h-2" />
-          {consultation.chunks_total > 0 && (
-            <p className="text-xs text-muted-foreground tabular-nums">
-              {t("Chunks transcribed:")} {consultation.chunks_completed} /{" "}
-              {consultation.chunks_total}
-            </p>
-          )}
-          <div className="space-y-2">
-            {PROCESSING_STEP_KEYS.map((key, idx) => {
-              const isCurrent = idx === currentStepIdx
-              const isDone = idx < currentStepIdx
-              return (
-                <div key={key} className="flex items-center gap-2 text-sm">
-                  {isDone ? (
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
-                  ) : isCurrent ? (
-                    <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
-                  ) : (
-                    <Circle className="h-4 w-4 shrink-0 text-muted-foreground/40" />
-                  )}
-                  <span
-                    className={
-                      isDone
-                        ? "text-primary"
-                        : isCurrent
-                          ? "font-medium"
-                          : "text-muted-foreground"
-                    }
-                  >
-                    {stepLabels[key]}
-                  </span>
-                </div>
-              )
-            })}
+      {/* Progress bar */}
+      <div className="flex items-center gap-3">
+        <Progress value={currentProgress} className="h-2 flex-1" />
+      </div>
+
+      {/* Two-column content */}
+      <ScribeLayout>
+        {/* Left: Live transcript */}
+        <ScribeLayout.Left>
+          <div className="flex h-full flex-col">
+            <h3 className="mb-3 text-lg font-semibold">
+              {t("Transcript")}
+              {streamedSegments.length > 0 && (
+                <span className="text-muted-foreground ml-2 text-sm font-normal">
+                  ({streamedSegments.length})
+                </span>
+              )}
+            </h3>
+            <div ref={transcriptListRef} className="flex-1 space-y-2 overflow-y-auto">
+              {streamedSegments.length > 0 ? (
+                <>
+                  {streamedSegments.map((seg) => (
+                    <div key={seg.sequence} id={`segment-${seg.sequence}`}>
+                      <TranscriptSegmentItem
+                        text={seg.text}
+                        isMedicallyRelevant={seg.isMedicallyRelevant}
+                        speakerLabel={null}
+                        sequence={seg.sequence}
+                        status={seg.status}
+                        errorMessage={seg.errorMessage}
+                      />
+                    </div>
+                  ))}
+                  <div ref={transcriptEndRef} />
+                </>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  {t("Waiting for transcription to begin...")}
+                </p>
+              )}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </ScribeLayout.Left>
+
+        {/* Right: Processing info */}
+        <ScribeLayout.Right>
+          <div className="flex h-full flex-col">
+            <h3 className="mb-3 text-lg font-semibold">
+              {t("Processing")}
+            </h3>
+            <div className="flex-1 space-y-6 overflow-y-auto">
+              {/* Steps */}
+              <StepChecklist currentStep={currentStep} stepLabels={stepLabels} />
+
+              {/* Stats */}
+              {streamedSegments.length > 0 && (
+                <div className="border-t pt-6">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                    <div>
+                      <div className="text-foreground text-2xl font-bold tabular-nums">
+                        {transcribedCount}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {t("Transcribed")}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-primary text-2xl font-bold tabular-nums">
+                        {relevantCount}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {t("Relevant")}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-muted-foreground text-2xl font-bold tabular-nums">
+                        {smallTalkCount}
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {t("Small Talk")}
+                      </div>
+                    </div>
+                    {failedCount > 0 && (
+                      <div>
+                        <div className="text-destructive text-2xl font-bold tabular-nums">
+                          {failedCount}
+                        </div>
+                        <div className="text-muted-foreground text-xs">
+                          {t("Failed")}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </ScribeLayout.Right>
+      </ScribeLayout>
     </div>
   )
 }

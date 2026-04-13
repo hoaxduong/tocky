@@ -1,3 +1,4 @@
+import React from "react"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -36,16 +37,18 @@ export function PageHeader({
         <Breadcrumb>
           <BreadcrumbList>
             {breadcrumbs.map((crumb, i) => (
-              <BreadcrumbItem key={crumb.label}>
+              <React.Fragment key={crumb.label}>
                 {i > 0 && <BreadcrumbSeparator />}
-                {crumb.href ? (
-                  <BreadcrumbLink asChild>
-                    <Link href={crumb.href}>{crumb.label}</Link>
-                  </BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
+                <BreadcrumbItem>
+                  {crumb.href ? (
+                    <BreadcrumbLink asChild>
+                      <Link href={crumb.href}>{crumb.label}</Link>
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+              </React.Fragment>
             ))}
           </BreadcrumbList>
         </Breadcrumb>

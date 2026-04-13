@@ -6,6 +6,12 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
 
+# Transcript processing statuses
+STATUS_TRANSCRIBED = "transcribed"
+STATUS_CLASSIFIED = "classified"
+STATUS_FAILED_TRANSCRIPTION = "failed_transcription"
+STATUS_FAILED_CLASSIFICATION = "failed_classification"
+
 
 class Transcript(Base):
     __tablename__ = "transcripts"
@@ -16,6 +22,8 @@ class Transcript(Base):
     text: Mapped[str] = mapped_column(Text)
     language: Mapped[str] = mapped_column(String(10))
     is_medically_relevant: Mapped[bool] = mapped_column(default=True)
+    status: Mapped[str] = mapped_column(String(30), default=STATUS_TRANSCRIBED)
+    error_message: Mapped[str | None] = mapped_column(Text)
     speaker_label: Mapped[str | None] = mapped_column(String(20))
     timestamp_start_ms: Mapped[int]
     timestamp_end_ms: Mapped[int]

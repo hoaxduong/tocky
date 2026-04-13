@@ -17,7 +17,7 @@ function ScribeLayoutLeft({ children }: { children: React.ReactNode }) {
 }
 
 function ScribeLayoutRight({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-col overflow-hidden">{children}</div>
+  return <div className="flex flex-col overflow-y-auto">{children}</div>
 }
 
 ScribeLayout.Left = ScribeLayoutLeft

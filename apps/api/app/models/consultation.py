@@ -30,9 +30,6 @@ class ConsultationResponse(BaseModel):
     processing_step: str | None
     processing_progress: int
     error_message: str | None
-    chunks_total: int
-    chunks_completed: int
-    soap_generated: bool
     started_at: datetime
     ended_at: datetime | None
     created_at: datetime
