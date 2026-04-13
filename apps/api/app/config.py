@@ -21,10 +21,18 @@ class Settings(BaseSettings):
     jwt_private_key: str = ""  # PEM-encoded EC private key
     jwt_public_key: str = ""  # PEM-encoded EC public key
 
-    # Alibaba Cloud DashScope (Qwen2.5-Omni)
+    # Alibaba Cloud DashScope
     dashscope_api_key: str = ""
-    dashscope_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
-    qwen_model_name: str = "qwen2.5-omni-7b"
+    # Regional: dashscope.aliyuncs.com (Beijing),
+    # dashscope-intl.aliyuncs.com (SG), dashscope-us.aliyuncs.com (VA)
+    dashscope_base_url: str = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+    qwen_model_name: str = "qwen2.5-omni-7b"  # fallback for all workloads
+
+    # Per-workload model overrides (leave empty to use qwen_model_name for all)
+    qwen_transcription_model: str = ""
+    qwen_classification_model: str = ""
+    qwen_soap_model: str = ""
+    qwen_extraction_model: str = ""
 
     # Alibaba Cloud OSS
     oss_access_key_id: str = ""

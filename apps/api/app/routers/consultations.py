@@ -1,8 +1,17 @@
 import uuid
 
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy import func, select
 
+from app import database
 from app.db_models.consultation import Consultation
 from app.dependencies import CurrentUserDep, DbSessionDep
 from app.models.consultation import (
@@ -11,6 +20,8 @@ from app.models.consultation import (
     ConsultationResponse,
     ConsultationUpdate,
 )
+from app.services.audio_converter import convert_to_pcm, validate_audio_file
+from app.services.batch_audio_processor import BatchAudioProcessor
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
@@ -26,6 +37,8 @@ async def list_consultations(
     query = select(Consultation).where(Consultation.user_id == user["id"])
     if status_filter:
         query = query.where(Consultation.status == status_filter)
+    else:
+        query = query.where(Consultation.status != "archived")
 
     total_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(total_query)).scalar_one()
@@ -58,6 +71,8 @@ async def create_consultation(
         title=body.title,
         patient_identifier=body.patient_identifier,
         language=body.language,
+        mode=body.mode,
+        status="uploading" if body.mode == "upload" else "recording",
     )
     db.add(consultation)
     await db.commit()
@@ -92,6 +107,24 @@ async def update_consultation(
     return ConsultationResponse.model_validate(consultation)
 
 
+@router.post("/{consultation_id}/archive", response_model=ConsultationResponse)
+async def archive_consultation(
+    consultation_id: uuid.UUID,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    consultation = await _get_user_consultation(db, consultation_id, user["id"])
+    if consultation.status == "archived":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Consultation is already archived",
+        )
+    consultation.status = "archived"
+    await db.commit()
+    await db.refresh(consultation)
+    return ConsultationResponse.model_validate(consultation)
+
+
 @router.delete(
     "/{consultation_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -102,8 +135,63 @@ async def delete_consultation(
     user: CurrentUserDep,
 ):
     consultation = await _get_user_consultation(db, consultation_id, user["id"])
+    if consultation.status != "archived":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only archived consultations can be deleted",
+        )
     await db.delete(consultation)
     await db.commit()
+
+
+@router.post(
+    "/{consultation_id}/upload-audio",
+    response_model=ConsultationResponse,
+)
+async def upload_audio(
+    consultation_id: uuid.UUID,
+    file: UploadFile,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+    background_tasks: BackgroundTasks,
+):
+    consultation = await _get_user_consultation(db, consultation_id, user["id"])
+    if consultation.mode != "upload":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Consultation is not in upload mode",
+        )
+    if consultation.status != "uploading":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Audio has already been uploaded for this consultation",
+        )
+
+    validate_audio_file(file.filename or "", file.size or 0)
+    file_bytes = await file.read()
+
+    consultation.status = "processing"
+    consultation.processing_step = "converting"
+    consultation.processing_progress = 0
+    await db.commit()
+    await db.refresh(consultation)
+
+    dashscope_client = request.app.state.dashscope_client
+    db_session_factory = database.async_session_factory
+    assert db_session_factory is not None
+
+    async def _process_upload() -> None:
+        pcm_audio = await convert_to_pcm(file_bytes)
+        processor = BatchAudioProcessor(
+            consultation_id=consultation_id,
+            model_client=dashscope_client,
+            db_session_factory=db_session_factory,
+        )
+        await processor.process(pcm_audio)
+
+    background_tasks.add_task(_process_upload)
+    return ConsultationResponse.model_validate(consultation)
 
 
 async def _get_user_consultation(

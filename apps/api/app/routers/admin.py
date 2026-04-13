@@ -1,11 +1,18 @@
-from fastapi import APIRouter, HTTPException, status
-from sqlalchemy import func, select
+from fastapi import APIRouter, HTTPException, Request, status
+from sqlalchemy import func, select, update
 
 from app.db_models.consultation import Consultation
+from app.db_models.prompt_template import PromptTemplate
 from app.db_models.session import Session
 from app.db_models.user import User
 from app.dependencies import AdminUserDep, DbSessionDep
 from app.models.consultation import ConsultationListResponse, ConsultationResponse
+from app.models.prompt_template import (
+    PromptTemplateListResponse,
+    PromptTemplateResponse,
+    PromptTemplateUpdate,
+    PromptVersionListResponse,
+)
 from app.models.user import (
     BanUserRequest,
     CreateUserRequest,
@@ -90,9 +97,7 @@ async def list_users(
     query = select(User)
     if search:
         pattern = f"%{search}%"
-        query = query.where(
-            User.name.ilike(pattern) | User.email.ilike(pattern)
-        )
+        query = query.where(User.name.ilike(pattern) | User.email.ilike(pattern))
 
     total_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(total_query)).scalar_one()
@@ -210,9 +215,7 @@ async def unban_user(
     return UserResponse.model_validate(user)
 
 
-@router.delete(
-    "/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     user_id: str,
     db: DbSessionDep,
@@ -237,3 +240,164 @@ async def delete_user(
     await db.execute(delete(Session).where(Session.user_id == user_id))
     await db.delete(user)
     await db.commit()
+
+
+# --- Prompt template endpoints ---
+
+
+@router.get("/prompts", response_model=PromptTemplateListResponse)
+async def list_prompts(
+    db: DbSessionDep,
+    _user: AdminUserDep,
+    offset: int = 0,
+    limit: int = 20,
+    active_only: bool = True,
+):
+    query = select(PromptTemplate)
+    if active_only:
+        query = query.where(PromptTemplate.is_active == True)  # noqa: E712
+    total_query = select(func.count()).select_from(query.subquery())
+    total = (await db.execute(total_query)).scalar_one()
+
+    query = (
+        query.order_by(PromptTemplate.slug, PromptTemplate.version.desc())
+        .offset(offset)
+        .limit(limit)
+    )
+    result = await db.execute(query)
+    items = result.scalars().all()
+
+    return PromptTemplateListResponse(
+        items=[PromptTemplateResponse.model_validate(p) for p in items],
+        total=total,
+        offset=offset,
+        limit=limit,
+    )
+
+
+@router.get("/prompts/{slug}", response_model=PromptTemplateResponse)
+async def get_prompt(
+    slug: str,
+    db: DbSessionDep,
+    _user: AdminUserDep,
+):
+    result = await db.execute(
+        select(PromptTemplate).where(
+            PromptTemplate.slug == slug,
+            PromptTemplate.is_active == True,  # noqa: E712
+        )
+    )
+    prompt = result.scalar_one_or_none()
+    if not prompt:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found"
+        )
+    return PromptTemplateResponse.model_validate(prompt)
+
+
+@router.get("/prompts/{slug}/versions", response_model=PromptVersionListResponse)
+async def list_prompt_versions(
+    slug: str,
+    db: DbSessionDep,
+    _user: AdminUserDep,
+):
+    result = await db.execute(
+        select(PromptTemplate)
+        .where(PromptTemplate.slug == slug)
+        .order_by(PromptTemplate.version.desc())
+    )
+    versions = result.scalars().all()
+    if not versions:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found"
+        )
+    return PromptVersionListResponse(
+        slug=slug,
+        versions=[PromptTemplateResponse.model_validate(v) for v in versions],
+    )
+
+
+@router.put("/prompts/{slug}", response_model=PromptTemplateResponse)
+async def update_prompt(
+    slug: str,
+    body: PromptTemplateUpdate,
+    db: DbSessionDep,
+    user: AdminUserDep,
+    request: Request,
+):
+    result = await db.execute(
+        select(PromptTemplate).where(
+            PromptTemplate.slug == slug,
+            PromptTemplate.is_active == True,  # noqa: E712
+        )
+    )
+    current = result.scalar_one_or_none()
+    if not current:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Prompt not found"
+        )
+
+    current.is_active = False
+
+    new_prompt = PromptTemplate(
+        slug=slug,
+        version=current.version + 1,
+        is_active=True,
+        title=body.title or current.title,
+        description=(
+            body.description if body.description is not None else current.description
+        ),
+        content=body.content,
+        variables=(body.variables if body.variables is not None else current.variables),
+        created_by=user["id"],
+    )
+    db.add(new_prompt)
+    await db.commit()
+    await db.refresh(new_prompt)
+
+    from app.database import async_session_factory
+
+    registry = request.app.state.prompt_registry
+    await registry.refresh(async_session_factory, slug=slug)
+
+    return PromptTemplateResponse.model_validate(new_prompt)
+
+
+@router.post(
+    "/prompts/{slug}/activate/{version}",
+    response_model=PromptTemplateResponse,
+)
+async def activate_prompt_version(
+    slug: str,
+    version: int,
+    db: DbSessionDep,
+    _user: AdminUserDep,
+    request: Request,
+):
+    result = await db.execute(
+        select(PromptTemplate).where(
+            PromptTemplate.slug == slug,
+            PromptTemplate.version == version,
+        )
+    )
+    target = result.scalar_one_or_none()
+    if not target:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Version not found"
+        )
+
+    await db.execute(
+        update(PromptTemplate)
+        .where(PromptTemplate.slug == slug)
+        .values(is_active=False)
+    )
+    target.is_active = True
+    await db.commit()
+    await db.refresh(target)
+
+    from app.database import async_session_factory
+
+    registry = request.app.state.prompt_registry
+    await registry.refresh(async_session_factory, slug=slug)
+
+    return PromptTemplateResponse.model_validate(target)

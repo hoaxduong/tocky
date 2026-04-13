@@ -1,9 +1,11 @@
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import database as _db
 from app.config import get_settings
 from app.database import close_db, init_db
 from app.routers import (
@@ -17,17 +19,41 @@ from app.routers import (
 )
 from app.services.dashscope_client import DashScopeClient
 from app.services.oss_client import OSSClient
+from app.services.prompt_registry import PromptRegistry
+
+
+def _configure_logging(debug: bool) -> None:
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)-8s [%(name)s] %(message)s",
+        datefmt="%H:%M:%S",
+    )
+    # Quiet noisy third-party loggers even in debug mode
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("hpack").setLevel(logging.WARNING)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
+    _configure_logging(settings.debug)
     await init_db(settings.database_url)
 
+    prompt_registry = PromptRegistry()
+    await prompt_registry.load(_db.async_session_factory)
+    app.state.prompt_registry = prompt_registry
+
+    fallback = settings.qwen_model_name
     app.state.dashscope_client = DashScopeClient(
         base_url=settings.dashscope_base_url,
         api_key=settings.dashscope_api_key,
-        model_name=settings.qwen_model_name,
+        transcription_model=settings.qwen_transcription_model or fallback,
+        classification_model=settings.qwen_classification_model or fallback,
+        soap_model=settings.qwen_soap_model or fallback,
+        extraction_model=settings.qwen_extraction_model or fallback,
+        prompt_registry=prompt_registry,
     )
 
     app.state.oss_client = OSSClient(

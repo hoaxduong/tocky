@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react"
 import { useExtracted } from "next-intl"
-import { AlertTriangle, Check, Play } from "lucide-react"
+import { AlertTriangle, Check, Play, RefreshCw } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Textarea } from "@workspace/ui/components/textarea"
@@ -26,6 +26,7 @@ import {
 import {
   useConsultationAudio,
   useFinalizeSOAPNote,
+  useRegenerateSOAPNote,
   useSOAPNote,
   useTranscripts,
   useUpdateSOAPNote,
@@ -49,6 +50,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const { data: soap, isLoading } = useSOAPNote(consultationId)
   const updateSOAP = useUpdateSOAPNote(consultationId)
   const finalizeSOAP = useFinalizeSOAPNote(consultationId)
+  const regenerateSOAP = useRegenerateSOAPNote(consultationId)
   const { data: transcripts } = useTranscripts(consultationId)
   const hasAudio = !!soap && !soap.is_draft
   const { data: audio } = useConsultationAudio(consultationId, hasAudio)
@@ -112,6 +114,28 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
             <Badge variant={soap.is_draft ? "secondary" : "default"}>
               {soap.is_draft ? t("Draft") : t("Completed")}
             </Badge>
+            {soap.is_draft && (
+              <Button
+                variant="outline"
+                disabled={regenerateSOAP.isPending}
+                className="gap-2"
+                onClick={() =>
+                  regenerateSOAP.mutate(undefined, {
+                    onSuccess: () =>
+                      toast.success(t("SOAP note regenerated")),
+                    onError: () =>
+                      toast.error(t("Failed to regenerate SOAP note")),
+                  })
+                }
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${regenerateSOAP.isPending ? "animate-spin" : ""}`}
+                />
+                {regenerateSOAP.isPending
+                  ? t("Regenerating...")
+                  : t("Regenerate")}
+              </Button>
+            )}
             {soap.is_draft && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

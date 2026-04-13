@@ -6,10 +6,11 @@ msgstr ""
 "X-Generator: next-intl\n"
 "X-Crowdin-SourceKey: msgstr\n"
 
-#: app/(app)/consultations/[id]/page.tsx:136
+#: app/(app)/consultations/[id]/page.tsx:148
 #: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:75
-#: components/soap-review-form.tsx:79
+#: components/soap-review-form.tsx:77
+#: components/soap-review-form.tsx:81
+#: components/upload-processing-view.tsx:206
 msgid "63vr3O"
 msgstr "SOAP Note"
 
@@ -24,9 +25,9 @@ msgid "iHN12u"
 msgstr "Admin"
 
 #: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:17
-#: components/consultations-list.tsx:20
-#: components/soap-review-form.tsx:78
+#: components/consultations-list.tsx:24
+#: components/consultations-list.tsx:27
+#: components/soap-review-form.tsx:80
 msgid "+WBJgJ"
 msgstr "Consultations"
 
@@ -93,6 +94,8 @@ msgstr "Ban"
 
 #: components/admin-users-table.tsx:145
 #: components/admin-users-table.tsx:168
+#: components/scribe/consultation-card.tsx:114
+#: components/scribe/consultation-card.tsx:150
 msgid "K3r6DQ"
 msgstr "Delete"
 
@@ -105,7 +108,8 @@ msgid "eCHBUe"
 msgstr "Are you sure you want to delete this user? This action cannot be undone."
 
 #: components/admin-users-table.tsx:160
-#: components/soap-review-form.tsx:106
+#: components/scribe/consultation-card.tsx:145
+#: components/soap-review-form.tsx:130
 msgid "47FYwb"
 msgstr "Cancel"
 
@@ -158,14 +162,12 @@ msgid "kvlt4O"
 msgstr "Doctor"
 
 #: components/admin-users-table.tsx:274
-#: components/new-consultation-dialog.tsx:101
-msgid "VzzYJk"
-msgstr "Create"
-
-#: components/admin-users-table.tsx:274
-#: components/new-consultation-dialog.tsx:101
 msgid "mRL9Vh"
 msgstr "Creating..."
+
+#: components/admin-users-table.tsx:274
+msgid "VzzYJk"
+msgstr "Create"
 
 #: components/admin-users-table.tsx:308
 msgid "tzMNF3"
@@ -176,6 +178,7 @@ msgid "xerM7K"
 msgstr "Banned"
 
 #: components/admin-users-table.tsx:313
+#: components/consultations-list.tsx:37
 #: components/dashboard-content.tsx:51
 msgid "3a5wL8"
 msgstr "Active"
@@ -194,45 +197,65 @@ msgstr "Search users..."
 msgid "gjBiyj"
 msgstr "Loading..."
 
-#: components/app-sidebar.tsx:120
-msgid "fBg+7V"
-msgstr "Navigation"
+#: components/app-sidebar.tsx:107
+msgid "m6lDC9"
+msgstr "Management"
 
-#: components/app-sidebar.tsx:153
-#: components/app-sidebar.tsx:162
-#: components/app-sidebar.tsx:186
+#: components/app-sidebar.tsx:107
+msgid "rOZptg"
+msgstr "Workspace"
+
+#: components/app-sidebar.tsx:156
+#: components/app-sidebar.tsx:165
+#: components/app-sidebar.tsx:189
 msgid "TwyMau"
 msgstr "Account"
 
-#: components/app-sidebar.tsx:200
+#: components/app-sidebar.tsx:203
 msgid "Pe0ogR"
 msgstr "Theme"
 
-#: components/app-sidebar.tsx:208
+#: components/app-sidebar.tsx:211
 msgid "3cc4Ct"
 msgstr "Light"
 
-#: components/app-sidebar.tsx:211
+#: components/app-sidebar.tsx:214
 msgid "tOdNiY"
 msgstr "Dark"
 
-#: components/app-sidebar.tsx:214
+#: components/app-sidebar.tsx:217
 msgid "+CwN9C"
 msgstr "System"
 
-#: components/app-sidebar.tsx:222
+#: components/app-sidebar.tsx:225
 msgid "y1Z3or"
 msgstr "Language"
 
-#: components/app-sidebar.tsx:241
+#: components/app-sidebar.tsx:248
+msgid "3Vr8ps"
+msgstr "Admin Dashboard"
+
+#: components/app-sidebar.tsx:253
+msgid "YNSpuZ"
+msgstr "Back to App"
+
+#: components/app-sidebar.tsx:262
 msgid "F62y+K"
 msgstr "Sign Out"
 
-#: components/consultations-list.tsx:19
+#: components/consultations-list.tsx:26
 msgid "hzSNj4"
 msgstr "Dashboard"
 
-#: components/consultations-list.tsx:29
+#: components/consultations-list.tsx:38
+msgid "0HT+Ib"
+msgstr "Archived"
+
+#: components/consultations-list.tsx:47
+msgid "ywPYka"
+msgstr "No archived consultations."
+
+#: components/consultations-list.tsx:48
 #: components/dashboard-content.tsx:83
 msgid "eoBnBg"
 msgstr "No consultations yet. Start your first one!"
@@ -242,7 +265,8 @@ msgid "UKxoV8"
 msgstr "Welcome back"
 
 #: components/dashboard-content.tsx:63
-#: components/soap-review-form.tsx:84
+#: components/soap-review-form.tsx:86
+#: components/upload-processing-view.tsx:209
 msgid "95stPq"
 msgstr "Completed"
 
@@ -250,37 +274,85 @@ msgstr "Completed"
 msgid "XVT1Vj"
 msgstr "Recent Consultations"
 
-#: components/new-consultation-dialog.tsx:47
-msgid "Zivjuf"
-msgstr "Consultation created"
+#: components/new-consultation-dialog.tsx:49
+msgid "j/OW7m"
+msgstr "File too large. Maximum size is 100 MB."
 
-#: components/new-consultation-dialog.tsx:52
-msgid "TRkL7w"
-msgstr "Failed to create consultation"
+#: components/new-consultation-dialog.tsx:76
+msgid "CwluP/"
+msgstr "Audio uploaded. Processing started."
 
-#: components/new-consultation-dialog.tsx:61
-#: components/new-consultation-dialog.tsx:66
-#: components/new-consultation-dialog.tsx:78
-#: components/scribe/consultation-card.tsx:39
+#: components/new-consultation-dialog.tsx:81
+msgid "yN8yyH"
+msgstr "Failed to upload audio"
+
+#: components/new-consultation-dialog.tsx:96
+#: components/new-consultation-dialog.tsx:103
+#: components/scribe/consultation-card.tsx:83
 #: components/scribe/consultation-header.tsx:32
 msgid "L2NbD2"
 msgstr "New Consultation"
 
-#: components/new-consultation-dialog.tsx:68
-msgid "Jldv8h"
-msgstr "Start a new clinical consultation session."
+#: components/new-consultation-dialog.tsx:105
+msgid "D0byoJ"
+msgstr "Choose how to start your consultation."
 
-#: components/new-consultation-dialog.tsx:73
-msgid "9a9+ww"
-msgstr "Title"
+#: components/new-consultation-dialog.tsx:117
+msgid "e61Jf3"
+msgstr "Coming soon"
 
-#: components/new-consultation-dialog.tsx:83
-msgid "r+X7r8"
-msgstr "Patient Identifier"
+#: components/new-consultation-dialog.tsx:121
+msgid "ICmSVj"
+msgstr "Record Live"
 
-#: components/new-consultation-dialog.tsx:85
-msgid "V4KNjk"
-msgstr "optional"
+#: components/new-consultation-dialog.tsx:130
+#: components/new-consultation-dialog.tsx:153
+msgid "qQU7XE"
+msgstr "Upload Audio"
+
+#: components/new-consultation-dialog.tsx:156
+msgid "h6v5l8"
+msgstr "Upload a recorded consultation. Language, title, and patient info will be auto-detected."
+
+#: components/new-consultation-dialog.tsx:181
+msgid "sPYvFA"
+msgstr "Drag and drop or click to browse"
+
+#: components/new-consultation-dialog.tsx:225
+msgid "JEsxDw"
+msgstr "Uploading..."
+
+#: components/new-consultation-dialog.tsx:226
+msgid "iNHvrU"
+msgstr "Upload & Process"
+
+#: components/scribe/consultation-card.tsx:64
+msgid "XOBOTM"
+msgstr "Consultation archived"
+
+#: components/scribe/consultation-card.tsx:65
+msgid "sJKt39"
+msgstr "Failed to archive consultation"
+
+#: components/scribe/consultation-card.tsx:71
+msgid "YFqZph"
+msgstr "Consultation deleted"
+
+#: components/scribe/consultation-card.tsx:72
+msgid "x297rU"
+msgstr "Failed to delete consultation"
+
+#: components/scribe/consultation-card.tsx:102
+msgid "hrgo+E"
+msgstr "Archive"
+
+#: components/scribe/consultation-card.tsx:136
+msgid "Y0pMB6"
+msgstr "Delete Consultation?"
+
+#: components/scribe/consultation-card.tsx:139
+msgid "P2jK4q"
+msgstr "This will permanently delete this consultation and all its data. This action cannot be undone."
 
 #: components/scribe/language-selector.tsx:34
 msgid "z3DCpE"
@@ -303,36 +375,42 @@ msgid "pXFAd/"
 msgstr "Stop Recording"
 
 #: components/scribe/soap-editor.tsx:19
-#: components/soap-review-form.tsx:53
+#: components/soap-review-form.tsx:55
+#: components/upload-processing-view.tsx:218
 msgid "R2VjIH"
 msgstr "Subjective"
 
 #: components/scribe/soap-editor.tsx:20
-#: components/soap-review-form.tsx:54
+#: components/soap-review-form.tsx:56
+#: components/upload-processing-view.tsx:219
 msgid "khNSj1"
 msgstr "Objective"
 
 #: components/scribe/soap-editor.tsx:21
-#: components/soap-review-form.tsx:55
+#: components/soap-review-form.tsx:57
+#: components/upload-processing-view.tsx:220
 msgid "ueRCsi"
 msgstr "Assessment"
 
 #: components/scribe/soap-editor.tsx:22
-#: components/soap-review-form.tsx:56
+#: components/soap-review-form.tsx:58
+#: components/upload-processing-view.tsx:221
 msgid "fz0z4c"
 msgstr "Plan"
 
 #: components/scribe/soap-editor.tsx:29
-#: components/soap-review-form.tsx:84
+#: components/soap-review-form.tsx:86
+#: components/upload-processing-view.tsx:209
 msgid "W6nwjo"
 msgstr "Draft"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:91
+#: components/soap-review-form.tsx:115
 msgid "Zmv34N"
 msgstr "Finalize Note"
 
 #: components/scribe/transcript-panel.tsx:19
+#: components/upload-processing-view.tsx:186
 msgid "TztQA0"
 msgstr "Transcript"
 
@@ -386,26 +464,123 @@ msgstr "Already have an account?"
 msgid "TemVby"
 msgstr "Full Name"
 
-#: components/soap-review-form.tsx:61
+#: components/soap-review-form.tsx:63
+#: components/upload-processing-view.tsx:119
 msgid "WP4Inj"
 msgstr "Failed to save changes"
 
-#: components/soap-review-form.tsx:67
+#: components/soap-review-form.tsx:69
 msgid "cbHRLl"
 msgstr "SOAP note finalized"
 
-#: components/soap-review-form.tsx:68
+#: components/soap-review-form.tsx:70
 msgid "Z8pSSB"
 msgstr "Failed to finalize note"
 
-#: components/soap-review-form.tsx:97
+#: components/soap-review-form.tsx:96
+#: components/upload-processing-view.tsx:161
+msgid "iNe+Ig"
+msgstr "SOAP note regenerated"
+
+#: components/soap-review-form.tsx:98
+#: components/upload-processing-view.tsx:163
+msgid "VsY04C"
+msgstr "Failed to regenerate SOAP note"
+
+#: components/soap-review-form.tsx:106
+#: components/upload-processing-view.tsx:171
+msgid "n6PmWV"
+msgstr "Regenerating..."
+
+#: components/soap-review-form.tsx:107
+#: components/upload-processing-view.tsx:172
+msgid "6PgVSe"
+msgstr "Regenerate"
+
+#: components/soap-review-form.tsx:121
 msgid "3hVwhB"
 msgstr "Finalize SOAP Note?"
 
-#: components/soap-review-form.tsx:100
+#: components/soap-review-form.tsx:124
 msgid "UgKakY"
 msgstr "This action cannot be undone. The note will be locked for editing."
 
-#: components/soap-review-form.tsx:108
+#: components/soap-review-form.tsx:132
 msgid "J9w6+G"
 msgstr "Finalize"
+
+#: components/upload-processing-view.tsx:77
+msgid "vQyVep"
+msgstr "Converting audio"
+
+#: components/upload-processing-view.tsx:78
+msgid "9pYgwb"
+msgstr "Transcribing"
+
+#: components/upload-processing-view.tsx:79
+msgid "jiDB18"
+msgstr "Detecting language & metadata"
+
+#: components/upload-processing-view.tsx:80
+msgid "/cY75V"
+msgstr "Filtering relevance"
+
+#: components/upload-processing-view.tsx:81
+msgid "2t3PDB"
+msgstr "Generating SOAP note"
+
+#: components/upload-processing-view.tsx:82
+msgid "OZfUhq"
+msgstr "Extracting medical entities"
+
+#: components/upload-processing-view.tsx:129
+msgid "9a9+ww"
+msgstr "Title"
+
+#: components/upload-processing-view.tsx:132
+msgid "TiaHwd"
+msgstr "Consultation title"
+
+#: components/upload-processing-view.tsx:138
+msgid "r+X7r8"
+msgstr "Patient Identifier"
+
+#: components/upload-processing-view.tsx:142
+msgid "V4KNjk"
+msgstr "optional"
+
+#: components/upload-processing-view.tsx:179
+msgid "lEn0JO"
+msgstr "Review SOAP Note"
+
+#: components/upload-processing-view.tsx:199
+msgid "M/pnee"
+msgstr "No transcript segments found."
+
+#: components/upload-processing-view.tsx:229
+msgid "+RhnH+"
+msgstr "Empty"
+
+#: components/upload-processing-view.tsx:238
+msgid "9oXioq"
+msgstr "SOAP note not found."
+
+#: components/upload-processing-view.tsx:253
+msgid "dQsSr5"
+msgstr "Processing Failed"
+
+#: components/upload-processing-view.tsx:260
+msgid "F4LeRw"
+msgstr "Back to Consultations"
+
+#: components/upload-processing-view.tsx:274
+msgid "65pjRn"
+msgstr "Processing your audio..."
+
+#: components/upload-processing-view.tsx:277
+msgid "YDR1jQ"
+msgstr "This may take a few minutes depending on the file length."
+
+#: components/upload-processing-view.tsx:284
+msgid "sIMS7i"
+msgstr "Progress"

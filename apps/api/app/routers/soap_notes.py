@@ -93,6 +93,54 @@ async def finalize_soap_note(
     return SOAPNoteResponse.model_validate(soap)
 
 
+@router.post("/regenerate", response_model=SOAPNoteResponse)
+async def regenerate_soap_note(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    consultation = await _get_consultation(db, consultation_id, user["id"])
+    soap = await _get_soap_note_row(db, consultation_id)
+
+    # Fetch medically relevant transcripts
+    result = await db.execute(
+        select(Transcript)
+        .where(
+            Transcript.consultation_id == consultation_id,
+            Transcript.is_medically_relevant.is_(True),
+        )
+        .order_by(Transcript.sequence_number)
+    )
+    segments = result.scalars().all()
+    relevant_text = "\n".join(seg.text for seg in segments)
+
+    if not relevant_text.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No medically relevant transcript segments to generate from",
+        )
+
+    dashscope_client = request.app.state.dashscope_client
+    new_soap = await dashscope_client.generate_soap(
+        relevant_text, consultation.language
+    )
+    entities = await dashscope_client.extract_medical_entities(
+        relevant_text, consultation.language
+    )
+
+    soap.subjective = new_soap.get("subjective", "")
+    soap.objective = new_soap.get("objective", "")
+    soap.assessment = new_soap.get("assessment", "")
+    soap.plan = new_soap.get("plan", "")
+    soap.medical_entities = entities
+    soap.is_draft = True
+    soap.version += 1
+    await db.commit()
+    await db.refresh(soap)
+    return SOAPNoteResponse.model_validate(soap)
+
+
 @router.get("/audio")
 async def get_consultation_audio_url(
     consultation_id: uuid.UUID,

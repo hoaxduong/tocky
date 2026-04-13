@@ -12,6 +12,7 @@ import { AudioVisualizer } from "@/components/scribe/audio-visualizer"
 import { TranscriptPanel } from "@/components/scribe/transcript-panel"
 import { SOAPEditor } from "@/components/scribe/soap-editor"
 import { ScribeLayout } from "@/components/scribe/scribe-layout"
+import { UploadProcessingView } from "@/components/upload-processing-view"
 import { Button } from "@workspace/ui/components/button"
 import Link from "next/link"
 
@@ -21,6 +22,17 @@ export default function ScribePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
+  const { data: consultation } = useConsultation(id)
+
+  // Show upload processing view for upload-mode consultations
+  if (consultation?.mode === "upload") {
+    return <UploadProcessingView consultationId={id} />
+  }
+
+  return <LiveScribeView id={id} />
+}
+
+function LiveScribeView({ id }: { id: string }) {
   const t = useExtracted()
   const { data: consultation } = useConsultation(id)
   const { status, elapsedMs, setConsultationId, setStatus, reset } =

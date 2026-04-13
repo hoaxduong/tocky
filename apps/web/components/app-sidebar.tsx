@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LogOut,
   Moon,
+  ShieldCheck,
   Stethoscope,
   Sun,
   Users,
@@ -98,10 +99,12 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   const { mutate: handleSignOut } = useSignOut()
   const { theme, setTheme } = useTheme()
 
-  const navItems = variant === "admin" ? ADMIN_NAV : APP_NAV
-  const title = variant === "admin" ? "Tốc ký AI Admin" : "Tốc ký AI"
   const user = session?.user
   const initials = getInitials(user?.name, user?.email)
+  const isAdmin = user?.role === "admin"
+  const navItems = variant === "admin" ? ADMIN_NAV : APP_NAV
+  const title = variant === "admin" ? "Tốc ký AI Admin" : "Tốc ký AI"
+  const groupLabel = variant === "admin" ? t("Management") : t("Workspace")
 
   function handleLocaleChange(value: string) {
     document.cookie = `${LOCALE_COOKIE}=${value};path=/;max-age=31536000`
@@ -117,7 +120,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{t("Navigation")}</SidebarGroupLabel>
+          <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
@@ -235,6 +238,24 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
                 </DropdownMenuGroup>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      {variant === "app" ? (
+                        <Link href="/admin">
+                          <ShieldCheck className="mr-2 size-4" />
+                          {t("Admin Dashboard")}
+                        </Link>
+                      ) : (
+                        <Link href="/dashboard">
+                          <LayoutDashboard className="mr-2 size-4" />
+                          {t("Back to App")}
+                        </Link>
+                      )}
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => handleSignOut()}>
                   <LogOut className="mr-2 size-4" />
