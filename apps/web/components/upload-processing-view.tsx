@@ -381,7 +381,7 @@ export function UploadProcessingView({
             <div className="flex h-8 items-center">
               <h3 className="text-sm font-semibold">{t("Transcript")}</h3>
             </div>
-            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pt-4">
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-0.5 pt-4">
               {transcripts?.segments.map((seg) => (
                 <TranscriptSegmentItem
                   key={seg.id}
@@ -510,7 +510,7 @@ export function UploadProcessingView({
           <ScribeLayout>
             <ScribeLayout.Left>
               <h3 className="mb-3 text-lg font-semibold">{t("Partial Transcripts")}</h3>
-              <div className="flex-1 space-y-2 overflow-y-auto">
+              <div className="flex-1 space-y-2 overflow-y-auto px-0.5">
                 {transcripts.segments.map((seg) => (
                   <TranscriptSegmentItem
                     key={seg.id}
@@ -591,7 +591,7 @@ export function UploadProcessingView({
                 </span>
               )}
             </h3>
-            <div ref={transcriptListRef} className="flex-1 space-y-2 overflow-y-auto">
+            <div ref={transcriptListRef} className="flex-1 space-y-2 overflow-y-auto px-0.5">
               {streamedSegments.length > 0 ? (
                 <>
                   {streamedSegments.map((seg) => (
