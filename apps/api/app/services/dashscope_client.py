@@ -217,6 +217,7 @@ class DashScopeClient:
                 "messages": messages,
                 "max_tokens": 2000,
             },
+            timeout=180.0,
         )
         response.raise_for_status()
         data = response.json()
@@ -262,6 +263,7 @@ class DashScopeClient:
                 ],
                 "max_tokens": 1000,
             },
+            timeout=120.0,
         )
         response.raise_for_status()
         data = response.json()

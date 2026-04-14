@@ -2,9 +2,8 @@
 
 import { useRef, useState } from "react"
 import { useExtracted } from "next-intl"
-import { ArrowLeft, Mic, Plus, Upload, X } from "lucide-react"
+import { ArrowLeft, Loader2, Mic, Plus, Upload, X } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
 import {
   Dialog,
   DialogContent,
@@ -18,6 +17,14 @@ import { useCreateConsultation, useUploadAudio } from "@/hooks/use-consultation"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { cn } from "@workspace/ui/lib/utils"
+import { LOCALE_COOKIE, DEFAULT_LOCALE } from "@/i18n/config"
+
+function getLocaleFromCookie(): string {
+  const match = document.cookie
+    .split("; ")
+    .find((c) => c.startsWith(`${LOCALE_COOKIE}=`))
+  return match?.split("=")[1] ?? DEFAULT_LOCALE
+}
 
 type DialogStep = "mode-select" | "upload-form"
 
@@ -66,6 +73,7 @@ export function NewConsultationDialog() {
     try {
       const consultation = await createConsultation.mutateAsync({
         mode: "upload",
+        language: getLocaleFromCookie(),
       })
 
       await uploadAudio.mutateAsync({
@@ -79,6 +87,21 @@ export function NewConsultationDialog() {
       router.push(`/consultations/${consultation.id}`)
     } catch {
       toast.error(t("Failed to upload audio"))
+    }
+  }
+
+  async function handleRecordLive() {
+    try {
+      const consultation = await createConsultation.mutateAsync({
+        mode: "live",
+        language: getLocaleFromCookie(),
+      })
+      toast.success(t("Starting live consultation..."))
+      setOpen(false)
+      resetForm()
+      router.push(`/consultations/${consultation.id}`)
+    } catch {
+      toast.error(t("Failed to create consultation"))
     }
   }
 
@@ -107,21 +130,33 @@ export function NewConsultationDialog() {
             </DialogHeader>
             <div className="grid grid-cols-2 gap-3 py-4">
               <button
-                disabled
-                className="relative flex flex-col items-center gap-3 rounded-lg border border-muted bg-muted/50 p-6 text-muted-foreground opacity-60"
+                onClick={handleRecordLive}
+                disabled={createConsultation.isPending}
+                className={cn(
+                  "flex flex-col items-center gap-3 rounded-lg border border-border p-6 transition-colors hover:border-primary hover:bg-accent",
+                  createConsultation.isPending &&
+                    "pointer-events-none opacity-60"
+                )}
               >
-                <Badge
-                  variant="secondary"
-                  className="absolute top-2 right-2 text-[10px]"
-                >
-                  {t("Coming soon")}
-                </Badge>
-                <Mic className="h-8 w-8" />
-                <span className="text-sm font-medium">{t("Record Live")}</span>
+                {createConsultation.isPending ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : (
+                  <Mic className="h-8 w-8" />
+                )}
+                <span className="text-sm font-medium">
+                  {createConsultation.isPending
+                    ? t("Creating...")
+                    : t("Record Live")}
+                </span>
               </button>
               <button
                 onClick={() => setStep("upload-form")}
-                className="flex flex-col items-center gap-3 rounded-lg border border-border p-6 transition-colors hover:border-primary hover:bg-accent"
+                disabled={createConsultation.isPending}
+                className={cn(
+                  "flex flex-col items-center gap-3 rounded-lg border border-border p-6 transition-colors hover:border-primary hover:bg-accent",
+                  createConsultation.isPending &&
+                    "pointer-events-none opacity-60"
+                )}
               >
                 <Upload className="h-8 w-8" />
                 <span className="text-sm font-medium">{t("Upload Audio")}</span>

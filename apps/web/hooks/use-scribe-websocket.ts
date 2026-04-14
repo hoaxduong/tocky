@@ -15,8 +15,13 @@ export function useScribeWebSocket({
   const [isConnected, setIsConnected] = useState(false)
   const wsRef = useRef<WebSocket | null>(null)
 
-  const { setStatus, addTranscriptSegment, updateSOAPSection, setError } =
-    useScribeStore()
+  const {
+    setStatus,
+    addTranscriptSegment,
+    updateSOAPSection,
+    setError,
+    updateMetadata,
+  } = useScribeStore()
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
@@ -39,9 +44,18 @@ export function useScribeWebSocket({
             isMedicallyRelevant: msg.is_medically_relevant,
             speakerLabel: msg.speaker_label,
             sequence: msg.sequence,
-            timestampStartMs: 0,
-            timestampEndMs: 0,
+            timestampStartMs: msg.timestamp_start_ms ?? 0,
+            timestampEndMs: msg.timestamp_end_ms ?? 0,
+            emotion: msg.emotion ?? null,
           })
+          break
+
+        case "metadata_update":
+          updateMetadata(
+            msg.title,
+            msg.patient_identifier ?? null,
+            msg.language ?? null,
+          )
           break
 
         case "soap_update":
@@ -58,8 +72,20 @@ export function useScribeWebSocket({
       }
     }
 
-    ws.onclose = () => {
+    ws.onclose = (event) => {
       setIsConnected(false)
+      const currentStatus = useScribeStore.getState().status
+      // If WebSocket closes while processing, the server has already
+      // persisted data — transition to completed so the UI isn't stuck.
+      if (currentStatus === "processing") {
+        setStatus("completed")
+      } else if (
+        !event.wasClean &&
+        currentStatus === "recording"
+      ) {
+        setError("Connection lost. Your data has been saved.")
+        setStatus("completed")
+      }
     }
 
     ws.onerror = () => {
@@ -72,6 +98,7 @@ export function useScribeWebSocket({
     addTranscriptSegment,
     updateSOAPSection,
     setError,
+    updateMetadata,
   ])
 
   const disconnect = useCallback(() => {

@@ -20,7 +20,6 @@ import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import {
   Tabs,
-  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
@@ -436,62 +435,7 @@ export function UploadProcessingView({
             </div>
           </ScribeLayout.Left>
           <ScribeLayout.Right>
-            <Tabs defaultValue="preview" className="flex h-full flex-col gap-0">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold">{t("SOAP Note")}</h3>
-                <div className="flex items-center gap-2">
-                  {soap && (
-                    <Badge variant={soap.is_draft ? "secondary" : "default"}>
-                      {soap.is_draft ? t("Draft") : t("Completed")}
-                    </Badge>
-                  )}
-                  <TabsList>
-                    <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
-                    <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
-                  </TabsList>
-                </div>
-              </div>
-              <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-px pt-4">
-                {soap ? (
-                  <>
-                    {(
-                      [
-                        { key: "subjective", label: t("Subjective") },
-                        { key: "objective", label: t("Objective") },
-                        { key: "assessment", label: t("Assessment") },
-                        { key: "plan", label: t("Plan") },
-                      ] as const
-                    ).map(({ key, label }) => (
-                      <Card key={key}>
-                        <CardHeader>
-                          <CardTitle className="text-base">{label}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <TabsContent value="preview" className="mt-0">
-                            {soap[key] ? (
-                              <div className="prose prose-sm dark:prose-invert max-w-none">
-                                <MarkdownPreview>{soap[key]}</MarkdownPreview>
-                              </div>
-                            ) : (
-                              <p className="text-muted-foreground text-sm italic">{t("No content yet")}</p>
-                            )}
-                          </TabsContent>
-                          <TabsContent value="raw" className="mt-0">
-                            <div className="text-sm whitespace-pre-wrap">
-                              {soap[key] || (
-                                <span className="text-muted-foreground italic">{t("Empty")}</span>
-                              )}
-                            </div>
-                          </TabsContent>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </>
-                ) : (
-                  <p className="text-muted-foreground text-sm">{t("SOAP note not found.")}</p>
-                )}
-              </div>
-            </Tabs>
+            <CompletedSOAPPanel soap={soap} />
           </ScribeLayout.Right>
         </ScribeLayout>
       </div>
@@ -706,6 +650,82 @@ export function UploadProcessingView({
           </div>
         </ScribeLayout.Right>
       </ScribeLayout>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Completed SOAP Panel — matches SOAP Review style
+// ---------------------------------------------------------------------------
+
+function CompletedSOAPPanel({ soap }: { soap: { subjective: string; objective: string; assessment: string; plan: string; is_draft: boolean } | undefined }) {
+  const t = useExtracted()
+  const [viewMode, setViewMode] = useState<"preview" | "raw">("preview")
+
+  const sections = [
+    { key: "subjective" as const, label: t("Subjective"), borderClass: "border-l-4 border-l-blue-500" },
+    { key: "objective" as const, label: t("Objective"), borderClass: "border-l-4 border-l-emerald-500" },
+    { key: "assessment" as const, label: t("Assessment"), borderClass: "border-l-4 border-l-amber-500" },
+    { key: "plan" as const, label: t("Plan"), borderClass: "border-l-4 border-l-violet-500" },
+  ]
+
+  return (
+    <div className="flex h-full flex-col gap-0">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h3 className="text-sm font-semibold">{t("SOAP Note")}</h3>
+          {soap && (
+            <Badge variant={soap.is_draft ? "secondary" : "default"}>
+              {soap.is_draft ? t("Draft") : t("Completed")}
+            </Badge>
+          )}
+        </div>
+        <Tabs
+          value={viewMode}
+          onValueChange={(v) => setViewMode(v as "preview" | "raw")}
+        >
+          <TabsList>
+            <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
+            <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-1">
+        {soap ? (
+          sections.map(({ key, label, borderClass }) => (
+            <Card key={key} className={borderClass}>
+              <CardHeader className="pb-2 pt-3 px-4">
+                <CardTitle className="text-sm">{label}</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
+                {viewMode === "preview" ? (
+                  soap[key] ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <MarkdownPreview>{soap[key]}</MarkdownPreview>
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-sm italic">
+                      {t("No content yet")}
+                    </p>
+                  )
+                ) : (
+                  <div className="text-sm whitespace-pre-wrap">
+                    {soap[key] || (
+                      <span className="text-muted-foreground italic">
+                        {t("Empty")}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            {t("SOAP note not found.")}
+          </p>
+        )}
+      </div>
     </div>
   )
 }

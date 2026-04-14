@@ -20,12 +20,11 @@ export function useAudioRecorder(
   const [error, setError] = useState<string | null>(null)
 
   const mediaStreamRef = useRef<MediaStream | null>(null)
-  const processorRef = useRef<ScriptProcessorNode | null>(null)
+  const workletNodeRef = useRef<AudioWorkletNode | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const sequenceRef = useRef(0)
   const startTimeRef = useRef(0)
   const bufferRef = useRef<Float32Array[]>([])
-  const isPausedRef = useRef(false)
 
   const flushBuffer = useCallback(() => {
     if (bufferRef.current.length === 0) return
@@ -79,41 +78,43 @@ export function useAudioRecorder(
       const audioContext = new AudioContext({ sampleRate: 16000 })
       audioContextRef.current = audioContext
 
+      await audioContext.audioWorklet.addModule("/audio-worklet-processor.js")
+
       const source = audioContext.createMediaStreamSource(stream)
-      // Use ScriptProcessor for broad compatibility
-      const processor = audioContext.createScriptProcessor(4096, 1, 1)
-      processorRef.current = processor
+      const workletNode = new AudioWorkletNode(audioContext, "pcm-processor")
+      workletNodeRef.current = workletNode
 
       sequenceRef.current = 0
       startTimeRef.current = Date.now()
       bufferRef.current = []
 
-      let chunkCount = 0
+      let sampleCount = 0
+      // Flush every ~250ms worth of samples (16kHz * 0.25s = 4000 samples)
+      const flushThreshold = 4000
 
-      processor.onaudioprocess = (event) => {
-        if (isPausedRef.current) return
+      workletNode.port.onmessage = (event) => {
+        if (event.data.type !== "audio") return
 
-        const inputData = event.inputBuffer.getChannelData(0)
+        const samples: Float32Array = event.data.samples
 
         // Calculate audio level (RMS)
         let sum = 0
-        for (let i = 0; i < inputData.length; i++) {
-          sum += inputData[i]! * inputData[i]!
+        for (let i = 0; i < samples.length; i++) {
+          sum += samples[i]! * samples[i]!
         }
-        setAudioLevel(Math.sqrt(sum / inputData.length))
+        setAudioLevel(Math.sqrt(sum / samples.length))
 
-        bufferRef.current.push(new Float32Array(inputData))
-        chunkCount++
+        bufferRef.current.push(new Float32Array(samples))
+        sampleCount += samples.length
 
-        // Flush every ~250ms (4096 samples at 16kHz ≈ 256ms)
-        if (chunkCount >= 1) {
+        if (sampleCount >= flushThreshold) {
           flushBuffer()
-          chunkCount = 0
+          sampleCount = 0
         }
       }
 
-      source.connect(processor)
-      processor.connect(audioContext.destination)
+      source.connect(workletNode)
+      workletNode.connect(audioContext.destination)
 
       setIsRecording(true)
     } catch (err) {
@@ -126,30 +127,29 @@ export function useAudioRecorder(
   const stopRecording = useCallback(() => {
     flushBuffer()
 
-    processorRef.current?.disconnect()
+    workletNodeRef.current?.disconnect()
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
     audioContextRef.current?.close()
 
-    processorRef.current = null
+    workletNodeRef.current = null
     mediaStreamRef.current = null
     audioContextRef.current = null
-    isPausedRef.current = false
 
     setIsRecording(false)
     setAudioLevel(0)
   }, [flushBuffer])
 
   const pauseRecording = useCallback(() => {
-    isPausedRef.current = true
+    workletNodeRef.current?.port.postMessage({ type: "pause" })
   }, [])
 
   const resumeRecording = useCallback(() => {
-    isPausedRef.current = false
+    workletNodeRef.current?.port.postMessage({ type: "resume" })
   }, [])
 
   useEffect(() => {
     return () => {
-      processorRef.current?.disconnect()
+      workletNodeRef.current?.disconnect()
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
       audioContextRef.current?.close()
     }

@@ -7,6 +7,7 @@ export interface TranscriptSegment {
   sequence: number
   timestampStartMs: number
   timestampEndMs: number
+  emotion: string | null
 }
 
 export interface SOAPNote {
@@ -34,6 +35,8 @@ interface ScribeState {
   elapsedMs: number
   language: string
   errorMessage: string | null
+  consultationTitle: string
+  patientIdentifier: string | null
 
   setConsultationId: (id: string | null) => void
   setStatus: (status: ScribeStatus) => void
@@ -42,6 +45,11 @@ interface ScribeState {
   setLanguage: (lang: string) => void
   setElapsedMs: (ms: number) => void
   setError: (message: string | null) => void
+  updateMetadata: (
+    title: string,
+    patientIdentifier: string | null,
+    language: string | null,
+  ) => void
   reset: () => void
 }
 
@@ -61,6 +69,8 @@ export const useScribeStore = create<ScribeState>()((set) => ({
   elapsedMs: 0,
   language: "vi",
   errorMessage: null,
+  consultationTitle: "",
+  patientIdentifier: null,
 
   setConsultationId: (id) => set({ consultationId: id }),
   setStatus: (status) =>
@@ -81,6 +91,12 @@ export const useScribeStore = create<ScribeState>()((set) => ({
   setElapsedMs: (elapsedMs) => set({ elapsedMs }),
   setError: (errorMessage) =>
     set({ errorMessage, status: errorMessage ? "error" : "idle" }),
+  updateMetadata: (consultationTitle, patientIdentifier, detectedLanguage) =>
+    set((state) => ({
+      consultationTitle,
+      patientIdentifier,
+      ...(detectedLanguage ? { language: detectedLanguage } : {}),
+    })),
   reset: () =>
     set({
       consultationId: null,
@@ -90,5 +106,7 @@ export const useScribeStore = create<ScribeState>()((set) => ({
       isRecording: false,
       elapsedMs: 0,
       errorMessage: null,
+      consultationTitle: "",
+      patientIdentifier: null,
     }),
 }))

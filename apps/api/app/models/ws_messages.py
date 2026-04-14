@@ -25,6 +25,9 @@ class TranscriptMessage(BaseModel):
     is_medically_relevant: bool
     speaker_label: str | None = None
     sequence: int
+    emotion: str | None = None
+    timestamp_start_ms: int = 0
+    timestamp_end_ms: int = 0
 
 
 class SOAPUpdateMessage(BaseModel):
@@ -37,6 +40,13 @@ class StatusMessage(BaseModel):
     type: Literal["status"] = "status"
     status: str
     message: str | None = None
+
+
+class MetadataUpdateMessage(BaseModel):
+    type: Literal["metadata_update"] = "metadata_update"
+    title: str
+    patient_identifier: str | None = None
+    language: str | None = None
 
 
 class ErrorMessage(BaseModel):

@@ -31,7 +31,6 @@ import {
 } from "@workspace/ui/components/card"
 import {
   Tabs,
-  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs"
@@ -75,6 +74,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const t = useExtracted()
   const playerRef = useRef<AudioPlayerHandle>(null)
   const [dismissedFlags, setDismissedFlags] = useState<Set<number>>(new Set())
+  const [viewMode, setViewMode] = useState<"preview" | "raw">("preview")
 
   const { data: consultation } = useConsultation(consultationId)
   const { data: soap, isLoading } = useSOAPNote(consultationId)
@@ -374,38 +374,44 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
         />
       )}
 
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">{t("SOAP Note")}</h3>
+        <Tabs
+          value={viewMode}
+          onValueChange={(v) => setViewMode(v as "preview" | "raw")}
+        >
+          <TabsList>
+            <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
+            <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       {sections.map(({ key, label, borderClass }) => (
         <Card key={key} id={`soap-${key}`} className={borderClass}>
-          <CardHeader>
-            <CardTitle className="text-base">{label}</CardTitle>
+          <CardHeader className="pb-2 pt-3 px-4">
+            <CardTitle className="text-sm">{label}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="preview">
-              <TabsList>
-                <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
-                <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
-              </TabsList>
-              <TabsContent value="preview">
-                {soap[key] ? (
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    <MarkdownPreview>{soap[key]}</MarkdownPreview>
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">
-                    {t("No content yet")}
-                  </p>
-                )}
-              </TabsContent>
-              <TabsContent value="raw">
-                <Textarea
-                  value={soap[key]}
-                  onChange={(e) => handleSave(key, e.target.value)}
-                  disabled={!soap.is_draft}
-                  rows={5}
-                  className="resize-none"
-                />
-              </TabsContent>
-            </Tabs>
+          <CardContent className="px-4 pb-3">
+            {viewMode === "preview" ? (
+              soap[key] ? (
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <MarkdownPreview>{soap[key]}</MarkdownPreview>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  {t("No content yet")}
+                </p>
+              )
+            ) : (
+              <Textarea
+                value={soap[key]}
+                onChange={(e) => handleSave(key, e.target.value)}
+                disabled={!soap.is_draft}
+                rows={5}
+                className="resize-none"
+              />
+            )}
           </CardContent>
         </Card>
       ))}

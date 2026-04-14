@@ -6,43 +6,84 @@ msgstr ""
 "X-Generator: next-intl\n"
 "X-Crowdin-SourceKey: msgstr\n"
 
-#: app/(app)/consultations/[id]/page.tsx:138
+#: app/(app)/consultations/[id]/page.tsx:171
 #: app/admin/consultations/page.tsx:13
-#: components/consultations-list.tsx:197
-#: components/consultations-list.tsx:200
+#: components/consultations-list.tsx:196
+#: components/consultations-list.tsx:199
 #: components/soap-review-form.tsx:189
-#: components/upload-processing-view.tsx:334
-#: components/upload-processing-view.tsx:599
+#: components/upload-processing-view.tsx:333
+#: components/upload-processing-view.tsx:543
 msgid "+WBJgJ"
 msgstr "الاستشارات"
 
-#: app/(app)/consultations/[id]/page.tsx:139
+#: app/(app)/consultations/[id]/page.tsx:176
 #: components/consultation-context-bar.tsx:115
-#: components/consultations-list.tsx:380
-#: components/new-consultation-dialog.tsx:96
-#: components/new-consultation-dialog.tsx:103
+#: components/consultations-list.tsx:379
+#: components/new-consultation-dialog.tsx:119
+#: components/new-consultation-dialog.tsx:126
 #: components/scribe/consultation-card.tsx:132
 #: components/scribe/consultation-header.tsx:32
-#: components/upload-processing-view.tsx:600
+#: components/upload-processing-view.tsx:544
 msgid "L2NbD2"
 msgstr "استشارة جديدة"
 
-#: app/(app)/consultations/[id]/page.tsx:168
+#: app/(app)/consultations/[id]/page.tsx:192
+msgid "grb5jd"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:195
+msgid "aHJq5B"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:203
+#: components/scribe/recording-controls.tsx:37
+msgid "xbQgN4"
+msgstr "بدء التسجيل"
+
+#: app/(app)/consultations/[id]/page.tsx:211
+msgid "/Lp7jl"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:214
+msgid "AmwGo3"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:221
+#: components/scribe/soap-editor.tsx:63
+#: components/soap-review-form.tsx:194
+#: components/soap-review-form.tsx:378
+#: components/upload-processing-view.tsx:676
+msgid "63vr3O"
+msgstr "SOAP Note (ملاحظة سوب)"
+
+#: app/(app)/consultations/[id]/page.tsx:223
+msgid "dqLtAI"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:253
+msgid "Mh3HvF"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:256
+msgid "LPkPjS"
+msgstr ""
+
+#: app/(app)/consultations/[id]/page.tsx:270
 msgid "7T8ag0"
 msgstr ""
 
-#: app/(app)/consultations/[id]/page.tsx:172
-#: components/upload-processing-view.tsx:392
+#: app/(app)/consultations/[id]/page.tsx:274
+#: components/upload-processing-view.tsx:391
 msgid "MnCxQd"
 msgstr ""
 
-#: app/(app)/consultations/[id]/page.tsx:172
-#: components/upload-processing-view.tsx:395
+#: app/(app)/consultations/[id]/page.tsx:274
+#: components/upload-processing-view.tsx:394
 msgid "u6csBB"
 msgstr ""
 
-#: app/(app)/consultations/[id]/page.tsx:178
-#: components/upload-processing-view.tsx:354
+#: app/(app)/consultations/[id]/page.tsx:280
+#: components/upload-processing-view.tsx:353
 msgid "lEn0JO"
 msgstr "مراجعة SOAP Note"
 
@@ -118,10 +159,10 @@ msgstr "حظر"
 
 #: components/admin-users-table.tsx:143
 #: components/admin-users-table.tsx:166
-#: components/consultations-list.tsx:424
+#: components/consultations-list.tsx:423
 #: components/consultations-list.tsx:488
-#: components/scribe/consultation-card.tsx:163
-#: components/scribe/consultation-card.tsx:240
+#: components/scribe/consultation-card.tsx:169
+#: components/scribe/consultation-card.tsx:245
 msgid "K3r6DQ"
 msgstr "حذف"
 
@@ -136,7 +177,7 @@ msgstr "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ 
 #: components/admin-users-table.tsx:158
 #: components/consultations-list.tsx:483
 #: components/elfie/elfie-push-dialog.tsx:159
-#: components/scribe/consultation-card.tsx:235
+#: components/scribe/consultation-card.tsx:240
 #: components/soap-review-form.tsx:253
 msgid "47FYwb"
 msgstr "إلغاء"
@@ -190,6 +231,7 @@ msgid "kvlt4O"
 msgstr "طبيب"
 
 #: components/admin-users-table.tsx:272
+#: components/new-consultation-dialog.tsx:148
 msgid "mRL9Vh"
 msgstr "جارٍ الإنشاء..."
 
@@ -198,7 +240,7 @@ msgid "VzzYJk"
 msgstr "إنشاء"
 
 #: components/admin-users-table.tsx:308
-#: components/consultations-list.tsx:367
+#: components/consultations-list.tsx:366
 msgid "tzMNF3"
 msgstr "الحالة"
 
@@ -207,12 +249,12 @@ msgid "xerM7K"
 msgstr "محظور"
 
 #: components/admin-users-table.tsx:313
-#: components/consultations-list.tsx:207
+#: components/consultations-list.tsx:206
 msgid "3a5wL8"
 msgstr "نشط"
 
 #: components/admin-users-table.tsx:318
-#: components/consultations-list.tsx:368
+#: components/consultations-list.tsx:367
 msgid "ORGv1Q"
 msgstr "تاريخ الإنشاء"
 
@@ -257,8 +299,8 @@ msgid "+CwN9C"
 msgstr "النظام"
 
 #: components/app-sidebar.tsx:223
-#: components/consultations-list.tsx:243
-#: components/consultations-list.tsx:366
+#: components/consultations-list.tsx:242
+#: components/consultations-list.tsx:365
 #: components/scribe/language-selector.tsx:36
 msgid "y1Z3or"
 msgstr "اللغة"
@@ -276,116 +318,116 @@ msgid "F62y+K"
 msgstr "تسجيل الخروج"
 
 #: components/consultation-context-bar.tsx:142
-#: components/scribe/consultation-card.tsx:189
+#: components/scribe/consultation-card.tsx:194
 msgid "p4N05H"
 msgstr ""
 
 #: components/consultation-context-bar.tsx:142
-#: components/scribe/consultation-card.tsx:189
+#: components/scribe/consultation-card.tsx:194
 msgid "Dn82AL"
 msgstr ""
 
-#: components/consultations-list.tsx:178
-#: components/scribe/consultation-card.tsx:113
+#: components/consultations-list.tsx:177
+#: components/scribe/consultation-card.tsx:112
 msgid "XOBOTM"
 msgstr "تم أرشفة الاستشارة"
 
-#: components/consultations-list.tsx:179
-#: components/scribe/consultation-card.tsx:114
+#: components/consultations-list.tsx:178
+#: components/scribe/consultation-card.tsx:113
 msgid "sJKt39"
 msgstr "فشلت أرشفة الاستشارة"
 
-#: components/consultations-list.tsx:186
-#: components/scribe/consultation-card.tsx:120
+#: components/consultations-list.tsx:185
+#: components/scribe/consultation-card.tsx:119
 msgid "YFqZph"
 msgstr "تم حذف الاستشارة"
 
-#: components/consultations-list.tsx:187
-#: components/scribe/consultation-card.tsx:121
+#: components/consultations-list.tsx:186
+#: components/scribe/consultation-card.tsx:120
 msgid "x297rU"
 msgstr "فشل حذف الاستشارة"
 
-#: components/consultations-list.tsx:199
+#: components/consultations-list.tsx:198
 msgid "hzSNj4"
 msgstr "لوحة التحكم"
 
-#: components/consultations-list.tsx:208
+#: components/consultations-list.tsx:207
 msgid "0HT+Ib"
 msgstr "مؤرشف"
 
-#: components/consultations-list.tsx:224
+#: components/consultations-list.tsx:223
 msgid "zEiDy1"
 msgstr ""
 
-#: components/consultations-list.tsx:246
+#: components/consultations-list.tsx:245
 msgid "8Z+7D/"
 msgstr ""
 
-#: components/consultations-list.tsx:266
+#: components/consultations-list.tsx:265
 msgid "fwIt1X"
 msgstr ""
 
-#: components/consultations-list.tsx:267
+#: components/consultations-list.tsx:266
 msgid "0TZMjQ"
 msgstr ""
 
-#: components/consultations-list.tsx:268
+#: components/consultations-list.tsx:267
 msgid "nZgZJc"
 msgstr ""
 
-#: components/consultations-list.tsx:270
+#: components/consultations-list.tsx:269
 msgid "XZegeq"
 msgstr ""
 
-#: components/consultations-list.tsx:298
+#: components/consultations-list.tsx:297
 msgid "/zES4+"
 msgstr ""
 
-#: components/consultations-list.tsx:313
+#: components/consultations-list.tsx:312
 msgid "EXyp83"
 msgstr ""
 
-#: components/consultations-list.tsx:314
+#: components/consultations-list.tsx:313
 msgid "fn14Hs"
 msgstr ""
 
-#: components/consultations-list.tsx:319
+#: components/consultations-list.tsx:318
 msgid "MsGXc3"
 msgstr ""
 
-#: components/consultations-list.tsx:326
+#: components/consultations-list.tsx:325
 msgid "M9zd2L"
 msgstr ""
 
-#: components/consultations-list.tsx:327
+#: components/consultations-list.tsx:326
 msgid "0fK3A0"
 msgstr ""
 
-#: components/consultations-list.tsx:334
+#: components/consultations-list.tsx:333
 #: components/dashboard-content.tsx:125
 msgid "4Rs3d/"
 msgstr ""
 
-#: components/consultations-list.tsx:335
+#: components/consultations-list.tsx:334
 #: components/dashboard-content.tsx:126
 msgid "Ct/wJD"
 msgstr ""
 
-#: components/consultations-list.tsx:364
-#: components/upload-processing-view.tsx:363
+#: components/consultations-list.tsx:363
+#: components/upload-processing-view.tsx:362
 msgid "9a9+ww"
 msgstr "العنوان"
 
-#: components/consultations-list.tsx:365
+#: components/consultations-list.tsx:364
 msgid "+0hh6g"
 msgstr ""
 
-#: components/consultations-list.tsx:412
-#: components/scribe/consultation-card.tsx:151
+#: components/consultations-list.tsx:411
+#: components/scribe/consultation-card.tsx:157
 msgid "hrgo+E"
 msgstr "أرشفة"
 
-#: components/consultations-list.tsx:441
+#: components/consultations-list.tsx:440
 msgid "TxjoW4"
 msgstr ""
 
@@ -398,12 +440,12 @@ msgid "9+Ddtu"
 msgstr ""
 
 #: components/consultations-list.tsx:475
-#: components/scribe/consultation-card.tsx:227
+#: components/scribe/consultation-card.tsx:232
 msgid "Y0pMB6"
 msgstr "حذف الاستشارة؟"
 
 #: components/consultations-list.tsx:477
-#: components/scribe/consultation-card.tsx:229
+#: components/scribe/consultation-card.tsx:234
 msgid "P2jK4q"
 msgstr "سيتم حذف هذه الاستشارة وجميع بياناتها نهائيًا. لا يمكن التراجع عن هذا الإجراء."
 
@@ -416,12 +458,12 @@ msgid "MJ2jZQ"
 msgstr ""
 
 #: components/dashboard-content.tsx:72
-#: components/upload-processing-view.tsx:658
+#: components/upload-processing-view.tsx:602
 msgid "1Ia8qN"
 msgstr "قيد المعالجة"
 
 #: components/dashboard-content.tsx:83
-#: components/upload-processing-view.tsx:445
+#: components/upload-processing-view.tsx:679
 msgid "95stPq"
 msgstr "مكتمل"
 
@@ -570,54 +612,54 @@ msgstr ""
 msgid "VzIOKf"
 msgstr ""
 
-#: components/new-consultation-dialog.tsx:49
+#: components/new-consultation-dialog.tsx:56
 msgid "j/OW7m"
 msgstr "الملف كبير جدًا. الحد الأقصى للحجم هو 100 ميجابايت."
 
-#: components/new-consultation-dialog.tsx:76
+#: components/new-consultation-dialog.tsx:84
 msgid "CwluP/"
 msgstr "تم رفع الملف الصوتي. بدأت المعالجة."
 
-#: components/new-consultation-dialog.tsx:81
+#: components/new-consultation-dialog.tsx:89
 msgid "yN8yyH"
 msgstr "فشل رفع الملف الصوتي"
 
-#: components/new-consultation-dialog.tsx:105
+#: components/new-consultation-dialog.tsx:99
+msgid "4QqlZV"
+msgstr ""
+
+#: components/new-consultation-dialog.tsx:104
+msgid "TRkL7w"
+msgstr ""
+
+#: components/new-consultation-dialog.tsx:128
 msgid "D0byoJ"
 msgstr "اختر كيفية بدء استشارتك."
 
-#: components/new-consultation-dialog.tsx:117
-msgid "e61Jf3"
-msgstr "قريبًا"
-
-#: components/new-consultation-dialog.tsx:120
+#: components/new-consultation-dialog.tsx:149
 msgid "ICmSVj"
 msgstr "تسجيل مباشر"
 
-#: components/new-consultation-dialog.tsx:127
-#: components/new-consultation-dialog.tsx:149
+#: components/new-consultation-dialog.tsx:162
+#: components/new-consultation-dialog.tsx:184
 msgid "qQU7XE"
 msgstr "رفع ملف صوتي"
 
-#: components/new-consultation-dialog.tsx:152
+#: components/new-consultation-dialog.tsx:187
 msgid "h6v5l8"
 msgstr "ارفع تسجيل استشارة. سيتم اكتشاف اللغة والعنوان ومعلومات المريض تلقائيًا."
 
-#: components/new-consultation-dialog.tsx:177
+#: components/new-consultation-dialog.tsx:212
 msgid "sPYvFA"
 msgstr "اسحب وأفلت أو انقر للتصفح"
 
-#: components/new-consultation-dialog.tsx:220
+#: components/new-consultation-dialog.tsx:255
 msgid "JEsxDw"
 msgstr "جارٍ الرفع..."
 
-#: components/new-consultation-dialog.tsx:220
+#: components/new-consultation-dialog.tsx:255
 msgid "iNHvrU"
 msgstr "رفع ومعالجة"
-
-#: components/scribe/recording-controls.tsx:37
-msgid "xbQgN4"
-msgstr "بدء التسجيل"
 
 #: components/scribe/recording-controls.tsx:52
 msgid "3y9DGg"
@@ -631,77 +673,82 @@ msgstr "إيقاف مؤقت"
 msgid "pXFAd/"
 msgstr "إيقاف التسجيل"
 
-#: components/scribe/soap-editor.tsx:19
+#: components/scribe/soap-editor.tsx:39
 #: components/soap-review-form.tsx:115
-#: components/upload-processing-view.tsx:459
+#: components/upload-processing-view.tsx:666
 msgid "R2VjIH"
 msgstr "Subjective (شكوى المريض)"
 
-#: components/scribe/soap-editor.tsx:20
+#: components/scribe/soap-editor.tsx:44
 #: components/soap-review-form.tsx:120
-#: components/upload-processing-view.tsx:460
+#: components/upload-processing-view.tsx:667
 msgid "khNSj1"
 msgstr "Objective (الفحص السريري)"
 
-#: components/scribe/soap-editor.tsx:21
+#: components/scribe/soap-editor.tsx:49
 #: components/soap-review-form.tsx:125
-#: components/upload-processing-view.tsx:461
+#: components/upload-processing-view.tsx:668
 msgid "ueRCsi"
 msgstr "Assessment (التقييم)"
 
-#: components/scribe/soap-editor.tsx:22
+#: components/scribe/soap-editor.tsx:54
 #: components/soap-review-form.tsx:130
-#: components/upload-processing-view.tsx:462
+#: components/upload-processing-view.tsx:669
 msgid "fz0z4c"
 msgstr "Plan (الخطة العلاجية)"
 
-#: components/scribe/soap-editor.tsx:28
-#: components/soap-review-form.tsx:194
-#: components/upload-processing-view.tsx:441
-msgid "63vr3O"
-msgstr "SOAP Note (ملاحظة سوب)"
+#: components/scribe/soap-editor.tsx:67
+msgid "A/lLjO"
+msgstr ""
 
-#: components/scribe/soap-editor.tsx:29
+#: components/scribe/soap-editor.tsx:70
 #: components/soap-review-form.tsx:206
-#: components/upload-processing-view.tsx:445
+#: components/upload-processing-view.tsx:679
 msgid "W6nwjo"
 msgstr "مسودة"
 
-#: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:238
-msgid "Zmv34N"
-msgstr "اعتماد الملاحظة"
-
-#: components/scribe/soap-section.tsx:33
-#: components/soap-review-form.tsx:385
-#: components/upload-processing-view.tsx:449
+#: components/scribe/soap-editor.tsx:78
+#: components/soap-review-form.tsx:384
+#: components/upload-processing-view.tsx:688
 msgid "TJo5E6"
 msgstr "معاينة"
 
-#: components/scribe/soap-section.tsx:34
-#: components/soap-review-form.tsx:386
-#: components/upload-processing-view.tsx:450
+#: components/scribe/soap-editor.tsx:79
+#: components/soap-review-form.tsx:385
+#: components/upload-processing-view.tsx:689
 msgid "nV0wNv"
 msgstr "نص خام"
 
-#: components/scribe/soap-section.tsx:43
-#: components/soap-review-form.tsx:395
-#: components/upload-processing-view.tsx:476
+#: components/scribe/soap-editor.tsx:89
+msgid "si93RP"
+msgstr ""
+
+#: components/scribe/soap-editor.tsx:92
+msgid "m2V5db"
+msgstr ""
+
+#: components/scribe/soap-editor.tsx:113
+msgid "pVfc0g"
+msgstr ""
+
+#: components/scribe/soap-editor.tsx:114
+#: components/soap-review-form.tsx:403
+#: components/upload-processing-view.tsx:708
 msgid "6de2Su"
 msgstr "لا يوجد محتوى بعد"
 
-#: components/scribe/transcript-panel.tsx:19
-#: components/upload-processing-view.tsx:412
-#: components/upload-processing-view.tsx:620
+#: components/scribe/transcript-panel.tsx:20
+#: components/upload-processing-view.tsx:411
+#: components/upload-processing-view.tsx:564
 msgid "TztQA0"
 msgstr "النص المكتوب"
 
-#: components/scribe/transcript-panel.tsx:22
-msgid "9Kw/ze"
-msgstr "جارٍ التسجيل..."
+#: components/scribe/transcript-panel.tsx:24
+msgid "wrooww"
+msgstr ""
 
 #: components/scribe/transcript-segment.tsx:74
-#: components/upload-processing-view.tsx:698
+#: components/upload-processing-view.tsx:642
 msgid "vXCeIi"
 msgstr "فشل"
 
@@ -714,12 +761,12 @@ msgid "eKEL/g"
 msgstr "قيد الانتظار"
 
 #: components/scribe/transcript-segment.tsx:86
-#: components/upload-processing-view.tsx:681
+#: components/upload-processing-view.tsx:625
 msgid "XpZsjM"
 msgstr "ذو صلة"
 
 #: components/scribe/transcript-segment.tsx:86
-#: components/upload-processing-view.tsx:689
+#: components/upload-processing-view.tsx:633
 msgid "NGnuCt"
 msgstr "حديث عام"
 
@@ -767,7 +814,7 @@ msgstr "الاسم الكامل"
 
 #: components/soap-review-form.tsx:138
 #: components/soap-review-form.tsx:145
-#: components/upload-processing-view.tsx:297
+#: components/upload-processing-view.tsx:296
 msgid "WP4Inj"
 msgstr "فشل حفظ التغييرات"
 
@@ -780,29 +827,33 @@ msgid "Z8pSSB"
 msgstr "فشل اعتماد الملاحظة"
 
 #: components/soap-review-form.tsx:191
-#: components/upload-processing-view.tsx:335
+#: components/upload-processing-view.tsx:334
 msgid "l0cx8s"
 msgstr ""
 
 #: components/soap-review-form.tsx:216
-#: components/upload-processing-view.tsx:345
+#: components/upload-processing-view.tsx:344
 msgid "iNe+Ig"
 msgstr "تم إعادة إنشاء SOAP Note"
 
 #: components/soap-review-form.tsx:218
-#: components/upload-processing-view.tsx:346
+#: components/upload-processing-view.tsx:345
 msgid "VsY04C"
 msgstr "فشل إعادة إنشاء SOAP Note"
 
 #: components/soap-review-form.tsx:226
-#: components/upload-processing-view.tsx:351
+#: components/upload-processing-view.tsx:350
 msgid "n6PmWV"
 msgstr "جارٍ إعادة الإنشاء..."
 
 #: components/soap-review-form.tsx:227
-#: components/upload-processing-view.tsx:351
+#: components/upload-processing-view.tsx:350
 msgid "6PgVSe"
 msgstr "إعادة إنشاء"
+
+#: components/soap-review-form.tsx:238
+msgid "Zmv34N"
+msgstr "اعتماد الملاحظة"
 
 #: components/soap-review-form.tsx:244
 msgid "3hVwhB"
@@ -844,116 +895,116 @@ msgstr ""
 msgid "ryF3/U"
 msgstr ""
 
-#: components/soap-review-form.tsx:418
+#: components/soap-review-form.tsx:424
 msgid "mk75EB"
 msgstr "الكيانات الطبية"
 
-#: components/upload-processing-view.tsx:116
+#: components/upload-processing-view.tsx:115
 msgid "vQyVep"
 msgstr "جارٍ تحويل الصوت"
 
-#: components/upload-processing-view.tsx:117
+#: components/upload-processing-view.tsx:116
 msgid "9pYgwb"
 msgstr "جارٍ التفريغ الصوتي"
 
-#: components/upload-processing-view.tsx:118
+#: components/upload-processing-view.tsx:117
 msgid "jiDB18"
 msgstr "جارٍ اكتشاف اللغة والبيانات الوصفية"
 
-#: components/upload-processing-view.tsx:119
+#: components/upload-processing-view.tsx:118
 msgid "/cY75V"
 msgstr "جارٍ تصفية المحتوى ذي الصلة"
 
-#: components/upload-processing-view.tsx:120
+#: components/upload-processing-view.tsx:119
 msgid "2t3PDB"
 msgstr "جارٍ إنشاء SOAP Note"
 
-#: components/upload-processing-view.tsx:121
+#: components/upload-processing-view.tsx:120
 msgid "OZfUhq"
 msgstr "جارٍ استخراج الكيانات الطبية"
 
-#: components/upload-processing-view.tsx:306
+#: components/upload-processing-view.tsx:305
 msgid "9tBA7K"
 msgstr "اكتمل مع أخطاء"
 
-#: components/upload-processing-view.tsx:316
-#: components/upload-processing-view.tsx:523
+#: components/upload-processing-view.tsx:315
+#: components/upload-processing-view.tsx:467
 msgid "lQnFkI"
 msgstr "جارٍ إعادة محاولة الأجزاء الفاشلة..."
 
-#: components/upload-processing-view.tsx:318
-#: components/upload-processing-view.tsx:525
+#: components/upload-processing-view.tsx:317
+#: components/upload-processing-view.tsx:469
 msgid "IeZnKQ"
 msgstr "فشلت إعادة المحاولة"
 
-#: components/upload-processing-view.tsx:323
+#: components/upload-processing-view.tsx:322
 msgid "VwEw0a"
 msgstr "إعادة محاولة الفاشلة"
 
-#: components/upload-processing-view.tsx:366
+#: components/upload-processing-view.tsx:365
 msgid "TiaHwd"
 msgstr "عنوان الاستشارة"
 
-#: components/upload-processing-view.tsx:371
+#: components/upload-processing-view.tsx:370
 msgid "r+X7r8"
 msgstr "معرّف المريض"
 
-#: components/upload-processing-view.tsx:374
+#: components/upload-processing-view.tsx:373
 msgid "V4KNjk"
 msgstr "اختياري"
 
-#: components/upload-processing-view.tsx:389
+#: components/upload-processing-view.tsx:388
 msgid "v+jROP"
 msgstr ""
 
-#: components/upload-processing-view.tsx:434
+#: components/upload-processing-view.tsx:433
 msgid "M/pnee"
 msgstr "لم يتم العثور على مقاطع نصية."
 
-#: components/upload-processing-view.tsx:482
-msgid "+RhnH+"
-msgstr "فارغ"
-
-#: components/upload-processing-view.tsx:491
-msgid "9oXioq"
-msgstr "لم يتم العثور على SOAP Note."
-
-#: components/upload-processing-view.tsx:511
+#: components/upload-processing-view.tsx:455
 msgid "dQsSr5"
 msgstr "فشلت المعالجة"
 
-#: components/upload-processing-view.tsx:513
+#: components/upload-processing-view.tsx:457
 msgid "3c9Xiy"
 msgstr "حدث خطأ غير معروف."
 
-#: components/upload-processing-view.tsx:530
+#: components/upload-processing-view.tsx:474
 msgid "62nsdy"
 msgstr "إعادة المحاولة"
 
-#: components/upload-processing-view.tsx:534
+#: components/upload-processing-view.tsx:478
 msgid "cyR7Kh"
 msgstr "رجوع"
 
-#: components/upload-processing-view.tsx:543
+#: components/upload-processing-view.tsx:487
 msgid "4dhEE7"
 msgstr "نصوص مكتوبة جزئية"
 
-#: components/upload-processing-view.tsx:563
+#: components/upload-processing-view.tsx:507
 msgid "T/WF1b"
 msgstr "تعذر إنشاء SOAP Note بسبب أخطاء في المعالجة."
 
-#: components/upload-processing-view.tsx:571
+#: components/upload-processing-view.tsx:515
 msgid "zvaWw2"
 msgstr "لم يتم إنتاج أي نصوص مكتوبة. يرجى محاولة رفع الملف الصوتي مرة أخرى."
 
-#: components/upload-processing-view.tsx:574
+#: components/upload-processing-view.tsx:518
 msgid "F4LeRw"
 msgstr "العودة إلى الاستشارات"
 
-#: components/upload-processing-view.tsx:647
+#: components/upload-processing-view.tsx:591
 msgid "kFd8T3"
 msgstr "في انتظار بدء التفريغ الصوتي..."
 
-#: components/upload-processing-view.tsx:673
+#: components/upload-processing-view.tsx:617
 msgid "fAsQ0N"
 msgstr "تم التفريغ"
+
+#: components/upload-processing-view.tsx:715
+msgid "+RhnH+"
+msgstr "فارغ"
+
+#: components/upload-processing-view.tsx:725
+msgid "9oXioq"
+msgstr "لم يتم العثور على SOAP Note."
