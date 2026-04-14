@@ -17,8 +17,10 @@ export function TranscriptPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <h3 className="mb-3 text-lg font-semibold">{t("Transcript")}</h3>
-      <div className="flex-1 space-y-2 overflow-y-auto px-0.5">
+      <div className="mb-3 flex min-h-9 items-center">
+        <h3 className="text-lg font-semibold">{t("Transcript")}</h3>
+      </div>
+      <div className="flex-1 space-y-2 overflow-y-auto p-1">
         {segments.length === 0 && status === "recording" && (
           <p className="text-sm text-muted-foreground">
             {t("Listening for speech...")}

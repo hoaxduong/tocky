@@ -407,10 +407,10 @@ export function UploadProcessingView({
 
         <ScribeLayout>
           <ScribeLayout.Left>
-            <div className="flex h-8 items-center">
+            <div className="flex min-h-9 items-center">
               <h3 className="text-sm font-semibold">{t("Transcript")}</h3>
             </div>
-            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-0.5 pt-4">
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-1">
               {transcripts?.segments.map((seg) => (
                 <TranscriptSegmentItem
                   key={seg.id}
@@ -671,7 +671,7 @@ function CompletedSOAPPanel({ soap }: { soap: { subjective: string; objective: s
 
   return (
     <div className="flex h-full flex-col gap-0">
-      <div className="flex items-center justify-between">
+      <div className="flex min-h-9 items-center justify-between">
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-semibold">{t("SOAP Note")}</h3>
           {soap && (

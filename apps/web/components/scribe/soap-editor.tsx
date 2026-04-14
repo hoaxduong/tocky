@@ -58,7 +58,7 @@ export function SOAPEditor() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex min-h-9 items-center justify-between">
         <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold">{t("SOAP Note")}</h3>
           {isProcessing ? (
