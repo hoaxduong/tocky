@@ -15,11 +15,13 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Card,
-  CardContent,
+  CardAction,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
+import { Separator } from "@workspace/ui/components/separator"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -125,35 +127,40 @@ export function ConsultationCard({
     <>
       <Link href={`/consultations/${id}`}>
         <Card className="group h-full cursor-pointer transition-all hover:border-primary/30 hover:shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <CardTitle className="truncate text-base">
-                  {title || t("New Consultation")}
-                </CardTitle>
-                {patientIdentifier && (
-                  <div className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
-                    <User className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{patientIdentifier}</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex shrink-0 items-center gap-1">
+          {/* Zone 1: Identity */}
+          <CardHeader>
+            <CardTitle className="line-clamp-2 min-h-[2lh]">
+              {title || t("New Consultation")}
+            </CardTitle>
+            <CardDescription>
+              {patientIdentifier ? (
+                <span className="inline-flex items-center gap-1">
+                  <User className="size-3 shrink-0" />
+                  <span className="truncate">{patientIdentifier}</span>
+                </span>
+              ) : (
+                <span className="text-muted-foreground/50">
+                  {t("No patient")}
+                </span>
+              )}
+            </CardDescription>
+            <CardAction>
+              <div className="flex items-center gap-1">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100"
+                      className="size-7 text-muted-foreground opacity-0 group-hover:opacity-100"
                       onClick={(e) => e.preventDefault()}
                     >
-                      <MoreHorizontal className="h-4 w-4" />
+                      <MoreHorizontal className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {!isArchived && (
                       <DropdownMenuItem onClick={handleArchive}>
-                        <Archive className="mr-2 h-4 w-4" />
+                        <Archive className="mr-2 size-4" />
                         {t("Archive")}
                       </DropdownMenuItem>
                     )}
@@ -165,64 +172,71 @@ export function ConsultationCard({
                           setDeleteOpen(true)
                         }}
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
+                        <Trash2 className="mr-2 size-4" />
                         {t("Delete")}
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                <ChevronRight className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <StatusBadge status={status} />
-              <span className="text-sm text-muted-foreground">
-                {formatRelativeTime(createdAt)}
-              </span>
-            </div>
+            </CardAction>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <Badge variant="outline">{language}</Badge>
-              {mode && (
-                <Badge variant="outline" className="gap-1">
-                  {mode === "upload" ? (
-                    <Upload className="h-3 w-3" />
-                  ) : (
-                    <Mic className="h-3 w-3" />
-                  )}
-                  {mode === "upload" ? t("Upload") : t("Live")}
-                </Badge>
-              )}
-              {hasError && errorMessage && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span
-                        className="inline-flex"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <AlertTriangle className="h-4 w-4 text-destructive" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{errorMessage}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
-            {isProcessing && (
-              <div className="space-y-1">
-                <Progress value={processingProgress ?? 0} />
-                {processingStep && (
-                  <p className="text-xs capitalize text-muted-foreground">
-                    {processingStep}
-                  </p>
-                )}
-              </div>
+
+          <Separator />
+
+          {/* Zone 2: Status + metadata */}
+          <CardFooter className="gap-2">
+            <StatusBadge status={status} />
+            {hasError && errorMessage && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="inline-flex"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <AlertTriangle className="size-3.5 text-destructive" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{errorMessage}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-          </CardContent>
+            <Badge variant="outline">{language}</Badge>
+            {mode && (
+              <Badge variant="outline" className="gap-1">
+                {mode === "upload" ? (
+                  <Upload className="size-3" />
+                ) : (
+                  <Mic className="size-3" />
+                )}
+                {mode === "upload" ? t("Upload") : t("Live")}
+              </Badge>
+            )}
+            <span className="ml-auto text-xs text-muted-foreground/70">
+              {formatRelativeTime(createdAt)}
+            </span>
+          </CardFooter>
+
+          {/* Zone 3: Processing progress (conditional) */}
+          {isProcessing && (
+            <div className="border-t px-4 pb-3 pt-2">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  {processingStep && (
+                    <span className="capitalize">{processingStep}</span>
+                  )}
+                  <span className="tabular-nums">
+                    {processingProgress ?? 0}%
+                  </span>
+                </div>
+                <Progress value={processingProgress ?? 0} />
+              </div>
+            </div>
+          )}
         </Card>
       </Link>
 

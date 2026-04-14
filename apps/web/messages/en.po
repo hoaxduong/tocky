@@ -21,7 +21,7 @@ msgstr "Consultations"
 #: components/consultations-list.tsx:379
 #: components/new-consultation-dialog.tsx:119
 #: components/new-consultation-dialog.tsx:126
-#: components/scribe/consultation-card.tsx:132
+#: components/scribe/consultation-card.tsx:133
 #: components/scribe/consultation-header.tsx:32
 #: components/upload-processing-view.tsx:544
 msgid "L2NbD2"
@@ -161,8 +161,8 @@ msgstr "Ban"
 #: components/admin-users-table.tsx:166
 #: components/consultations-list.tsx:423
 #: components/consultations-list.tsx:488
-#: components/scribe/consultation-card.tsx:169
-#: components/scribe/consultation-card.tsx:245
+#: components/scribe/consultation-card.tsx:176
+#: components/scribe/consultation-card.tsx:259
 msgid "K3r6DQ"
 msgstr "Delete"
 
@@ -177,7 +177,7 @@ msgstr "Are you sure you want to delete this user? This action cannot be undone.
 #: components/admin-users-table.tsx:158
 #: components/consultations-list.tsx:483
 #: components/elfie/elfie-push-dialog.tsx:159
-#: components/scribe/consultation-card.tsx:240
+#: components/scribe/consultation-card.tsx:254
 #: components/soap-review-form.tsx:253
 msgid "47FYwb"
 msgstr "Cancel"
@@ -318,32 +318,32 @@ msgid "F62y+K"
 msgstr "Sign Out"
 
 #: components/consultation-context-bar.tsx:142
-#: components/scribe/consultation-card.tsx:194
+#: components/scribe/consultation-card.tsx:216
 msgid "p4N05H"
 msgstr "Upload"
 
 #: components/consultation-context-bar.tsx:142
-#: components/scribe/consultation-card.tsx:194
+#: components/scribe/consultation-card.tsx:216
 msgid "Dn82AL"
 msgstr "Live"
 
 #: components/consultations-list.tsx:177
-#: components/scribe/consultation-card.tsx:112
+#: components/scribe/consultation-card.tsx:114
 msgid "XOBOTM"
 msgstr "Consultation archived"
 
 #: components/consultations-list.tsx:178
-#: components/scribe/consultation-card.tsx:113
+#: components/scribe/consultation-card.tsx:115
 msgid "sJKt39"
 msgstr "Failed to archive consultation"
 
 #: components/consultations-list.tsx:185
-#: components/scribe/consultation-card.tsx:119
+#: components/scribe/consultation-card.tsx:121
 msgid "YFqZph"
 msgstr "Consultation deleted"
 
 #: components/consultations-list.tsx:186
-#: components/scribe/consultation-card.tsx:120
+#: components/scribe/consultation-card.tsx:122
 msgid "x297rU"
 msgstr "Failed to delete consultation"
 
@@ -423,7 +423,7 @@ msgid "+0hh6g"
 msgstr "Patient"
 
 #: components/consultations-list.tsx:411
-#: components/scribe/consultation-card.tsx:157
+#: components/scribe/consultation-card.tsx:164
 msgid "hrgo+E"
 msgstr "Archive"
 
@@ -440,12 +440,12 @@ msgid "9+Ddtu"
 msgstr "Next"
 
 #: components/consultations-list.tsx:475
-#: components/scribe/consultation-card.tsx:232
+#: components/scribe/consultation-card.tsx:246
 msgid "Y0pMB6"
 msgstr "Delete Consultation?"
 
 #: components/consultations-list.tsx:477
-#: components/scribe/consultation-card.tsx:234
+#: components/scribe/consultation-card.tsx:248
 msgid "P2jK4q"
 msgstr "This will permanently delete this consultation and all its data. This action cannot be undone."
 
@@ -660,6 +660,10 @@ msgstr "Uploading..."
 #: components/new-consultation-dialog.tsx:255
 msgid "iNHvrU"
 msgstr "Upload & Process"
+
+#: components/scribe/consultation-card.tsx:143
+msgid "ut/O3w"
+msgstr "No patient"
 
 #: components/scribe/recording-controls.tsx:52
 msgid "3y9DGg"

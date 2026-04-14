@@ -21,7 +21,7 @@ msgstr "الاستشارات"
 #: components/consultations-list.tsx:379
 #: components/new-consultation-dialog.tsx:119
 #: components/new-consultation-dialog.tsx:126
-#: components/scribe/consultation-card.tsx:132
+#: components/scribe/consultation-card.tsx:133
 #: components/scribe/consultation-header.tsx:32
 #: components/upload-processing-view.tsx:544
 msgid "L2NbD2"
@@ -161,8 +161,8 @@ msgstr "حظر"
 #: components/admin-users-table.tsx:166
 #: components/consultations-list.tsx:423
 #: components/consultations-list.tsx:488
-#: components/scribe/consultation-card.tsx:169
-#: components/scribe/consultation-card.tsx:245
+#: components/scribe/consultation-card.tsx:176
+#: components/scribe/consultation-card.tsx:259
 msgid "K3r6DQ"
 msgstr "حذف"
 
@@ -177,7 +177,7 @@ msgstr "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ 
 #: components/admin-users-table.tsx:158
 #: components/consultations-list.tsx:483
 #: components/elfie/elfie-push-dialog.tsx:159
-#: components/scribe/consultation-card.tsx:240
+#: components/scribe/consultation-card.tsx:254
 #: components/soap-review-form.tsx:253
 msgid "47FYwb"
 msgstr "إلغاء"
@@ -318,32 +318,32 @@ msgid "F62y+K"
 msgstr "تسجيل الخروج"
 
 #: components/consultation-context-bar.tsx:142
-#: components/scribe/consultation-card.tsx:194
+#: components/scribe/consultation-card.tsx:216
 msgid "p4N05H"
 msgstr ""
 
 #: components/consultation-context-bar.tsx:142
-#: components/scribe/consultation-card.tsx:194
+#: components/scribe/consultation-card.tsx:216
 msgid "Dn82AL"
 msgstr ""
 
 #: components/consultations-list.tsx:177
-#: components/scribe/consultation-card.tsx:112
+#: components/scribe/consultation-card.tsx:114
 msgid "XOBOTM"
 msgstr "تم أرشفة الاستشارة"
 
 #: components/consultations-list.tsx:178
-#: components/scribe/consultation-card.tsx:113
+#: components/scribe/consultation-card.tsx:115
 msgid "sJKt39"
 msgstr "فشلت أرشفة الاستشارة"
 
 #: components/consultations-list.tsx:185
-#: components/scribe/consultation-card.tsx:119
+#: components/scribe/consultation-card.tsx:121
 msgid "YFqZph"
 msgstr "تم حذف الاستشارة"
 
 #: components/consultations-list.tsx:186
-#: components/scribe/consultation-card.tsx:120
+#: components/scribe/consultation-card.tsx:122
 msgid "x297rU"
 msgstr "فشل حذف الاستشارة"
 
@@ -423,7 +423,7 @@ msgid "+0hh6g"
 msgstr ""
 
 #: components/consultations-list.tsx:411
-#: components/scribe/consultation-card.tsx:157
+#: components/scribe/consultation-card.tsx:164
 msgid "hrgo+E"
 msgstr "أرشفة"
 
@@ -440,12 +440,12 @@ msgid "9+Ddtu"
 msgstr ""
 
 #: components/consultations-list.tsx:475
-#: components/scribe/consultation-card.tsx:232
+#: components/scribe/consultation-card.tsx:246
 msgid "Y0pMB6"
 msgstr "حذف الاستشارة؟"
 
 #: components/consultations-list.tsx:477
-#: components/scribe/consultation-card.tsx:234
+#: components/scribe/consultation-card.tsx:248
 msgid "P2jK4q"
 msgstr "سيتم حذف هذه الاستشارة وجميع بياناتها نهائيًا. لا يمكن التراجع عن هذا الإجراء."
 
@@ -660,6 +660,10 @@ msgstr "جارٍ الرفع..."
 #: components/new-consultation-dialog.tsx:255
 msgid "iNHvrU"
 msgstr "رفع ومعالجة"
+
+#: components/scribe/consultation-card.tsx:143
+msgid "ut/O3w"
+msgstr ""
 
 #: components/scribe/recording-controls.tsx:52
 msgid "3y9DGg"

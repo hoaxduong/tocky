@@ -1,23 +1,26 @@
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Card, CardContent, CardHeader } from "@workspace/ui/components/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@workspace/ui/components/card"
+import { Separator } from "@workspace/ui/components/separator"
 
 export function ConsultationCardSkeleton() {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-5 w-16 rounded-full" />
-        </div>
-        <Skeleton className="mt-1 h-3.5 w-20" />
-        <Skeleton className="mt-1 h-4 w-24" />
+      <CardHeader>
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-24" />
       </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-1.5">
-          <Skeleton className="h-5 w-14 rounded-full" />
-          <Skeleton className="h-5 w-16 rounded-full" />
-        </div>
-      </CardContent>
+      <Separator />
+      <CardFooter className="gap-2">
+        <Skeleton className="h-5 w-20 rounded-full" />
+        <Skeleton className="h-5 w-10 rounded-full" />
+        <Skeleton className="h-5 w-14 rounded-full" />
+        <Skeleton className="ml-auto h-3 w-16" />
+      </CardFooter>
     </Card>
   )
 }
