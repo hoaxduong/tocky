@@ -620,7 +620,7 @@ function matchFlagsToTranscript(
   segments: TranscriptSegment[]
 ): (TranscriptSegment | null)[] {
   return flags.map((flag) => {
-    const needle = flag.quoted_span.trim().toLowerCase()
+    const needle = (flag.quoted_span ?? "").trim().toLowerCase()
     if (!needle) return null
     const direct = segments.find((s) => s.text.toLowerCase().includes(needle))
     if (direct) return direct
