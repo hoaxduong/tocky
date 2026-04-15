@@ -50,6 +50,9 @@ def _pcm_to_wav(pcm_bytes: bytes, sample_rate: int = 16000) -> bytes:
     return header + pcm_bytes
 
 
+_JSON_FORMAT = {"type": "json_object"}
+
+
 class DashScopeClient:
     def __init__(
         self,
@@ -72,6 +75,39 @@ class DashScopeClient:
             headers={"Authorization": f"Bearer {api_key}"},
             timeout=60.0,
         )
+
+    async def _call_with_json_retry(
+        self,
+        payload: dict,
+        *,
+        timeout: float = 60.0,
+        max_retries: int = 1,
+    ) -> dict | list:
+        """Make an API call, parse JSON response, retry once on decode failure."""
+        for attempt in range(max_retries + 1):
+            response = await self.client.post(
+                "/chat/completions", json=payload, timeout=timeout
+            )
+            response.raise_for_status()
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError:
+                if attempt < max_retries:
+                    logger.warning(
+                        "JSON parse failed (attempt %d), retrying: %s",
+                        attempt + 1,
+                        content[:200],
+                    )
+                    continue
+                logger.warning(
+                    "JSON parse failed after %d attempts: %s",
+                    max_retries + 1,
+                    content[:200],
+                )
+                raise
+        raise RuntimeError("Unreachable")  # pragma: no cover
 
     async def transcribe_audio(self, audio_bytes: bytes, language: str) -> str:
         logger.debug(
@@ -189,6 +225,7 @@ class DashScopeClient:
                     {"role": "user", "content": text},
                 ],
                 "max_tokens": 10,
+                "temperature": 0.1,
             },
         )
         elapsed = time.monotonic() - t0
@@ -210,12 +247,14 @@ class DashScopeClient:
         generator = SOAPGenerator(self.prompts)
         messages = generator.build_soap_prompt(transcript_text, language)
 
+        dynamic_max_tokens = min(4000, 500 + len(transcript_text) // 10)
         response = await self.client.post(
             "/chat/completions",
             json={
                 "model": self.soap_model,
                 "messages": messages,
-                "max_tokens": 2000,
+                "max_tokens": dynamic_max_tokens,
+                "temperature": 0.1,
             },
             timeout=180.0,
         )
@@ -250,27 +289,23 @@ class DashScopeClient:
         return reviewer.parse_review_response(content)
 
     async def extract_medical_entities(self, text: str, language: str) -> dict:
-        response = await self.client.post(
-            "/chat/completions",
-            json={
-                "model": self.extraction_model,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": self.prompts.get("entity_extraction"),
-                    },
-                    {"role": "user", "content": text},
-                ],
-                "max_tokens": 1000,
-            },
-            timeout=120.0,
-        )
-        response.raise_for_status()
-        data = response.json()
-        content = data["choices"][0]["message"]["content"]
+        payload = {
+            "model": self.extraction_model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": self.prompts.get("entity_extraction"),
+                },
+                {"role": "user", "content": text},
+            ],
+            "max_tokens": 1000,
+            "temperature": 0.1,
+            "response_format": _JSON_FORMAT,
+        }
         try:
-            return json.loads(content)
-        except json.JSONDecodeError:
+            result = await self._call_with_json_retry(payload, timeout=120.0)
+            return result if isinstance(result, dict) else {}
+        except (json.JSONDecodeError, Exception):
             return {}
 
     async def detect_language(self, text: str) -> str:
@@ -287,6 +322,7 @@ class DashScopeClient:
                     {"role": "user", "content": text[:2000]},
                 ],
                 "max_tokens": 10,
+                "temperature": 0.1,
             },
         )
         response.raise_for_status()
@@ -299,25 +335,23 @@ class DashScopeClient:
         self, transcript_text: str
     ) -> dict[str, str]:
         """Extract a short title and patient identifier from transcript."""
-        response = await self.client.post(
-            "/chat/completions",
-            json={
-                "model": self.classification_model,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": self.prompts.get("metadata_extraction"),
-                    },
-                    {"role": "user", "content": transcript_text[:4000]},
-                ],
-                "max_tokens": 200,
-            },
-        )
-        response.raise_for_status()
-        data = response.json()
-        content = data["choices"][0]["message"]["content"]
+        payload = {
+            "model": self.classification_model,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": self.prompts.get("metadata_extraction"),
+                },
+                {"role": "user", "content": transcript_text[:4000]},
+            ],
+            "max_tokens": 200,
+            "temperature": 0.1,
+            "response_format": _JSON_FORMAT,
+        }
         try:
-            parsed = json.loads(content)
+            parsed = await self._call_with_json_retry(payload)
+            if not isinstance(parsed, dict):
+                return {"title": "", "patient_identifier": None}
             return {
                 "title": str(parsed.get("title", ""))[:255],
                 "patient_identifier": (
@@ -326,7 +360,7 @@ class DashScopeClient:
                     else None
                 ),
             }
-        except (json.JSONDecodeError, TypeError):
+        except (json.JSONDecodeError, TypeError, Exception):
             return {"title": "", "patient_identifier": None}
 
     async def suggest_icd10_codes(
@@ -336,31 +370,22 @@ class DashScopeClient:
         system_prompt = self.prompts.get("icd10_suggestion")
         user_content = (
             f"Clinical context:\n{clinical_context}\n\n"
-            f"Diagnoses to code:\n"
-            + "\n".join(f"- {d}" for d in diagnoses)
+            f"Diagnoses to code:\n" + "\n".join(f"- {d}" for d in diagnoses)
         )
-        response = await self.client.post(
-            "/chat/completions",
-            json={
-                "model": self.extraction_model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_content},
-                ],
-                "max_tokens": 1000,
-                "temperature": 0.1,
-            },
-        )
-        response.raise_for_status()
-        data = response.json()
-        content = data["choices"][0]["message"]["content"]
+        payload = {
+            "model": self.extraction_model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_content},
+            ],
+            "max_tokens": 1000,
+            "temperature": 0.1,
+            "response_format": _JSON_FORMAT,
+        }
         try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            logger.warning(
-                "Failed to parse ICD-10 suggestion response: %s",
-                content[:200],
-            )
+            result = await self._call_with_json_retry(payload)
+            return result if isinstance(result, list) else []
+        except (json.JSONDecodeError, Exception):
             return []
 
     async def close(self) -> None:

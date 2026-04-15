@@ -6,7 +6,7 @@ msgstr ""
 "X-Generator: next-intl\n"
 "X-Crowdin-SourceKey: msgstr\n"
 
-#: app/(app)/consultations/[id]/page.tsx:171
+#: app/(app)/consultations/[id]/page.tsx:173
 #: app/admin/consultations/page.tsx:13
 #: components/consultations-list.tsx:196
 #: components/consultations-list.tsx:199
@@ -16,7 +16,7 @@ msgstr ""
 msgid "+WBJgJ"
 msgstr "Consultations"
 
-#: app/(app)/consultations/[id]/page.tsx:176
+#: app/(app)/consultations/[id]/page.tsx:178
 #: components/consultation-context-bar.tsx:115
 #: components/consultations-list.tsx:379
 #: components/new-consultation-dialog.tsx:119
@@ -27,28 +27,40 @@ msgstr "Consultations"
 msgid "L2NbD2"
 msgstr "New Consultation"
 
-#: app/(app)/consultations/[id]/page.tsx:192
+#: app/(app)/consultations/[id]/page.tsx:191
+msgid "x9iGuI"
+msgstr "Audio is clipping. Move the microphone farther away or lower the input volume."
+
+#: app/(app)/consultations/[id]/page.tsx:195
+msgid "Za/2J/"
+msgstr "Volume is very low. Check your microphone placement or speak louder."
+
+#: app/(app)/consultations/[id]/page.tsx:199
+msgid "Ubp0vq"
+msgstr "No audio detected for an extended period. Check that your microphone is working."
+
+#: app/(app)/consultations/[id]/page.tsx:214
 msgid "grb5jd"
 msgstr "Ready to Record"
 
-#: app/(app)/consultations/[id]/page.tsx:195
+#: app/(app)/consultations/[id]/page.tsx:217
 msgid "aHJq5B"
 msgstr "Start recording your consultation. The AI will transcribe speech in real-time, filter medically relevant information, and generate a SOAP note."
 
-#: app/(app)/consultations/[id]/page.tsx:203
+#: app/(app)/consultations/[id]/page.tsx:225
 #: components/scribe/recording-controls.tsx:37
 msgid "xbQgN4"
 msgstr "Start Recording"
 
-#: app/(app)/consultations/[id]/page.tsx:211
+#: app/(app)/consultations/[id]/page.tsx:233
 msgid "/Lp7jl"
 msgstr "Smart Filtering"
 
-#: app/(app)/consultations/[id]/page.tsx:214
+#: app/(app)/consultations/[id]/page.tsx:236
 msgid "AmwGo3"
 msgstr "Small talk is filtered out automatically"
 
-#: app/(app)/consultations/[id]/page.tsx:221
+#: app/(app)/consultations/[id]/page.tsx:243
 #: components/scribe/soap-editor.tsx:63
 #: components/soap-review-form.tsx:194
 #: components/soap-review-form.tsx:378
@@ -56,33 +68,33 @@ msgstr "Small talk is filtered out automatically"
 msgid "63vr3O"
 msgstr "SOAP Note"
 
-#: app/(app)/consultations/[id]/page.tsx:223
+#: app/(app)/consultations/[id]/page.tsx:245
 msgid "dqLtAI"
 msgstr "Generated in real-time as you speak"
 
-#: app/(app)/consultations/[id]/page.tsx:253
+#: app/(app)/consultations/[id]/page.tsx:275
 msgid "Mh3HvF"
 msgstr "Processing Recording..."
 
-#: app/(app)/consultations/[id]/page.tsx:256
+#: app/(app)/consultations/[id]/page.tsx:278
 msgid "LPkPjS"
 msgstr "Finalizing transcription and generating SOAP note. This may take a moment."
 
-#: app/(app)/consultations/[id]/page.tsx:270
+#: app/(app)/consultations/[id]/page.tsx:292
 msgid "7T8ag0"
 msgstr "Recording Complete"
 
-#: app/(app)/consultations/[id]/page.tsx:274
+#: app/(app)/consultations/[id]/page.tsx:296
 #: components/upload-processing-view.tsx:391
 msgid "MnCxQd"
 msgstr "segments"
 
-#: app/(app)/consultations/[id]/page.tsx:274
+#: app/(app)/consultations/[id]/page.tsx:296
 #: components/upload-processing-view.tsx:394
 msgid "u6csBB"
 msgstr "relevant"
 
-#: app/(app)/consultations/[id]/page.tsx:280
+#: app/(app)/consultations/[id]/page.tsx:302
 #: components/upload-processing-view.tsx:353
 msgid "lEn0JO"
 msgstr "Review SOAP Note"
@@ -741,13 +753,13 @@ msgstr "Waiting for content..."
 msgid "6de2Su"
 msgstr "No content yet"
 
-#: components/scribe/transcript-panel.tsx:20
+#: components/scribe/transcript-panel.tsx:21
 #: components/upload-processing-view.tsx:411
 #: components/upload-processing-view.tsx:564
 msgid "TztQA0"
 msgstr "Transcript"
 
-#: components/scribe/transcript-panel.tsx:24
+#: components/scribe/transcript-panel.tsx:26
 msgid "wrooww"
 msgstr "Listening for speech..."
 

@@ -49,6 +49,12 @@ class MetadataUpdateMessage(BaseModel):
     language: str | None = None
 
 
+class AudioQualityWarning(BaseModel):
+    type: Literal["audio_quality_warning"] = "audio_quality_warning"
+    warning_type: Literal["clipping", "low_volume", "silence"]
+    message: str
+
+
 class ErrorMessage(BaseModel):
     type: Literal["error"] = "error"
     message: str

@@ -78,6 +78,7 @@ class DashScopeLiveSTTSession:
         self._ws: websockets.ClientConnection | None = None
         self._receiver_task: asyncio.Task[None] | None = None
         self._finished = asyncio.Event()
+        self._connection_failed = False
 
     async def start(self) -> None:
         ws_url = f"{self._ws_base_url}/api-ws/v1/realtime?model={self._model}"
@@ -102,6 +103,7 @@ class DashScopeLiveSTTSession:
                     "type": "server_vad",
                     "threshold": self._vad_threshold,
                     "silence_duration_ms": self._vad_silence_ms,
+                    "prefix_padding_ms": self._vad_prefix_ms,
                 },
             },
         }
@@ -109,6 +111,35 @@ class DashScopeLiveSTTSession:
         logger.debug("Live STT session started, sent session.update")
 
         self._receiver_task = asyncio.create_task(self._receiver())
+
+    @property
+    def is_failed(self) -> bool:
+        """True if the WebSocket connection dropped unexpectedly."""
+        return self._connection_failed
+
+    async def update_vad_params(self, silence_duration_ms: int) -> bool:
+        """Attempt to update VAD params mid-session. Returns True on success."""
+        if self._ws is None:
+            return False
+        try:
+            update = {
+                "type": "session.update",
+                "session": {
+                    "turn_detection": {
+                        "type": "server_vad",
+                        "threshold": self._vad_threshold,
+                        "silence_duration_ms": silence_duration_ms,
+                        "prefix_padding_ms": self._vad_prefix_ms,
+                    },
+                },
+            }
+            await self._ws.send(json.dumps(update))
+            self._vad_silence_ms = silence_duration_ms
+            logger.info("Updated VAD silence_duration_ms to %d", silence_duration_ms)
+            return True
+        except Exception:
+            logger.warning("Failed to update VAD params mid-session")
+            return False
 
     async def feed_audio(self, chunk: bytes) -> None:
         if self._ws is None:
@@ -200,12 +231,11 @@ class DashScopeLiveSTTSession:
                     logger.error("Live STT error: %s", error_msg)
 
                 elif event_type == "session.finished":
-                    logger.info(
-                        "Live STT session finished, %d segments", segment_count
-                    )
+                    logger.info("Live STT session finished, %d segments", segment_count)
                     break
         except websockets.ConnectionClosed:
             logger.warning("Live STT WebSocket closed unexpectedly")
+            self._connection_failed = True
         finally:
             # Wait for all in-flight segment tasks to complete
             if segment_tasks:
@@ -295,6 +325,7 @@ class DashScopeStreamingSTT:
                         "type": "server_vad",
                         "threshold": self.vad_threshold,
                         "silence_duration_ms": self.vad_silence_ms,
+                        "prefix_padding_ms": self.vad_prefix_ms,
                     },
                 },
             }

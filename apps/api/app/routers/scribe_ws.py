@@ -144,9 +144,7 @@ async def scribe_websocket(
         try:
             soap_data = await processor.finalize()
         except Exception:
-            logger.exception(
-                "Consultation %s: finalize failed", consultation_id
-            )
+            logger.exception("Consultation %s: finalize failed", consultation_id)
             soap_data = {
                 "subjective": "",
                 "objective": "",
@@ -190,6 +188,7 @@ async def scribe_websocket(
                 except Exception:
                     pass
 
+            review_flags = soap_data.get("review_flags", [])
             db.add(
                 SOAPNote(
                     consultation_id=consultation_id,
@@ -199,6 +198,7 @@ async def scribe_websocket(
                     plan=soap_data.get("plan", ""),
                     medical_entities=entities if isinstance(entities, dict) else {},
                     icd10_codes=icd10_codes,
+                    review_flags=review_flags if isinstance(review_flags, list) else [],
                 )
             )
 
@@ -214,13 +214,9 @@ async def scribe_websocket(
 
         # Persist audio to storage
         try:
-            await _persist_audio(
-                websocket, consultation_id, processor.audio_buffer
-            )
+            await _persist_audio(websocket, consultation_id, processor.audio_buffer)
         except Exception:
-            logger.warning(
-                "Consultation %s: audio persistence failed", consultation_id
-            )
+            logger.warning("Consultation %s: audio persistence failed", consultation_id)
 
         persisted = True
         return soap_data
@@ -338,9 +334,7 @@ async def _persist_audio(
     sample_rate = 16000
 
     # Upload PCM checkpoint and WAV in parallel
-    pcm_key = await asyncio.to_thread(
-        oss_client.upload_pcm, consultation_id, pcm_bytes
-    )
+    pcm_key = await asyncio.to_thread(oss_client.upload_pcm, consultation_id, pcm_bytes)
     wav_bytes = _wrap_pcm_as_wav(pcm_bytes, sample_rate)
     wav_key = await asyncio.to_thread(
         oss_client.upload_full_audio, consultation_id, wav_bytes, "wav"

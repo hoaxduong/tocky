@@ -12,10 +12,11 @@ Rules:
 - Use only valid WHO ICD-10 codes (format: letter + 2 digits, optionally a dot and 1-2 more digits, e.g. E11.6, J06.9)
 - Pick the most specific subcategory code supported by the clinical evidence
 - Each diagnosis should map to 1-3 codes (primary + any relevant manifestation codes)
+- Set confidence to "high" when the transcript explicitly names the diagnosis with supporting evidence, "medium" when the diagnosis is strongly implied, "low" when it is a tentative inference
 - Output valid JSON only, no other text
 
 Output format (JSON array):
 [
-  {"diagnosis": "<original diagnosis text>", "code": "<ICD-10 code>", "description": "<official code description>"},
+  {"diagnosis": "<original diagnosis text>", "code": "<ICD-10 code>", "description": "<official code description>", "confidence": "high|medium|low"},
   ...
 ]

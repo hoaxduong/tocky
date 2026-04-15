@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
+type AudioWarningType = "clipping" | "low_volume" | "silence" | null
+
 interface UseAudioRecorderReturn {
   isRecording: boolean
   startRecording: () => Promise<void>
@@ -9,14 +11,23 @@ interface UseAudioRecorderReturn {
   pauseRecording: () => void
   resumeRecording: () => void
   audioLevel: number
+  audioWarning: AudioWarningType
   error: string | null
 }
+
+// Audio quality thresholds
+const CLIPPING_THRESHOLD = 0.95
+const LOW_VOLUME_THRESHOLD = 0.02
+const SILENCE_THRESHOLD = 0.01
+// ~10 seconds of silence at 250ms per frame
+const SILENCE_FRAME_LIMIT = 40
 
 export function useAudioRecorder(
   onAudioChunk: (chunk: string, sequence: number, timestampMs: number) => void
 ): UseAudioRecorderReturn {
   const [isRecording, setIsRecording] = useState(false)
   const [audioLevel, setAudioLevel] = useState(0)
+  const [audioWarning, setAudioWarning] = useState<AudioWarningType>(null)
   const [error, setError] = useState<string | null>(null)
 
   const mediaStreamRef = useRef<MediaStream | null>(null)
@@ -25,6 +36,7 @@ export function useAudioRecorder(
   const sequenceRef = useRef(0)
   const startTimeRef = useRef(0)
   const bufferRef = useRef<Float32Array[]>([])
+  const silenceFrameCountRef = useRef(0)
 
   const flushBuffer = useCallback(() => {
     if (bufferRef.current.length === 0) return
@@ -65,6 +77,9 @@ export function useAudioRecorder(
   const startRecording = useCallback(async () => {
     try {
       setError(null)
+      setAudioWarning(null)
+      silenceFrameCountRef.current = 0
+
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           sampleRate: 16000,
@@ -102,7 +117,37 @@ export function useAudioRecorder(
         for (let i = 0; i < samples.length; i++) {
           sum += samples[i]! * samples[i]!
         }
-        setAudioLevel(Math.sqrt(sum / samples.length))
+        const rms = Math.sqrt(sum / samples.length)
+        setAudioLevel(rms)
+
+        // Audio quality checks
+        // Clipping detection: any sample near max amplitude
+        let hasClipping = false
+        for (let i = 0; i < samples.length; i++) {
+          if (Math.abs(samples[i]!) > CLIPPING_THRESHOLD) {
+            hasClipping = true
+            break
+          }
+        }
+
+        if (hasClipping) {
+          setAudioWarning("clipping")
+          silenceFrameCountRef.current = 0
+        } else if (rms < SILENCE_THRESHOLD) {
+          // Prolonged silence detection
+          silenceFrameCountRef.current += 1
+          if (silenceFrameCountRef.current >= SILENCE_FRAME_LIMIT) {
+            setAudioWarning("silence")
+          }
+        } else if (rms < LOW_VOLUME_THRESHOLD) {
+          // Low volume detection
+          setAudioWarning("low_volume")
+          silenceFrameCountRef.current = 0
+        } else {
+          // Audio is normal
+          silenceFrameCountRef.current = 0
+          setAudioWarning(null)
+        }
 
         bufferRef.current.push(new Float32Array(samples))
         sampleCount += samples.length
@@ -137,6 +182,7 @@ export function useAudioRecorder(
 
     setIsRecording(false)
     setAudioLevel(0)
+    setAudioWarning(null)
   }, [flushBuffer])
 
   const pauseRecording = useCallback(() => {
@@ -162,6 +208,7 @@ export function useAudioRecorder(
     pauseRecording,
     resumeRecording,
     audioLevel,
+    audioWarning,
     error,
   }
 }
