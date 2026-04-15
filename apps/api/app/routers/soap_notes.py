@@ -15,6 +15,7 @@ from app.models.soap_note_version import (
     SOAPNoteVersionResponse,
 )
 from app.services.audio_stitcher import AudioStitcher
+from app.services.graph import ScribePipelineState, build_scribe_pipeline
 from app.services.soap_versioning import archive_soap_snapshot
 
 logger = logging.getLogger(__name__)
@@ -149,34 +150,32 @@ async def regenerate_soap_note(
             detail="No medically relevant transcript segments to generate from",
         )
 
-    dashscope_client = request.app.state.dashscope_client
-    new_soap = await dashscope_client.generate_soap(
-        relevant_text, consultation.language
-    )
-    entities = await dashscope_client.extract_medical_entities(
-        relevant_text, consultation.language
-    )
+    from app import database
 
+    graph = build_scribe_pipeline()
+    graph_state = ScribePipelineState(
+        consultation_id=consultation_id,
+        relevant_text=relevant_text,
+        language=consultation.language,
+        language_known=True,
+        metadata_extracted=True,
+        mode="batch",
+    )
+    graph_config = {
+        "configurable": {
+            "ai_client": request.app.state.dashscope_client,
+            "db_session_factory": database.async_session_factory,
+        }
+    }
+    graph_result = await graph.ainvoke(graph_state, config=graph_config)
+
+    new_soap = graph_result.get("soap", {})
     soap.subjective = new_soap.get("subjective", "")
     soap.objective = new_soap.get("objective", "")
     soap.assessment = new_soap.get("assessment", "")
     soap.plan = new_soap.get("plan", "")
-    soap.medical_entities = entities
-
-    # Auto-suggest ICD-10 codes from full clinical context
-    try:
-        from app.services.icd10_suggester import suggest_codes
-
-        soap.icd10_codes = await suggest_codes(
-            entities,
-            new_soap.get("assessment", ""),
-            dashscope_client,
-            db,
-            language=consultation.language,
-        )
-    except Exception:
-        logger.exception("ICD-10 suggestion failed during regeneration")
-        soap.icd10_codes = []
+    soap.medical_entities = graph_result.get("medical_entities", {})
+    soap.icd10_codes = graph_result.get("icd10_codes", [])
 
     soap.is_draft = True
     soap.version += 1

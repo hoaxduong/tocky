@@ -8,6 +8,7 @@ from collections.abc import Callable, Coroutine
 from typing import Any
 
 from app.services.ai_protocol import AIClient
+from app.services.graph import ScribePipelineState, build_scribe_pipeline
 from app.services.streaming_stt import LiveSTTSession, StreamingSTTClient, STTSegment
 
 logger = logging.getLogger(__name__)
@@ -86,6 +87,9 @@ class StreamingAudioProcessor:
         self._polished_transcript: str | None = None
         self._polished_segment_count = 0
 
+        # LangGraph pipeline (built once, reused for periodic + final SOAP)
+        self._graph = build_scribe_pipeline()
+
         # Callbacks set by the WebSocket handler
         self.on_transcript: Callable[..., Coroutine[Any, Any, None]] | None = None
         self.on_soap_update: Callable[..., Coroutine[Any, Any, None]] | None = None
@@ -156,7 +160,7 @@ class StreamingAudioProcessor:
         if pending:
             await asyncio.wait(pending, timeout=15.0)
 
-        # Generate final SOAP note
+        # Generate final SOAP note via LangGraph pipeline
         logger.info("Consultation %s: generating final SOAP", self.consultation_id)
         result: dict[str, Any] = {
             "subjective": "",
@@ -169,74 +173,25 @@ class StreamingAudioProcessor:
         if self.all_relevant_text:
             full_transcript = "\n".join(self.all_relevant_text)
 
-            # Step 1: Polish transcript
-            try:
-                polished = await asyncio.wait_for(
-                    self.model_client.polish_transcript(full_transcript, self.language),
-                    timeout=120.0,
-                )
-                logger.info(
-                    "Consultation %s: transcript polished",
-                    self.consultation_id,
-                )
-            except Exception:
-                logger.warning(
-                    "Consultation %s: transcript polish failed, using raw",
-                    self.consultation_id,
-                )
-                polished = full_transcript
+            graph_state = ScribePipelineState(
+                consultation_id=self.consultation_id,
+                relevant_text=full_transcript,
+                language=self.language,
+                language_known=True,
+                metadata_extracted=True,
+                mode="live_final",
+            )
+            graph_config = {
+                "configurable": {
+                    "ai_client": self.model_client,
+                }
+            }
+            graph_result = await self._graph.ainvoke(graph_state, config=graph_config)
 
-            # Step 2: Extract entities BEFORE SOAP (for context injection)
-            entities: dict = {}
-            try:
-                entities = await asyncio.wait_for(
-                    self.model_client.extract_medical_entities(polished, self.language),
-                    timeout=140.0,
-                )
-                result["medical_entities"] = entities
-                logger.info("Consultation %s: entities extracted", self.consultation_id)
-            except Exception:
-                logger.exception(
-                    "Consultation %s: entity extraction failed",
-                    self.consultation_id,
-                )
-
-            # Step 3: Generate SOAP from polished transcript
-            try:
-                soap = await asyncio.wait_for(
-                    self.model_client.generate_soap(polished, self.language),
-                    timeout=200.0,
-                )
-                # Collect confidence flags before stripping internal keys
-                confidence_flags = soap.pop("_confidence_flags", [])
-                result.update(soap)
-                logger.info("Consultation %s: SOAP generated", self.consultation_id)
-
-                # Step 4: Auto-review the SOAP note for quality issues
-                try:
-                    review_flags = await asyncio.wait_for(
-                        self.model_client.review_soap(polished, soap, self.language),
-                        timeout=60.0,
-                    )
-                    all_flags = list(confidence_flags) + list(review_flags)
-                    result["review_flags"] = all_flags
-                    if all_flags:
-                        logger.info(
-                            "Consultation %s: SOAP review found %d flags",
-                            self.consultation_id,
-                            len(all_flags),
-                        )
-                except Exception:
-                    logger.warning(
-                        "Consultation %s: SOAP auto-review failed",
-                        self.consultation_id,
-                    )
-                    result["review_flags"] = list(confidence_flags)
-            except Exception:
-                logger.exception(
-                    "Consultation %s: SOAP generation failed",
-                    self.consultation_id,
-                )
+            soap = graph_result.get("soap", {})
+            result.update(soap)
+            result["medical_entities"] = graph_result.get("medical_entities", {})
+            result["review_flags"] = graph_result.get("review_flags", [])
 
         logger.info(
             "StreamingAudioProcessor finalized for %s: %d segments, %d relevant",
@@ -392,39 +347,31 @@ class StreamingAudioProcessor:
     async def _update_soap(self) -> None:
         full_transcript = "\n".join(self.all_relevant_text)
 
-        # Polish transcript (use cache if segment count hasn't changed)
-        current_count = len(self.all_relevant_text)
-        if self._polished_transcript and self._polished_segment_count == current_count:
-            polished = self._polished_transcript
-        else:
-            try:
-                polished = await self.model_client.polish_transcript(
-                    full_transcript, self.language
-                )
-                self._polished_transcript = polished
-                self._polished_segment_count = current_count
-            except Exception:
-                logger.warning(
-                    "Consultation %s: transcript polish failed, using raw",
-                    self.consultation_id,
-                )
-                polished = full_transcript
+        async def _on_soap_section(event_type: str, section: str, content: str) -> None:
+            if self.on_soap_update:
+                await self.on_soap_update(section, content)
 
-        try:
-            soap = await self.model_client.generate_soap(polished, self.language)
-            # Remove internal parsing keys before emitting
-            soap.pop("_confidence_flags", None)
-        except Exception:
-            logger.warning(
-                "Consultation %s: periodic SOAP update failed",
-                self.consultation_id,
-            )
-            return
+        graph_state = ScribePipelineState(
+            consultation_id=self.consultation_id,
+            relevant_text=full_transcript,
+            language=self.language,
+            language_known=True,
+            metadata_extracted=True,
+            mode="live_periodic",
+        )
+        graph_config = {
+            "configurable": {
+                "ai_client": self.model_client,
+                "on_update": _on_soap_section,
+            }
+        }
+        graph_result = await self._graph.ainvoke(graph_state, config=graph_config)
 
-        if self.on_soap_update:
-            for section in ("subjective", "objective", "assessment", "plan"):
-                if soap.get(section):
-                    await self.on_soap_update(section, soap[section])
+        # Update cached polished transcript
+        polished = graph_result.get("polished_transcript")
+        if polished:
+            self._polished_transcript = polished
+            self._polished_segment_count = len(self.all_relevant_text)
 
         # Re-extract metadata with accumulated transcript
         if self._metadata_extracted:

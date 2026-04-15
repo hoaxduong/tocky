@@ -25,6 +25,7 @@ from app.services.event_queue import (
     StatusEvent,
     TranscriptSegmentEvent,
 )
+from app.services.graph import ScribePipelineState, build_scribe_pipeline
 from app.services.oss_client import OSSClient
 from app.services.streaming_stt import StreamingSTTClient, STTSegment
 
@@ -50,6 +51,7 @@ class BatchAudioProcessor:
         self.event_registry = event_registry
         self.oss_client = oss_client
         self.streaming_stt = streaming_stt
+        self._graph = build_scribe_pipeline()
 
     # ------------------------------------------------------------------
     # Public entry points
@@ -615,37 +617,44 @@ class BatchAudioProcessor:
             failed_count,
         )
 
-        # --- Generate SOAP ---
+        # --- Generate SOAP via LangGraph pipeline ---
         await self._update_progress("generating_soap", 65)
         self._push(ProgressEvent(data={"step": "generating_soap", "progress": 65}))
 
         full_relevant = "\n".join(relevant_texts)
         if full_relevant.strip():
-            try:
-                soap = await self.model_client.generate_soap(
-                    full_relevant, detected_lang
-                )
-            except Exception as e:
-                logger.exception(
-                    "Consultation %s: SOAP generation failed",
-                    self.consultation_id,
-                )
+            graph_state = ScribePipelineState(
+                consultation_id=self.consultation_id,
+                relevant_text=full_relevant,
+                language=detected_lang,
+                language_known=True,
+                metadata_extracted=True,
+                mode="batch",
+            )
+            graph_config = {
+                "configurable": {
+                    "ai_client": self.model_client,
+                    "db_session_factory": self.db_session_factory,
+                }
+            }
+            graph_result = await self._graph.ainvoke(graph_state, config=graph_config)
+            soap = graph_result.get("soap", {})
+            entities = graph_result.get("medical_entities", {})
+            icd10_codes = graph_result.get("icd10_codes", [])
+
+            # Check if SOAP generation itself failed (critical step)
+            soap_errors = [
+                e
+                for e in graph_result.get("errors", [])
+                if e["node"] == "generate_soap"
+            ]
+            soap_sections = ("subjective", "objective", "assessment", "plan")
+            if soap_errors and not any(soap.get(s) for s in soap_sections):
                 await self._finish(
                     "completed_with_errors",
-                    f"SOAP generation failed: {e!s:.500}",
+                    f"SOAP generation failed: {soap_errors[0]['error']}",
                 )
                 return
-
-            try:
-                entities = await self.model_client.extract_medical_entities(
-                    full_relevant, detected_lang
-                )
-            except Exception:
-                logger.warning(
-                    "Consultation %s: entity extraction failed, using empty",
-                    self.consultation_id,
-                )
-                entities = {}
         else:
             soap = {
                 "subjective": "",
@@ -654,34 +663,10 @@ class BatchAudioProcessor:
                 "plan": "",
             }
             entities = {}
+            icd10_codes = []
 
         await self._update_progress("extracting_entities", 85)
         self._push(ProgressEvent(data={"step": "extracting_entities", "progress": 85}))
-
-        # --- Auto-suggest ICD-10 codes ---
-        icd10_codes: list[dict] = []
-        if isinstance(entities, dict) and entities.get("diagnoses"):
-            try:
-                from app.services.icd10_suggester import suggest_codes
-
-                async with self.db_session_factory() as db:
-                    icd10_codes = await suggest_codes(
-                        entities,
-                        str(soap.get("assessment", "")),
-                        self.model_client,
-                        db,
-                        language=detected_lang,
-                    )
-                logger.info(
-                    "Consultation %s: suggested %d ICD-10 codes",
-                    self.consultation_id,
-                    len(icd10_codes),
-                )
-            except Exception:
-                logger.exception(
-                    "Consultation %s: ICD-10 suggestion failed",
-                    self.consultation_id,
-                )
 
         # --- Persist SOAP note ---
         async with self.db_session_factory() as db:
