@@ -185,8 +185,16 @@ async def scribe_websocket(
                         db,
                         language=language,
                     )
+                    logger.info(
+                        "Consultation %s: suggested %d ICD-10 codes",
+                        consultation_id,
+                        len(icd10_codes),
+                    )
                 except Exception:
-                    pass
+                    logger.exception(
+                        "Consultation %s: ICD-10 suggestion failed",
+                        consultation_id,
+                    )
 
             review_flags = soap_data.get("review_flags", [])
             soap_note = SOAPNote(

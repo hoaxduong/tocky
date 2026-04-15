@@ -658,6 +658,31 @@ class BatchAudioProcessor:
         await self._update_progress("extracting_entities", 85)
         self._push(ProgressEvent(data={"step": "extracting_entities", "progress": 85}))
 
+        # --- Auto-suggest ICD-10 codes ---
+        icd10_codes: list[dict] = []
+        if isinstance(entities, dict) and entities.get("diagnoses"):
+            try:
+                from app.services.icd10_suggester import suggest_codes
+
+                async with self.db_session_factory() as db:
+                    icd10_codes = await suggest_codes(
+                        entities,
+                        str(soap.get("assessment", "")),
+                        self.model_client,
+                        db,
+                        language=detected_lang,
+                    )
+                logger.info(
+                    "Consultation %s: suggested %d ICD-10 codes",
+                    self.consultation_id,
+                    len(icd10_codes),
+                )
+            except Exception:
+                logger.exception(
+                    "Consultation %s: ICD-10 suggestion failed",
+                    self.consultation_id,
+                )
+
         # --- Persist SOAP note ---
         async with self.db_session_factory() as db:
             # Delete existing SOAP note if retrying
@@ -677,6 +702,7 @@ class BatchAudioProcessor:
                 existing_soap.assessment = soap.get("assessment", "")
                 existing_soap.plan = soap.get("plan", "")
                 existing_soap.medical_entities = entities
+                existing_soap.icd10_codes = icd10_codes
                 existing_soap.is_draft = True
                 existing_soap.version += 1
             else:
@@ -687,6 +713,7 @@ class BatchAudioProcessor:
                     assessment=soap.get("assessment", ""),
                     plan=soap.get("plan", ""),
                     medical_entities=entities,
+                    icd10_codes=icd10_codes,
                 )
                 db.add(new_soap)
                 await db.flush()

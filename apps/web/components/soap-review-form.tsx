@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   AudioPlayer,
   type AudioPlayerHandle,
@@ -92,9 +92,25 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const finalizeSOAP = useFinalizeSOAPNote(consultationId)
   const regenerateSOAP = useRegenerateSOAPNote(consultationId)
   const resuggestICD10 = useResuggestICD10(consultationId)
+  const [autoSuggested, setAutoSuggested] = useState(false)
   const { data: transcripts } = useTranscripts(consultationId)
   const hasAudio = !!soap && !soap.is_draft
   const { data: audio } = useConsultationAudio(consultationId, hasAudio)
+
+  // Auto-suggest ICD-10 codes if SOAP has diagnoses but no codes yet
+  useEffect(() => {
+    if (
+      soap &&
+      soap.is_draft &&
+      !autoSuggested &&
+      !resuggestICD10.isPending &&
+      soap.medical_entities?.diagnoses?.length &&
+      (!soap.icd10_codes || soap.icd10_codes.length === 0)
+    ) {
+      setAutoSuggested(true)
+      resuggestICD10.mutate()
+    }
+  }, [soap, autoSuggested, resuggestICD10])
 
   const flagTranscriptMatches = useMemo(
     () =>
