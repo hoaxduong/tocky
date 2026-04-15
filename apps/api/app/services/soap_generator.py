@@ -132,6 +132,7 @@ class SOAPGenerator:
                 confidence_flags.append(
                     {
                         "section": section_key,
+                        "quoted_span": match.group(0).strip(),
                         "issue_type": "low_confidence_section",
                         "suggestion": match.group(1).strip(),
                         "confidence": "low",
