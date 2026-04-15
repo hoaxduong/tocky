@@ -152,6 +152,10 @@ class SandboxAIClient:
         self.latency = latency
         self._call_counter = 0
 
+    async def polish_transcript(self, text: str, language: str) -> str:
+        await asyncio.sleep(self.latency)
+        return text  # passthrough in sandbox mode
+
     async def transcribe_audio(self, audio_bytes: bytes, language: str) -> str:
         await asyncio.sleep(self.latency)
         segment = _TRANSCRIPT_SEGMENTS[self._call_counter % len(_TRANSCRIPT_SEGMENTS)]
@@ -166,7 +170,7 @@ class SandboxAIClient:
         return relevant
 
     async def generate_soap(
-        self, transcript_text: str, language: str
+        self, transcript_text: str, language: str, *, patient_history: str = ""
     ) -> dict[str, str]:
         await asyncio.sleep(self.latency * 2)
         logger.debug("sandbox generate_soap: %d chars input", len(transcript_text))

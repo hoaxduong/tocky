@@ -4,6 +4,7 @@ import { useExtracted, useLocale } from "next-intl"
 import {
   type LucideIcon,
   ChevronsUpDown,
+  Activity,
   Globe,
   LayoutDashboard,
   LogOut,
@@ -70,6 +71,7 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/admin/users", icon: Users, label: "Users" },
   { href: "/admin/consultations", icon: Stethoscope, label: "Consultations" },
+  { href: "/admin/quality", icon: Activity, label: "Quality Metrics" },
 ]
 
 interface AppSidebarProps {

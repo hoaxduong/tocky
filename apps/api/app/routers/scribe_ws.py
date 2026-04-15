@@ -189,18 +189,22 @@ async def scribe_websocket(
                     pass
 
             review_flags = soap_data.get("review_flags", [])
-            db.add(
-                SOAPNote(
-                    consultation_id=consultation_id,
-                    subjective=soap_data.get("subjective", ""),
-                    objective=soap_data.get("objective", ""),
-                    assessment=soap_data.get("assessment", ""),
-                    plan=soap_data.get("plan", ""),
-                    medical_entities=entities if isinstance(entities, dict) else {},
-                    icd10_codes=icd10_codes,
-                    review_flags=review_flags if isinstance(review_flags, list) else [],
-                )
+            soap_note = SOAPNote(
+                consultation_id=consultation_id,
+                subjective=soap_data.get("subjective", ""),
+                objective=soap_data.get("objective", ""),
+                assessment=soap_data.get("assessment", ""),
+                plan=soap_data.get("plan", ""),
+                medical_entities=entities if isinstance(entities, dict) else {},
+                icd10_codes=icd10_codes,
+                review_flags=review_flags if isinstance(review_flags, list) else [],
             )
+            db.add(soap_note)
+            await db.flush()
+
+            from app.services.soap_versioning import archive_initial_version
+
+            await archive_initial_version(db, soap_note)
 
             result = await db.execute(
                 select(Consultation).where(Consultation.id == consultation_id)

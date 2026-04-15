@@ -6,10 +6,16 @@ from sqlalchemy import select
 
 from app.db_models.consultation import Consultation
 from app.db_models.soap_note import SOAPNote
+from app.db_models.soap_note_version import SOAPNoteVersion
 from app.db_models.transcript import Transcript
 from app.dependencies import CurrentUserDep, DbSessionDep
 from app.models.soap_note import SOAPNoteResponse, SOAPNoteUpdate
+from app.models.soap_note_version import (
+    SOAPNoteVersionListResponse,
+    SOAPNoteVersionResponse,
+)
 from app.services.audio_stitcher import AudioStitcher
+from app.services.soap_versioning import archive_soap_snapshot
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +35,25 @@ async def get_soap_note(
     return SOAPNoteResponse.model_validate(soap)
 
 
+@router.get("/versions", response_model=SOAPNoteVersionListResponse)
+async def list_soap_note_versions(
+    consultation_id: uuid.UUID,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    soap = await _get_soap_note(db, consultation_id, user["id"])
+    result = await db.execute(
+        select(SOAPNoteVersion)
+        .where(SOAPNoteVersion.soap_note_id == soap.id)
+        .order_by(SOAPNoteVersion.version.desc())
+    )
+    versions = result.scalars().all()
+    return SOAPNoteVersionListResponse(
+        items=[SOAPNoteVersionResponse.model_validate(v) for v in versions],
+        total=len(versions),
+    )
+
+
 @router.put("/", response_model=SOAPNoteResponse)
 async def update_soap_note(
     consultation_id: uuid.UUID,
@@ -37,6 +62,7 @@ async def update_soap_note(
     user: CurrentUserDep,
 ):
     soap = await _get_soap_note(db, consultation_id, user["id"])
+    await archive_soap_snapshot(db, soap, "doctor_edited", edited_by=user["id"])
     update_data = body.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(soap, key, value)
@@ -85,6 +111,7 @@ async def finalize_soap_note(
         except Exception:
             logger.exception("Audio stitching failed; finalizing without audio")
 
+    await archive_soap_snapshot(db, soap, "finalized", edited_by=user["id"])
     soap.review_flags = flags
     soap.is_draft = False
     soap.version += 1
@@ -102,6 +129,7 @@ async def regenerate_soap_note(
 ):
     consultation = await _get_consultation(db, consultation_id, user["id"])
     soap = await _get_soap_note_row(db, consultation_id)
+    await archive_soap_snapshot(db, soap, "regenerated", edited_by=user["id"])
 
     # Fetch medically relevant transcripts
     result = await db.execute(
@@ -166,6 +194,7 @@ async def suggest_icd10_codes(
 ):
     consultation = await _get_consultation(db, consultation_id, user["id"])
     soap = await _get_soap_note_row(db, consultation_id)
+    await archive_soap_snapshot(db, soap, "icd10_suggested", edited_by=user["id"])
 
     entities = soap.medical_entities or {}
     if not entities.get("diagnoses"):

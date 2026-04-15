@@ -82,6 +82,10 @@ class StreamingAudioProcessor:
         self._fallback_mode = False
         self._fallback_buffer = bytearray()
 
+        # Cached polished transcript (invalidated when new segments arrive)
+        self._polished_transcript: str | None = None
+        self._polished_segment_count = 0
+
         # Callbacks set by the WebSocket handler
         self.on_transcript: Callable[..., Coroutine[Any, Any, None]] | None = None
         self.on_soap_update: Callable[..., Coroutine[Any, Any, None]] | None = None
@@ -164,9 +168,43 @@ class StreamingAudioProcessor:
         }
         if self.all_relevant_text:
             full_transcript = "\n".join(self.all_relevant_text)
+
+            # Step 1: Polish transcript
+            try:
+                polished = await asyncio.wait_for(
+                    self.model_client.polish_transcript(full_transcript, self.language),
+                    timeout=120.0,
+                )
+                logger.info(
+                    "Consultation %s: transcript polished",
+                    self.consultation_id,
+                )
+            except Exception:
+                logger.warning(
+                    "Consultation %s: transcript polish failed, using raw",
+                    self.consultation_id,
+                )
+                polished = full_transcript
+
+            # Step 2: Extract entities BEFORE SOAP (for context injection)
+            entities: dict = {}
+            try:
+                entities = await asyncio.wait_for(
+                    self.model_client.extract_medical_entities(polished, self.language),
+                    timeout=140.0,
+                )
+                result["medical_entities"] = entities
+                logger.info("Consultation %s: entities extracted", self.consultation_id)
+            except Exception:
+                logger.exception(
+                    "Consultation %s: entity extraction failed",
+                    self.consultation_id,
+                )
+
+            # Step 3: Generate SOAP from polished transcript
             try:
                 soap = await asyncio.wait_for(
-                    self.model_client.generate_soap(full_transcript, self.language),
+                    self.model_client.generate_soap(polished, self.language),
                     timeout=200.0,
                 )
                 # Collect confidence flags before stripping internal keys
@@ -174,15 +212,12 @@ class StreamingAudioProcessor:
                 result.update(soap)
                 logger.info("Consultation %s: SOAP generated", self.consultation_id)
 
-                # Auto-review the SOAP note for quality issues
+                # Step 4: Auto-review the SOAP note for quality issues
                 try:
                     review_flags = await asyncio.wait_for(
-                        self.model_client.review_soap(
-                            full_transcript, soap, self.language
-                        ),
+                        self.model_client.review_soap(polished, soap, self.language),
                         timeout=60.0,
                     )
-                    # Merge confidence flags from SOAP parsing with review flags
                     all_flags = list(confidence_flags) + list(review_flags)
                     result["review_flags"] = all_flags
                     if all_flags:
@@ -200,19 +235,6 @@ class StreamingAudioProcessor:
             except Exception:
                 logger.exception(
                     "Consultation %s: SOAP generation failed",
-                    self.consultation_id,
-                )
-            try:
-                entities = await asyncio.wait_for(
-                    self.model_client.extract_medical_entities(
-                        full_transcript, self.language
-                    ),
-                    timeout=140.0,
-                )
-                result["medical_entities"] = entities
-            except Exception:
-                logger.exception(
-                    "Consultation %s: entity extraction failed",
                     self.consultation_id,
                 )
 
@@ -369,8 +391,27 @@ class StreamingAudioProcessor:
 
     async def _update_soap(self) -> None:
         full_transcript = "\n".join(self.all_relevant_text)
+
+        # Polish transcript (use cache if segment count hasn't changed)
+        current_count = len(self.all_relevant_text)
+        if self._polished_transcript and self._polished_segment_count == current_count:
+            polished = self._polished_transcript
+        else:
+            try:
+                polished = await self.model_client.polish_transcript(
+                    full_transcript, self.language
+                )
+                self._polished_transcript = polished
+                self._polished_segment_count = current_count
+            except Exception:
+                logger.warning(
+                    "Consultation %s: transcript polish failed, using raw",
+                    self.consultation_id,
+                )
+                polished = full_transcript
+
         try:
-            soap = await self.model_client.generate_soap(full_transcript, self.language)
+            soap = await self.model_client.generate_soap(polished, self.language)
             # Remove internal parsing keys before emitting
             soap.pop("_confidence_flags", None)
         except Exception:

@@ -10,7 +10,7 @@ msgstr ""
 #: app/admin/consultations/page.tsx:13
 #: components/consultations-list.tsx:196
 #: components/consultations-list.tsx:199
-#: components/soap-review-form.tsx:189
+#: components/soap-review-form.tsx:197
 #: components/upload-processing-view.tsx:333
 #: components/upload-processing-view.tsx:543
 msgid "+WBJgJ"
@@ -62,8 +62,8 @@ msgstr ""
 
 #: app/(app)/consultations/[id]/page.tsx:243
 #: components/scribe/soap-editor.tsx:63
-#: components/soap-review-form.tsx:194
-#: components/soap-review-form.tsx:378
+#: components/soap-review-form.tsx:202
+#: components/soap-review-form.tsx:462
 #: components/upload-processing-view.tsx:676
 msgid "63vr3O"
 msgstr "SOAP Note (ملاحظة سوب)"
@@ -104,6 +104,7 @@ msgid "5KXcV3"
 msgstr "جميع الاستشارات"
 
 #: app/admin/consultations/page.tsx:12
+#: app/admin/quality/page.tsx:17
 #: app/admin/users/page.tsx:13
 #: components/admin-users-table.tsx:263
 msgid "iHN12u"
@@ -129,6 +130,15 @@ msgstr "نشط الآن"
 msgid "/VwiLT"
 msgstr "إجمالي المستخدمين"
 
+#: app/admin/quality/page.tsx:12
+#: app/admin/quality/page.tsx:18
+msgid "o4d3rz"
+msgstr ""
+
+#: app/admin/quality/page.tsx:13
+msgid "WHLwvq"
+msgstr ""
+
 #: app/admin/users/page.tsx:11
 msgid "J/X6rJ"
 msgstr "إدارة المستخدمين"
@@ -136,6 +146,68 @@ msgstr "إدارة المستخدمين"
 #: app/admin/users/page.tsx:14
 msgid "YDMrKK"
 msgstr "المستخدمون"
+
+#: components/admin-quality-dashboard.tsx:110
+msgid "43vtwz"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:129
+#: components/admin-quality-dashboard.tsx:132
+#: components/consultations-list.tsx:245
+msgid "8Z+7D/"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:148
+msgid "h+0iOl"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:157
+msgid "f78ROc"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:164
+msgid "7Whx/Z"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:172
+msgid "qIH/ja"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:181
+msgid "t5DOTp"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:189
+msgid "TsVRyI"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:198
+msgid "ZcYF/N"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:206
+msgid "D5M4HV"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:218
+msgid "Zx1w1e"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:219
+msgid "acoEBu"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:228
+msgid "Dh+kCb"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:239
+msgid "wzv86g"
+msgstr ""
+
+#: components/admin-quality-dashboard.tsx:252
+msgid "epUkB5"
+msgstr ""
 
 #: components/admin-users-table.tsx:89
 msgid "xq+TKA"
@@ -190,7 +262,7 @@ msgstr "هل أنت متأكد أنك تريد حذف هذا المستخدم؟ 
 #: components/consultations-list.tsx:483
 #: components/elfie/elfie-push-dialog.tsx:159
 #: components/scribe/consultation-card.tsx:254
-#: components/soap-review-form.tsx:253
+#: components/soap-review-form.tsx:261
 msgid "47FYwb"
 msgstr "إلغاء"
 
@@ -280,52 +352,52 @@ msgstr "البحث عن مستخدمين..."
 msgid "gjBiyj"
 msgstr "جارٍ التحميل..."
 
-#: components/app-sidebar.tsx:105
+#: components/app-sidebar.tsx:107
 msgid "m6lDC9"
 msgstr "الإدارة"
 
-#: components/app-sidebar.tsx:105
+#: components/app-sidebar.tsx:107
 msgid "rOZptg"
 msgstr "مساحة العمل"
 
-#: components/app-sidebar.tsx:154
-#: components/app-sidebar.tsx:163
-#: components/app-sidebar.tsx:187
+#: components/app-sidebar.tsx:156
+#: components/app-sidebar.tsx:165
+#: components/app-sidebar.tsx:189
 msgid "TwyMau"
 msgstr "الحساب"
 
-#: components/app-sidebar.tsx:201
+#: components/app-sidebar.tsx:203
 msgid "Pe0ogR"
 msgstr "المظهر"
 
-#: components/app-sidebar.tsx:209
+#: components/app-sidebar.tsx:211
 msgid "3cc4Ct"
 msgstr "فاتح"
 
-#: components/app-sidebar.tsx:212
+#: components/app-sidebar.tsx:214
 msgid "tOdNiY"
 msgstr "داكن"
 
-#: components/app-sidebar.tsx:215
+#: components/app-sidebar.tsx:217
 msgid "+CwN9C"
 msgstr "النظام"
 
-#: components/app-sidebar.tsx:223
+#: components/app-sidebar.tsx:225
 #: components/consultations-list.tsx:242
 #: components/consultations-list.tsx:365
 #: components/scribe/language-selector.tsx:36
 msgid "y1Z3or"
 msgstr "اللغة"
 
-#: components/app-sidebar.tsx:246
+#: components/app-sidebar.tsx:248
 msgid "3Vr8ps"
 msgstr "لوحة تحكم المشرف"
 
-#: components/app-sidebar.tsx:251
+#: components/app-sidebar.tsx:253
 msgid "YNSpuZ"
 msgstr "العودة إلى التطبيق"
 
-#: components/app-sidebar.tsx:260
+#: components/app-sidebar.tsx:262
 msgid "F62y+K"
 msgstr "تسجيل الخروج"
 
@@ -369,10 +441,6 @@ msgstr "مؤرشف"
 
 #: components/consultations-list.tsx:223
 msgid "zEiDy1"
-msgstr ""
-
-#: components/consultations-list.tsx:245
-msgid "8Z+7D/"
 msgstr ""
 
 #: components/consultations-list.tsx:265
@@ -690,25 +758,25 @@ msgid "pXFAd/"
 msgstr "إيقاف التسجيل"
 
 #: components/scribe/soap-editor.tsx:39
-#: components/soap-review-form.tsx:115
+#: components/soap-review-form.tsx:123
 #: components/upload-processing-view.tsx:666
 msgid "R2VjIH"
 msgstr "Subjective (شكوى المريض)"
 
 #: components/scribe/soap-editor.tsx:44
-#: components/soap-review-form.tsx:120
+#: components/soap-review-form.tsx:128
 #: components/upload-processing-view.tsx:667
 msgid "khNSj1"
 msgstr "Objective (الفحص السريري)"
 
 #: components/scribe/soap-editor.tsx:49
-#: components/soap-review-form.tsx:125
+#: components/soap-review-form.tsx:133
 #: components/upload-processing-view.tsx:668
 msgid "ueRCsi"
 msgstr "Assessment (التقييم)"
 
 #: components/scribe/soap-editor.tsx:54
-#: components/soap-review-form.tsx:130
+#: components/soap-review-form.tsx:138
 #: components/upload-processing-view.tsx:669
 msgid "fz0z4c"
 msgstr "Plan (الخطة العلاجية)"
@@ -718,19 +786,17 @@ msgid "A/lLjO"
 msgstr ""
 
 #: components/scribe/soap-editor.tsx:70
-#: components/soap-review-form.tsx:206
+#: components/soap-review-form.tsx:214
 #: components/upload-processing-view.tsx:679
 msgid "W6nwjo"
 msgstr "مسودة"
 
 #: components/scribe/soap-editor.tsx:78
-#: components/soap-review-form.tsx:384
 #: components/upload-processing-view.tsx:688
 msgid "TJo5E6"
 msgstr "معاينة"
 
 #: components/scribe/soap-editor.tsx:79
-#: components/soap-review-form.tsx:385
 #: components/upload-processing-view.tsx:689
 msgid "nV0wNv"
 msgstr "نص خام"
@@ -748,7 +814,7 @@ msgid "pVfc0g"
 msgstr ""
 
 #: components/scribe/soap-editor.tsx:114
-#: components/soap-review-form.tsx:403
+#: components/soap-review-form.tsx:474
 #: components/upload-processing-view.tsx:708
 msgid "6de2Su"
 msgstr "لا يوجد محتوى بعد"
@@ -828,92 +894,142 @@ msgstr "لديك حساب بالفعل؟"
 msgid "TemVby"
 msgstr "الاسم الكامل"
 
-#: components/soap-review-form.tsx:138
-#: components/soap-review-form.tsx:145
+#: components/soap-review-form.tsx:146
+#: components/soap-review-form.tsx:153
 #: components/upload-processing-view.tsx:296
 msgid "WP4Inj"
 msgstr "فشل حفظ التغييرات"
 
-#: components/soap-review-form.tsx:151
+#: components/soap-review-form.tsx:159
 msgid "cbHRLl"
 msgstr "تم اعتماد SOAP Note"
 
-#: components/soap-review-form.tsx:152
+#: components/soap-review-form.tsx:160
 msgid "Z8pSSB"
 msgstr "فشل اعتماد الملاحظة"
 
-#: components/soap-review-form.tsx:191
+#: components/soap-review-form.tsx:199
 #: components/upload-processing-view.tsx:334
 msgid "l0cx8s"
 msgstr ""
 
-#: components/soap-review-form.tsx:216
+#: components/soap-review-form.tsx:224
 #: components/upload-processing-view.tsx:344
 msgid "iNe+Ig"
 msgstr "تم إعادة إنشاء SOAP Note"
 
-#: components/soap-review-form.tsx:218
+#: components/soap-review-form.tsx:226
 #: components/upload-processing-view.tsx:345
 msgid "VsY04C"
 msgstr "فشل إعادة إنشاء SOAP Note"
 
-#: components/soap-review-form.tsx:226
+#: components/soap-review-form.tsx:234
 #: components/upload-processing-view.tsx:350
 msgid "n6PmWV"
 msgstr "جارٍ إعادة الإنشاء..."
 
-#: components/soap-review-form.tsx:227
+#: components/soap-review-form.tsx:235
 #: components/upload-processing-view.tsx:350
 msgid "6PgVSe"
 msgstr "إعادة إنشاء"
 
-#: components/soap-review-form.tsx:238
+#: components/soap-review-form.tsx:246
 msgid "Zmv34N"
 msgstr "اعتماد الملاحظة"
 
-#: components/soap-review-form.tsx:244
+#: components/soap-review-form.tsx:252
 msgid "3hVwhB"
 msgstr "اعتماد SOAP Note؟"
 
-#: components/soap-review-form.tsx:247
+#: components/soap-review-form.tsx:255
 msgid "3AWe+Q"
 msgstr "سيتم تشغيل مراجع ضمان الجودة وتحضير الصوت للتشغيل. يستغرق هذا بضع ثوانٍ ويقفل الملاحظة للتعديل."
 
-#: components/soap-review-form.tsx:255
+#: components/soap-review-form.tsx:263
 msgid "J9w6+G"
 msgstr "اعتماد"
 
-#: components/soap-review-form.tsx:287
+#: components/soap-review-form.tsx:295
 msgid "Ed112w"
 msgstr ""
 
-#: components/soap-review-form.tsx:298
+#: components/soap-review-form.tsx:306
 msgid "VVIAZN"
 msgstr ""
 
-#: components/soap-review-form.tsx:305
-msgid "I3b4hn"
+#: components/soap-review-form.tsx:319
+#: components/soap-review-form.tsx:325
+msgid "BobYtq"
 msgstr ""
 
-#: components/soap-review-form.tsx:314
-msgid "CFLecQ"
+#: components/soap-review-form.tsx:330
+msgid "zbbPZ0"
+msgstr ""
+
+#: components/soap-review-form.tsx:331
+msgid "IXUyI6"
 msgstr ""
 
 #: components/soap-review-form.tsx:332
+msgid "V/zI/a"
+msgstr ""
+
+#: components/soap-review-form.tsx:333
+msgid "a+BhVZ"
+msgstr ""
+
+#: components/soap-review-form.tsx:334
+msgid "VYlPyv"
+msgstr ""
+
+#: components/soap-review-form.tsx:375
+#: components/upload-processing-view.tsx:715
+msgid "+RhnH+"
+msgstr "فارغ"
+
+#: components/soap-review-form.tsx:386
+msgid "5x7DMC"
+msgstr ""
+
+#: components/soap-review-form.tsx:399
+msgid "CFLecQ"
+msgstr ""
+
+#: components/soap-review-form.tsx:417
 msgid "zNor7p"
 msgstr "ملاحظات المراجع"
 
-#: components/soap-review-form.tsx:363
+#: components/soap-review-form.tsx:448
 msgid "McM8W7"
 msgstr ""
 
-#: components/soap-review-form.tsx:364
+#: components/soap-review-form.tsx:449
 msgid "ryF3/U"
 msgstr ""
 
-#: components/soap-review-form.tsx:424
+#: components/soap-review-form.tsx:485
 msgid "mk75EB"
 msgstr "الكيانات الطبية"
+
+#: components/soap-section-editor.tsx:74
+msgid "5DVnYs"
+msgstr ""
+
+#: components/soap-section-editor.tsx:159
+msgid "Dkkmwm"
+msgstr ""
+
+#: components/soap-section-editor.tsx:166
+msgid "g2V+es"
+msgstr ""
+
+#: components/soap-section-editor.tsx:174
+msgid "6sdKFe"
+msgstr ""
+
+#: components/soap-section-editor.tsx:181
+msgid "7yv8mA"
+msgstr ""
 
 #: components/upload-processing-view.tsx:115
 msgid "vQyVep"
@@ -1016,10 +1132,6 @@ msgstr "في انتظار بدء التفريغ الصوتي..."
 #: components/upload-processing-view.tsx:617
 msgid "fAsQ0N"
 msgstr "تم التفريغ"
-
-#: components/upload-processing-view.tsx:715
-msgid "+RhnH+"
-msgstr "فارغ"
 
 #: components/upload-processing-view.tsx:725
 msgid "9oXioq"

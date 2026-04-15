@@ -6,10 +6,12 @@ from typing import Protocol
 class AIClient(Protocol):
     async def transcribe_audio(self, audio_bytes: bytes, language: str) -> str: ...
 
+    async def polish_transcript(self, text: str, language: str) -> str: ...
+
     async def classify_relevance(self, text: str, language: str) -> bool: ...
 
     async def generate_soap(
-        self, transcript_text: str, language: str
+        self, transcript_text: str, language: str, *, patient_history: str = ""
     ) -> dict[str, str]: ...
 
     async def review_soap(

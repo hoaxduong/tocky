@@ -20,20 +20,13 @@ import {
 } from "lucide-react"
 import { cn } from "@workspace/ui/lib/utils"
 import { Button } from "@workspace/ui/components/button"
-import { MarkdownPreview } from "@/components/markdown-preview"
 import { Badge } from "@workspace/ui/components/badge"
-import { Textarea } from "@workspace/ui/components/textarea"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@workspace/ui/components/tabs"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +38,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@workspace/ui/components/sheet"
 import {
   useConsultationAudio,
   useFinalizeSOAPNote,
@@ -59,10 +59,15 @@ import {
   type TranscriptSegment,
 } from "@/hooks/use-soap-note"
 import { useConsultation } from "@/hooks/use-consultation"
+import {
+  useSOAPVersions,
+  type SOAPNoteVersion,
+} from "@/hooks/use-soap-versions"
 import { toast } from "sonner"
 import { SOAPFormSkeleton } from "@/components/skeletons"
 import { ConsultationContextBar } from "@/components/consultation-context-bar"
 import { ICD10CodeCard } from "@/components/icd10-code-card"
+import { SOAPSectionEditor } from "@/components/soap-section-editor"
 import { ElfiePatientCard, ElfiePushDialog } from "@/components/elfie"
 import { useAudioHotkeys } from "@/hooks/use-audio-hotkeys"
 
@@ -74,10 +79,13 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const t = useExtracted()
   const playerRef = useRef<AudioPlayerHandle>(null)
   const [dismissedFlags, setDismissedFlags] = useState<Set<number>>(new Set())
-  const [viewMode, setViewMode] = useState<"preview" | "raw">("preview")
 
+  const [selectedVersion, setSelectedVersion] = useState<SOAPNoteVersion | null>(
+    null
+  )
   const { data: consultation } = useConsultation(consultationId)
   const { data: soap, isLoading } = useSOAPNote(consultationId)
+  const { data: versionsData } = useSOAPVersions(consultationId, !!soap)
   const hasAudioForHotkeys = !!soap && !soap.is_draft
   useAudioHotkeys(playerRef, hasAudioForHotkeys)
   const updateSOAP = useUpdateSOAPNote(consultationId)
@@ -298,12 +306,89 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
             {t("ICD-10 Confirmed")}
           </div>
         </button>
-        <div className="rounded-lg border p-3">
-          <div className="text-2xl font-bold tabular-nums text-muted-foreground">
-            v{soap.version}
-          </div>
-          <div className="text-xs text-muted-foreground">{t("Version")}</div>
-        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              type="button"
+              className="rounded-lg border p-3 text-left transition-colors hover:bg-accent/50"
+            >
+              <div className="text-2xl font-bold tabular-nums text-muted-foreground">
+                v{soap.version}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t("Version History")}
+              </div>
+            </button>
+          </SheetTrigger>
+          <SheetContent className="overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>{t("Version History")}</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4 space-y-3">
+              {versionsData?.items.map((v) => {
+                const sourceLabels: Record<string, string> = {
+                  ai_generated: t("AI Generated"),
+                  doctor_edited: t("Doctor Edit"),
+                  finalized: t("Finalized"),
+                  regenerated: t("Regenerated"),
+                  icd10_suggested: t("ICD-10 Update"),
+                }
+                const isSelected = selectedVersion?.id === v.id
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() =>
+                      setSelectedVersion(isSelected ? null : v)
+                    }
+                    className={cn(
+                      "w-full rounded-lg border p-3 text-left transition-colors",
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "hover:bg-accent/50"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">v{v.version}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {sourceLabels[v.source] || v.source}
+                      </Badge>
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {new Date(v.created_at).toLocaleString()}
+                    </div>
+                    {isSelected && (
+                      <div className="mt-3 space-y-2 text-sm">
+                        {(
+                          [
+                            "subjective",
+                            "objective",
+                            "assessment",
+                            "plan",
+                          ] as const
+                        ).map((section) => (
+                          <div key={section}>
+                            <div className="font-medium capitalize">
+                              {section}
+                            </div>
+                            <div className="mt-0.5 whitespace-pre-wrap text-xs text-muted-foreground">
+                              {v[section] || t("Empty")}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+              {versionsData?.total === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  {t("No version history available.")}
+                </p>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
         <button
           type="button"
           className="rounded-lg border p-3 text-left transition-colors hover:bg-accent/50"
@@ -374,18 +459,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
         />
       )}
 
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">{t("SOAP Note")}</h3>
-        <Tabs
-          value={viewMode}
-          onValueChange={(v) => setViewMode(v as "preview" | "raw")}
-        >
-          <TabsList>
-            <TabsTrigger value="preview">{t("Preview")}</TabsTrigger>
-            <TabsTrigger value="raw">{t("Raw")}</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+      <h3 className="text-lg font-semibold">{t("SOAP Note")}</h3>
 
       {sections.map(({ key, label, borderClass }) => (
         <Card key={key} id={`soap-${key}`} className={borderClass}>
@@ -393,25 +467,12 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
             <CardTitle className="text-sm">{label}</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-3">
-            {viewMode === "preview" ? (
-              soap[key] ? (
-                <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <MarkdownPreview>{soap[key]}</MarkdownPreview>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  {t("No content yet")}
-                </p>
-              )
-            ) : (
-              <Textarea
-                value={soap[key]}
-                onChange={(e) => handleSave(key, e.target.value)}
-                disabled={!soap.is_draft}
-                rows={5}
-                className="resize-none"
-              />
-            )}
+            <SOAPSectionEditor
+              value={soap[key]}
+              onSave={(val) => handleSave(key, val)}
+              disabled={!soap.is_draft}
+              placeholder={t("No content yet")}
+            />
           </CardContent>
         </Card>
       ))}

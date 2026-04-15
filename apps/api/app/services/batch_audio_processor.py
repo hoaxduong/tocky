@@ -664,8 +664,14 @@ class BatchAudioProcessor:
             result = await db.execute(
                 select(SOAPNote).where(SOAPNote.consultation_id == self.consultation_id)
             )
+            from app.services.soap_versioning import (
+                archive_initial_version,
+                archive_soap_snapshot,
+            )
+
             existing_soap = result.scalar_one_or_none()
             if existing_soap:
+                await archive_soap_snapshot(db, existing_soap, "regenerated")
                 existing_soap.subjective = soap.get("subjective", "")
                 existing_soap.objective = soap.get("objective", "")
                 existing_soap.assessment = soap.get("assessment", "")
@@ -674,16 +680,17 @@ class BatchAudioProcessor:
                 existing_soap.is_draft = True
                 existing_soap.version += 1
             else:
-                db.add(
-                    SOAPNote(
-                        consultation_id=self.consultation_id,
-                        subjective=soap.get("subjective", ""),
-                        objective=soap.get("objective", ""),
-                        assessment=soap.get("assessment", ""),
-                        plan=soap.get("plan", ""),
-                        medical_entities=entities,
-                    )
+                new_soap = SOAPNote(
+                    consultation_id=self.consultation_id,
+                    subjective=soap.get("subjective", ""),
+                    objective=soap.get("objective", ""),
+                    assessment=soap.get("assessment", ""),
+                    plan=soap.get("plan", ""),
+                    medical_entities=entities,
                 )
+                db.add(new_soap)
+                await db.flush()
+                await archive_initial_version(db, new_soap)
             await db.commit()
 
         # --- Final status ---

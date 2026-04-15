@@ -109,6 +109,34 @@ class DashScopeClient:
                 raise
         raise RuntimeError("Unreachable")  # pragma: no cover
 
+    async def polish_transcript(self, text: str, language: str) -> str:
+        """Clean up raw ASR transcript: fix medical misspellings, merge fragments."""
+        slug_map = {
+            "vi": "transcript_polish_vi",
+            "ar-eg": "transcript_polish_ar",
+            "ar-gulf": "transcript_polish_ar",
+            "fr": "transcript_polish_fr",
+        }
+        slug = slug_map.get(language, "transcript_polish")
+        system_prompt = self.prompts.get(slug)
+        dynamic_max_tokens = min(8000, len(text) // 2 + 500)
+        response = await self.client.post(
+            "/chat/completions",
+            json={
+                "model": self.classification_model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": text},
+                ],
+                "max_tokens": dynamic_max_tokens,
+                "temperature": 0.1,
+            },
+            timeout=120.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"].strip()
+
     async def transcribe_audio(self, audio_bytes: bytes, language: str) -> str:
         logger.debug(
             "transcribe_audio: model=%s, language=%s, audio_size=%d bytes",
@@ -240,19 +268,30 @@ class DashScopeClient:
         return "RELEVANT" in answer
 
     async def generate_soap(
-        self, transcript_text: str, language: str
+        self,
+        transcript_text: str,
+        language: str,
+        *,
+        patient_history: str = "",
     ) -> dict[str, str]:
+        """Two-pass SOAP generation: extract facts, then reason.
+
+        Pass 1 extracts Subjective + Objective (factual).
+        Pass 2 generates Assessment + Plan (clinical reasoning),
+        with Pass 1 output and optional patient history as context.
+        """
         from app.services.soap_generator import SOAPGenerator
 
         generator = SOAPGenerator(self.prompts)
-        messages = generator.build_soap_prompt(transcript_text, language)
-
         dynamic_max_tokens = min(4000, 500 + len(transcript_text) // 10)
+
+        # Pass 1: Extract Subjective + Objective
+        extract_messages = generator.build_extract_prompt(transcript_text, language)
         response = await self.client.post(
             "/chat/completions",
             json={
                 "model": self.soap_model,
-                "messages": messages,
+                "messages": extract_messages,
                 "max_tokens": dynamic_max_tokens,
                 "temperature": 0.1,
             },
@@ -260,8 +299,42 @@ class DashScopeClient:
         )
         response.raise_for_status()
         data = response.json()
-        content = data["choices"][0]["message"]["content"]
-        return generator.parse_soap_response(content)
+        pass1_content = data["choices"][0]["message"]["content"]
+        pass1 = generator.parse_soap_response(pass1_content)
+
+        subjective = pass1.get("subjective", "")
+        objective = pass1.get("objective", "")
+
+        # Pass 2: Generate Assessment + Plan from extracted findings
+        reason_messages = generator.build_reason_prompt(
+            subjective, objective, language, patient_history=patient_history
+        )
+        response = await self.client.post(
+            "/chat/completions",
+            json={
+                "model": self.soap_model,
+                "messages": reason_messages,
+                "max_tokens": dynamic_max_tokens,
+                "temperature": 0.1,
+            },
+            timeout=180.0,
+        )
+        response.raise_for_status()
+        data = response.json()
+        pass2_content = data["choices"][0]["message"]["content"]
+        pass2 = generator.parse_soap_response(pass2_content)
+
+        # Combine both passes — merge confidence flags
+        pass1_flags = pass1.pop("_confidence_flags", [])
+        pass2_flags = pass2.pop("_confidence_flags", [])
+
+        return {
+            "subjective": subjective,
+            "objective": objective,
+            "assessment": pass2.get("assessment", ""),
+            "plan": pass2.get("plan", ""),
+            "_confidence_flags": list(pass1_flags) + list(pass2_flags),
+        }
 
     async def review_soap(
         self,

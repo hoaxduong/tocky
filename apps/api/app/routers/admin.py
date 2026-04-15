@@ -1,4 +1,9 @@
+import difflib
+import json
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException, Request, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, select, update
 
 from app.db_models.consultation import Consultation
@@ -81,6 +86,206 @@ async def get_stats(
         "active_consultations": active_consultations,
         "completed_consultations": completed_consultations,
     }
+
+
+# --- Quality metrics endpoints ---
+
+
+@router.get("/quality-metrics")
+async def get_quality_metrics(
+    db: DbSessionDep,
+    _user: AdminUserDep,
+    language: str | None = None,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
+):
+    """Compare AI-generated SOAP (version 1) against finalized doctor version."""
+    from app.db_models.soap_note import SOAPNote
+    from app.db_models.soap_note_version import SOAPNoteVersion
+    from app.models.quality_metrics import (
+        QualityMetricsResponse,
+        SectionEditMetrics,
+    )
+
+    # Finalized SOAP notes with version-1 (AI) snapshots
+    query = (
+        select(SOAPNote, SOAPNoteVersion, Consultation.language)
+        .join(
+            SOAPNoteVersion,
+            (SOAPNoteVersion.soap_note_id == SOAPNote.id)
+            & (SOAPNoteVersion.version == 1)
+            & (SOAPNoteVersion.source == "ai_generated"),
+        )
+        .join(Consultation, Consultation.id == SOAPNote.consultation_id)
+        .where(SOAPNote.is_draft.is_(False))
+    )
+    if language:
+        query = query.where(Consultation.language == language)
+    if date_from:
+        query = query.where(Consultation.created_at >= date_from)
+    if date_to:
+        query = query.where(Consultation.created_at <= date_to)
+
+    result = await db.execute(query)
+    rows = result.all()
+
+    # Count total finalized (with or without history)
+    total_finalized = (
+        await db.execute(
+            select(func.count())
+            .select_from(SOAPNote)
+            .where(SOAPNote.is_draft.is_(False))
+        )
+    ).scalar_one()
+
+    if not rows:
+        return QualityMetricsResponse(
+            overall_edit_rate=0.0,
+            total_finalized=total_finalized,
+            total_with_history=0,
+            by_section=[],
+            by_language={},
+            period_start=date_from,
+            period_end=date_to,
+        )
+
+    sections = ("subjective", "objective", "assessment", "plan")
+    # Compute per-section edit distances
+    by_language: dict[str, dict[str, list[float]]] = {}
+    all_distances: dict[str, list[float]] = {s: [] for s in sections}
+    any_edited_count = 0
+
+    for soap, ai_version, lang in rows:
+        has_any_edit = False
+        lang_entry = by_language.setdefault(lang, {s: [] for s in sections})
+        for section in sections:
+            final_text = getattr(soap, section) or ""
+            ai_text = getattr(ai_version, section) or ""
+            ratio = difflib.SequenceMatcher(None, ai_text, final_text).ratio()
+            dist = 1.0 - ratio
+            if dist > 0.01:  # skip trivial whitespace changes
+                has_any_edit = True
+            all_distances[section].append(dist)
+            lang_entry[section].append(dist)
+        if has_any_edit:
+            any_edited_count += 1
+
+    def _build_section_metrics(
+        distances: dict[str, list[float]],
+    ) -> list[SectionEditMetrics]:
+        metrics = []
+        for section in sections:
+            vals = distances[section]
+            if not vals:
+                continue
+            edited_count = sum(1 for v in vals if v > 0.01)
+            metrics.append(
+                SectionEditMetrics(
+                    section=section,
+                    avg_edit_distance=sum(vals) / len(vals),
+                    pct_edited=(edited_count / len(vals)) * 100,
+                    total_compared=len(vals),
+                )
+            )
+        return metrics
+
+    return QualityMetricsResponse(
+        overall_edit_rate=(any_edited_count / len(rows)) * 100 if rows else 0.0,
+        total_finalized=total_finalized,
+        total_with_history=len(rows),
+        by_section=_build_section_metrics(all_distances),
+        by_language={
+            lang: _build_section_metrics(dists) for lang, dists in by_language.items()
+        },
+        period_start=date_from,
+        period_end=date_to,
+    )
+
+
+@router.get("/export-training-data")
+async def export_training_data(
+    db: DbSessionDep,
+    _user: AdminUserDep,
+    language: str | None = None,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
+):
+    """Stream JSONL training pairs: (transcript, AI SOAP, doctor SOAP)."""
+    from app.db_models.soap_note import SOAPNote
+    from app.db_models.soap_note_version import SOAPNoteVersion
+    from app.db_models.transcript import Transcript
+
+    # Finalized notes that have AI-generated baselines
+    query = (
+        select(
+            SOAPNote,
+            SOAPNoteVersion,
+            Consultation.id.label("c_id"),
+            Consultation.language,
+        )
+        .join(
+            SOAPNoteVersion,
+            (SOAPNoteVersion.soap_note_id == SOAPNote.id)
+            & (SOAPNoteVersion.version == 1)
+            & (SOAPNoteVersion.source == "ai_generated"),
+        )
+        .join(Consultation, Consultation.id == SOAPNote.consultation_id)
+        .where(SOAPNote.is_draft.is_(False))
+    )
+    if language:
+        query = query.where(Consultation.language == language)
+    if date_from:
+        query = query.where(Consultation.created_at >= date_from)
+    if date_to:
+        query = query.where(Consultation.created_at <= date_to)
+
+    result = await db.execute(query)
+    rows = result.all()
+
+    async def _generate():
+        for soap, ai_version, consultation_id, lang in rows:
+            ai_soap = {
+                "subjective": ai_version.subjective,
+                "objective": ai_version.objective,
+                "assessment": ai_version.assessment,
+                "plan": ai_version.plan,
+            }
+            doctor_soap = {
+                "subjective": soap.subjective,
+                "objective": soap.objective,
+                "assessment": soap.assessment,
+                "plan": soap.plan,
+            }
+            # Skip if no corrections were made
+            if ai_soap == doctor_soap:
+                continue
+
+            # Fetch medically relevant transcript
+            t_result = await db.execute(
+                select(Transcript.text)
+                .where(
+                    Transcript.consultation_id == consultation_id,
+                    Transcript.is_medically_relevant.is_(True),
+                )
+                .order_by(Transcript.sequence_number)
+            )
+            transcript_parts = [row[0] for row in t_result.all()]
+            transcript = "\n".join(transcript_parts)
+
+            entry = {
+                "consultation_id": str(consultation_id),
+                "language": lang,
+                "transcript": transcript,
+                "ai_soap": ai_soap,
+                "doctor_soap": doctor_soap,
+            }
+            yield json.dumps(entry, ensure_ascii=False) + "\n"
+
+    return StreamingResponse(
+        _generate(),
+        media_type="application/x-ndjson",
+        headers={"Content-Disposition": "attachment; filename=training-data.jsonl"},
+    )
 
 
 # --- User management endpoints ---
