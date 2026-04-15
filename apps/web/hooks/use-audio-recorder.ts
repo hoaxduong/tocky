@@ -21,6 +21,9 @@ const LOW_VOLUME_THRESHOLD = 0.02
 const SILENCE_THRESHOLD = 0.01
 // ~10 seconds of silence at 250ms per frame
 const SILENCE_FRAME_LIMIT = 40
+// Debounce: require N consecutive frames before showing/clearing a warning
+const WARNING_ONSET_FRAMES = 8 // ~2s to show warning
+const WARNING_CLEAR_FRAMES = 12 // ~3s of normal audio to clear
 
 export function useAudioRecorder(
   onAudioChunk: (chunk: string, sequence: number, timestampMs: number) => void
@@ -37,6 +40,9 @@ export function useAudioRecorder(
   const startTimeRef = useRef(0)
   const bufferRef = useRef<Float32Array[]>([])
   const silenceFrameCountRef = useRef(0)
+  const pendingWarningRef = useRef<AudioWarningType>(null)
+  const pendingWarningCountRef = useRef(0)
+  const clearCountRef = useRef(0)
 
   const flushBuffer = useCallback(() => {
     if (bufferRef.current.length === 0) return
@@ -79,6 +85,9 @@ export function useAudioRecorder(
       setError(null)
       setAudioWarning(null)
       silenceFrameCountRef.current = 0
+      pendingWarningRef.current = null
+      pendingWarningCountRef.current = 0
+      clearCountRef.current = 0
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -130,23 +139,42 @@ export function useAudioRecorder(
           }
         }
 
+        // Determine what warning this frame would produce
+        let frameWarning: AudioWarningType = null
         if (hasClipping) {
-          setAudioWarning("clipping")
+          frameWarning = "clipping"
           silenceFrameCountRef.current = 0
         } else if (rms < SILENCE_THRESHOLD) {
-          // Prolonged silence detection
           silenceFrameCountRef.current += 1
           if (silenceFrameCountRef.current >= SILENCE_FRAME_LIMIT) {
-            setAudioWarning("silence")
+            frameWarning = "silence"
           }
         } else if (rms < LOW_VOLUME_THRESHOLD) {
-          // Low volume detection
-          setAudioWarning("low_volume")
+          frameWarning = "low_volume"
           silenceFrameCountRef.current = 0
         } else {
-          // Audio is normal
           silenceFrameCountRef.current = 0
-          setAudioWarning(null)
+        }
+
+        // Debounce: only update the displayed warning after consistent frames
+        if (frameWarning !== null) {
+          clearCountRef.current = 0
+          if (frameWarning === pendingWarningRef.current) {
+            pendingWarningCountRef.current += 1
+          } else {
+            pendingWarningRef.current = frameWarning
+            pendingWarningCountRef.current = 1
+          }
+          if (pendingWarningCountRef.current >= WARNING_ONSET_FRAMES) {
+            setAudioWarning(frameWarning)
+          }
+        } else {
+          pendingWarningRef.current = null
+          pendingWarningCountRef.current = 0
+          clearCountRef.current += 1
+          if (clearCountRef.current >= WARNING_CLEAR_FRAMES) {
+            setAudioWarning(null)
+          }
         }
 
         bufferRef.current.push(new Float32Array(samples))

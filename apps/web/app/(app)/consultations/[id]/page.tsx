@@ -183,26 +183,6 @@ function LiveScribeView({ id }: { id: string }) {
 
       {audioError && <p className="text-sm text-destructive">{audioError}</p>}
 
-      {audioWarning && isRecording && (
-        <div className="flex items-center gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-2.5">
-          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
-          <p className="text-sm text-amber-700 dark:text-amber-400">
-            {audioWarning === "clipping" &&
-              t(
-                "Audio is clipping. Move the microphone farther away or lower the input volume."
-              )}
-            {audioWarning === "low_volume" &&
-              t(
-                "Volume is very low. Check your microphone placement or speak louder."
-              )}
-            {audioWarning === "silence" &&
-              t(
-                "No audio detected for an extended period. Check that your microphone is working."
-              )}
-          </p>
-        </div>
-      )}
-
       {isIdle ? (
         <div className="flex flex-1 items-center justify-center">
           <div className="flex max-w-md flex-col items-center gap-6 text-center">
@@ -261,6 +241,20 @@ function LiveScribeView({ id }: { id: string }) {
               onResume={handleResume}
             />
             <AudioVisualizer level={audioLevel} isRecording={isRecording} />
+            <div
+              className={`ml-auto flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 transition-opacity duration-300 ${
+                audioWarning && isRecording
+                  ? "opacity-100"
+                  : "pointer-events-none opacity-0"
+              }`}
+            >
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+              <span className="whitespace-nowrap text-xs font-medium text-amber-700 dark:text-amber-400">
+                {audioWarning === "clipping" && t("Audio clipping")}
+                {audioWarning === "low_volume" && t("Low volume")}
+                {audioWarning === "silence" && t("No audio detected")}
+              </span>
+            </div>
           </div>
 
           {audio?.url && (
