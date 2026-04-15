@@ -131,7 +131,7 @@ class DashScopeClient:
                 "max_tokens": dynamic_max_tokens,
                 "temperature": 0.1,
             },
-            timeout=120.0,
+            timeout=300.0,
         )
         response.raise_for_status()
         data = response.json()

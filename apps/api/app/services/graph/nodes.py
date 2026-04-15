@@ -30,7 +30,7 @@ async def detect_language_node(
         detected = await ai_client.detect_language(state["relevant_text"])
         return {"detected_language": detected}
     except Exception as e:
-        logger.warning("detect_language failed: %s", e)
+        logger.warning("detect_language failed [%s]: %s", type(e).__name__, e)
         return {
             "detected_language": state.get("language", "en"),
             "errors": _append_error(state, "detect_language", e),
@@ -45,7 +45,7 @@ async def extract_metadata_node(
         metadata = await ai_client.extract_consultation_metadata(state["relevant_text"])
         return {"consultation_metadata": metadata}
     except Exception as e:
-        logger.warning("extract_metadata failed: %s", e)
+        logger.warning("extract_metadata failed [%s]: %s", type(e).__name__, e)
         return {
             "consultation_metadata": {},
             "errors": _append_error(state, "extract_metadata", e),
@@ -61,7 +61,7 @@ async def polish_transcript_node(
         polished = await ai_client.polish_transcript(state["relevant_text"], language)
         return {"polished_transcript": polished}
     except Exception as e:
-        logger.warning("polish_transcript failed: %s", e)
+        logger.warning("polish_transcript failed [%s]: %s", type(e).__name__, e)
         return {
             "polished_transcript": state["relevant_text"],
             "errors": _append_error(state, "polish_transcript", e),
@@ -78,7 +78,7 @@ async def extract_entities_node(
         entities = await ai_client.extract_medical_entities(polished, language)
         return {"medical_entities": entities}
     except Exception as e:
-        logger.warning("extract_entities failed: %s", e)
+        logger.warning("extract_entities failed [%s]: %s", type(e).__name__, e)
         return {
             "medical_entities": {},
             "errors": _append_error(state, "extract_entities", e),
@@ -107,7 +107,7 @@ async def generate_soap_node(
 
         return {"soap": soap, "confidence_flags": confidence_flags}
     except Exception as e:
-        logger.exception("generate_soap failed: %s", e)
+        logger.exception("generate_soap failed [%s]: %s", type(e).__name__, e)
         return {
             "soap": {
                 "subjective": "",
@@ -134,7 +134,7 @@ async def review_soap_node(
         all_flags = confidence_flags + list(review_flags)
         return {"review_flags": all_flags}
     except Exception as e:
-        logger.warning("review_soap failed: %s", e)
+        logger.warning("review_soap failed [%s]: %s", type(e).__name__, e)
         return {
             "review_flags": confidence_flags,
             "errors": _append_error(state, "review_soap", e),
@@ -162,7 +162,7 @@ async def suggest_icd10_node(
             )
         return {"icd10_codes": codes}
     except Exception as e:
-        logger.warning("suggest_icd10 failed: %s", e)
+        logger.warning("suggest_icd10 failed [%s]: %s", type(e).__name__, e)
         return {
             "icd10_codes": [],
             "errors": _append_error(state, "suggest_icd10", e),
