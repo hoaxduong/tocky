@@ -51,7 +51,7 @@ msgstr ""
 #: app/(app)/consultations/[id]/page.tsx:223
 #: components/scribe/soap-editor.tsx:63
 #: components/soap-review-form.tsx:222
-#: components/soap-review-form.tsx:505
+#: components/soap-review-form.tsx:504
 #: components/upload-processing-view.tsx:676
 msgid "63vr3O"
 msgstr "SOAP Note"
@@ -834,7 +834,7 @@ msgid "pVfc0g"
 msgstr ""
 
 #: components/scribe/soap-editor.tsx:114
-#: components/soap-review-form.tsx:517
+#: components/soap-review-form.tsx:516
 #: components/upload-processing-view.tsx:708
 msgid "6de2Su"
 msgstr "Chưa có nội dung"
@@ -1035,17 +1035,81 @@ msgstr ""
 msgid "zNor7p"
 msgstr "Cờ đánh dấu của người kiểm tra"
 
-#: components/soap-review-form.tsx:491
+#: components/soap-review-form.tsx:490
 msgid "McM8W7"
 msgstr ""
 
-#: components/soap-review-form.tsx:492
+#: components/soap-review-form.tsx:491
 msgid "ryF3/U"
 msgstr ""
 
-#: components/soap-review-form.tsx:528
+#: components/soap-review-form.tsx:527
 msgid "mk75EB"
 msgstr "Thực thể y khoa"
+
+#: components/soap-review-form.tsx:585
+msgid "xu5kXe"
+msgstr ""
+
+#: components/soap-review-form.tsx:586
+msgid "t+eMUl"
+msgstr ""
+
+#: components/soap-review-form.tsx:587
+msgid "114Qz7"
+msgstr ""
+
+#: components/soap-review-form.tsx:588
+msgid "S9zhSW"
+msgstr ""
+
+#: components/soap-review-form.tsx:589
+msgid "vqR3PO"
+msgstr ""
+
+#: components/soap-review-form.tsx:590
+msgid "bnoIeu"
+msgstr ""
+
+#: components/soap-review-form.tsx:591
+msgid "/WiB8f"
+msgstr ""
+
+#: components/soap-review-form.tsx:592
+msgid "VCm+b7"
+msgstr ""
+
+#: components/soap-review-form.tsx:593
+msgid "1wRxf8"
+msgstr ""
+
+#: components/soap-review-form.tsx:596
+msgid "ZTrIoy"
+msgstr ""
+
+#: components/soap-review-form.tsx:597
+msgid "nSVjL+"
+msgstr ""
+
+#: components/soap-review-form.tsx:598
+msgid "HqgJKl"
+msgstr ""
+
+#: components/soap-review-form.tsx:630
+msgid "EoQTj0"
+msgstr ""
+
+#: components/soap-review-form.tsx:642
+msgid "sjzLbX"
+msgstr ""
+
+#: components/soap-review-form.tsx:649
+msgid "TDaF6J"
+msgstr ""
+
+#: components/soap-review-form.tsx:668
+msgid "PF70Vz"
+msgstr ""
 
 #: components/soap-section-editor.tsx:63
 msgid "5DVnYs"

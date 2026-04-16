@@ -473,7 +473,6 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                     flagFeedback.mutate({ flagIndex: i, action })
                     setDismissedFlags((prev) => new Set(prev).add(i))
                   }}
-                  t={t}
                 />
               )
             )}
@@ -572,7 +571,6 @@ interface FlagCardProps {
   canSeek: boolean
   onSeek: (ms: number) => void
   onFeedback: (action: "accepted" | "dismissed") => void
-  t: (s: string) => string
 }
 
 function FlagCard({
@@ -581,9 +579,24 @@ function FlagCard({
   canSeek,
   onSeek,
   onFeedback,
-  t,
 }: FlagCardProps) {
-  const issueLabel = ISSUE_LABELS[flag.issue_type] ?? flag.issue_type
+  const t = useExtracted()
+  const issueLabels: Record<string, string> = {
+    symptom_diagnosis_mismatch: t("Symptom/diagnosis mismatch"),
+    ambiguous_term: t("Ambiguous term"),
+    translation_uncertainty: t("Translation uncertainty"),
+    missing_information: t("Missing information"),
+    low_confidence_section: t("Low confidence"),
+    dosage_concern: t("Dosage concern"),
+    contraindication: t("Contraindication"),
+    temporal_inconsistency: t("Timeline mismatch"),
+    vital_sign_mismatch: t("Vital sign mismatch"),
+  }
+  const severityLabels: Record<string, string> = {
+    info: t("info"),
+    warning: t("warning"),
+    critical: t("critical"),
+  }
   const severity = flag.severity ?? "warning"
 
   return (
@@ -600,12 +613,14 @@ function FlagCard({
           <Badge variant="secondary" className="capitalize">
             {flag.section}
           </Badge>
-          <Badge variant="outline">{t(issueLabel)}</Badge>
+          <Badge variant="outline">
+            {issueLabels[flag.issue_type] ?? flag.issue_type}
+          </Badge>
           <Badge
             variant="outline"
             className={severityClass(severity)}
           >
-            {t(severity)}
+            {severityLabels[severity] ?? severity}
           </Badge>
           <Badge variant="outline" className={confidenceClass(flag.confidence)}>
             {flag.confidence}
@@ -660,17 +675,6 @@ function FlagCard({
   )
 }
 
-const ISSUE_LABELS: Record<string, string> = {
-  symptom_diagnosis_mismatch: "Symptom/diagnosis mismatch",
-  ambiguous_term: "Ambiguous term",
-  translation_uncertainty: "Translation uncertainty",
-  missing_information: "Missing information",
-  low_confidence_section: "Low confidence",
-  dosage_concern: "Dosage concern",
-  contraindication: "Contraindication",
-  temporal_inconsistency: "Timeline mismatch",
-  vital_sign_mismatch: "Vital sign mismatch",
-}
 
 function severityClass(level: string) {
   if (level === "critical") return "border-red-500 text-red-700"
