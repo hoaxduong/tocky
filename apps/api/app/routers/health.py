@@ -6,7 +6,7 @@ from app.models.health import HealthResponse
 router = APIRouter(prefix="/health", tags=["health"])
 
 
-@router.get("/")
+@router.get("")
 def check_health(settings: SettingsDep) -> HealthResponse:
     return HealthResponse(
         status="ok",

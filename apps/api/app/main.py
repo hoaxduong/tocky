@@ -129,6 +129,7 @@ app = FastAPI(
     title="Tốc ký AI API",
     version="0.1.0",
     lifespan=lifespan,
+    redirect_slashes=False,
 )
 
 app.add_middleware(
@@ -139,6 +140,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["set-cookie"],
 )
+
 
 _STORAGE_DIR = Path(__file__).resolve().parents[1] / "storage"
 

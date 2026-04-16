@@ -22,6 +22,6 @@ cpus = 2
 [checks.health]
 type = 'http'
 port = 8000
-path = '/health/'
+path = '/health'
 interval = '30s'
 timeout = '5s'

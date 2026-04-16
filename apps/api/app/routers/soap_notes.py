@@ -27,7 +27,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=SOAPNoteResponse)
+@router.get("", response_model=SOAPNoteResponse)
 async def get_soap_note(
     consultation_id: uuid.UUID,
     db: DbSessionDep,
@@ -56,7 +56,7 @@ async def list_soap_note_versions(
     )
 
 
-@router.put("/", response_model=SOAPNoteResponse)
+@router.put("", response_model=SOAPNoteResponse)
 async def update_soap_note(
     consultation_id: uuid.UUID,
     body: SOAPNoteUpdate,

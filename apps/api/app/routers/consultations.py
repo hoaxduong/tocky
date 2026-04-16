@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
 
-@router.get("/", response_model=ConsultationListResponse)
+@router.get("", response_model=ConsultationListResponse)
 async def list_consultations(
     db: DbSessionDep,
     user: CurrentUserDep,
@@ -62,7 +62,7 @@ async def list_consultations(
 
 
 @router.post(
-    "/",
+    "",
     response_model=ConsultationResponse,
     status_code=status.HTTP_201_CREATED,
 )

@@ -125,7 +125,7 @@ def _transcript_to_sse(t: Transcript) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-@router.get("/")
+@router.get("")
 async def stream_processing_events(
     consultation_id: uuid.UUID,
     request: Request,

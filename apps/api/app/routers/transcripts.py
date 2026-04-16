@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=TranscriptResponse)
+@router.get("", response_model=TranscriptResponse)
 async def get_transcripts(
     consultation_id: uuid.UUID,
     db: DbSessionDep,
