@@ -341,25 +341,25 @@ class DashScopeClient:
         transcript_text: str,
         soap: dict[str, str],
         language: str,
+        *,
+        patient_history: str = "",
     ) -> list[dict]:
         from app.services.soap_reviewer import SOAPReviewer
 
         reviewer = SOAPReviewer()
-        messages = reviewer.build_review_prompt(transcript_text, soap, language)
-
-        response = await self.client.post(
-            "/chat/completions",
-            json={
-                "model": self.soap_model,
-                "messages": messages,
-                "max_tokens": 1500,
-                "temperature": 0.1,
-            },
+        messages = reviewer.build_review_prompt(
+            transcript_text, soap, language, patient_history=patient_history
         )
-        response.raise_for_status()
-        data = response.json()
-        content = data["choices"][0]["message"]["content"]
-        return reviewer.parse_review_response(content)
+
+        payload = {
+            "model": self.extraction_model,
+            "messages": messages,
+            "max_tokens": 2000,
+            "temperature": 0.1,
+            "response_format": _JSON_FORMAT,
+        }
+        result = await self._call_with_json_retry(payload, timeout=180.0)
+        return reviewer.parse_review_data(result)
 
     async def extract_medical_entities(self, text: str, language: str) -> dict:
         payload = {

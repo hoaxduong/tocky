@@ -18,3 +18,18 @@ class QualityMetricsResponse(BaseModel):
     by_language: dict[str, list[SectionEditMetrics]]
     period_start: datetime | None = None
     period_end: datetime | None = None
+
+
+class FlagTypeStats(BaseModel):
+    issue_type: str
+    total: int
+    accepted: int
+    dismissed: int
+    acceptance_rate: float
+
+
+class FlagStatsResponse(BaseModel):
+    total_flags: int
+    total_feedback: int
+    by_issue_type: list[FlagTypeStats]
+    by_section: list[FlagTypeStats]

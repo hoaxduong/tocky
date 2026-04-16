@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useExtracted } from "next-intl"
 import {
+  AlertTriangle,
   BarChart3,
   Download,
   FileText,
@@ -26,8 +27,10 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import {
   useQualityMetrics,
+  useFlagStats,
   getTrainingDataExportUrl,
   type SectionEditMetrics,
+  type FlagTypeStats,
 } from "@/hooks/use-admin-quality"
 
 const SECTION_LABELS: Record<string, string> = {
@@ -76,6 +79,49 @@ function EditDistanceBar({
   )
 }
 
+const FLAG_ISSUE_LABELS: Record<string, string> = {
+  symptom_diagnosis_mismatch: "Symptom/diagnosis mismatch",
+  ambiguous_term: "Ambiguous term",
+  translation_uncertainty: "Translation uncertainty",
+  missing_information: "Missing information",
+  low_confidence_section: "Low confidence",
+  dosage_concern: "Dosage concern",
+  contraindication: "Contraindication",
+  temporal_inconsistency: "Timeline mismatch",
+  vital_sign_mismatch: "Vital sign mismatch",
+}
+
+function FlagStatRow({ stat }: { stat: FlagTypeStats }) {
+  const label = FLAG_ISSUE_LABELS[stat.issue_type] || stat.issue_type
+  const responded = stat.accepted + stat.dismissed
+  const isLowAcceptance = responded >= 5 && stat.acceptance_rate < 20
+
+  return (
+    <div className="flex items-center justify-between gap-2 text-sm">
+      <div className="flex items-center gap-2">
+        <span className="font-medium">{label}</span>
+        <Badge variant="secondary" className="text-xs">
+          {stat.total}
+        </Badge>
+        {isLowAcceptance && (
+          <Badge variant="destructive" className="text-xs">
+            Low acceptance
+          </Badge>
+        )}
+      </div>
+      <div className="flex items-center gap-3 text-muted-foreground">
+        <span className="text-green-600">{stat.accepted} accepted</span>
+        <span>{stat.dismissed} dismissed</span>
+        {responded > 0 && (
+          <span className="font-medium tabular-nums">
+            {stat.acceptance_rate.toFixed(0)}%
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function QualityDashboard() {
   const t = useExtracted()
   const [language, setLanguage] = useState<string>("all")
@@ -83,6 +129,7 @@ export function QualityDashboard() {
   const filterParams =
     language !== "all" ? { language } : undefined
   const { data: metrics, isLoading } = useQualityMetrics(filterParams)
+  const { data: flagStats } = useFlagStats()
 
   function handleDownload() {
     const url = getTrainingDataExportUrl(filterParams)
@@ -276,6 +323,61 @@ export function QualityDashboard() {
             </CardContent>
           </Card>
         )}
+
+      {/* Flag Effectiveness */}
+      {flagStats && flagStats.total_flags > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              {t("Flag Effectiveness")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <div className="text-2xl font-bold">
+                  {flagStats.total_flags}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("Total flags generated")}
+                </p>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">
+                  {flagStats.total_feedback}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("Flags reviewed by doctors")}
+                </p>
+              </div>
+              <div>
+                <div className="text-2xl font-bold">
+                  {flagStats.total_feedback > 0
+                    ? `${((flagStats.total_feedback / flagStats.total_flags) * 100).toFixed(0)}%`
+                    : "0%"}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t("Feedback rate")}
+                </p>
+              </div>
+            </div>
+
+            {flagStats.by_issue_type.length > 0 && (
+              <div>
+                <h4 className="mb-2 text-sm font-medium">
+                  {t("By Issue Type")}
+                </h4>
+                <div className="space-y-2">
+                  {flagStats.by_issue_type.map((stat) => (
+                    <FlagStatRow key={stat.issue_type} stat={stat} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

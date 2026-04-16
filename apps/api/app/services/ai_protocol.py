@@ -19,6 +19,8 @@ class AIClient(Protocol):
         transcript_text: str,
         soap: dict[str, str],
         language: str,
+        *,
+        patient_history: str = "",
     ) -> list[dict]: ...
 
     async def extract_medical_entities(self, text: str, language: str) -> dict: ...

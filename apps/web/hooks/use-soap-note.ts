@@ -10,6 +10,14 @@ export type ReviewIssueType =
   | "ambiguous_term"
   | "translation_uncertainty"
   | "missing_information"
+  | "low_confidence_section"
+  | "dosage_concern"
+  | "contraindication"
+  | "temporal_inconsistency"
+  | "vital_sign_mismatch"
+
+export type ReviewSeverity = "info" | "warning" | "critical"
+export type ReviewFlagSource = "ai_confidence" | "ai_review"
 
 export interface ReviewFlag {
   section: SOAPSection
@@ -17,6 +25,9 @@ export interface ReviewFlag {
   issue_type: ReviewIssueType
   suggestion: string
   confidence: "low" | "medium" | "high"
+  severity: ReviewSeverity
+  source: ReviewFlagSource
+  context: string
 }
 
 export interface ICD10Code {
@@ -69,6 +80,22 @@ export function useUpdateSOAPNote(consultationId: string) {
         method: "PUT",
         body: JSON.stringify(update),
       }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["soap-note", consultationId],
+      })
+    },
+  })
+}
+
+export function useRunReview(consultationId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<SOAPNote>(
+        `/api/v1/consultations/${consultationId}/soap-note/review`,
+        { method: "POST" },
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["soap-note", consultationId],
@@ -153,6 +180,25 @@ export function useRegenerateSOAPNote(consultationId: string) {
         queryKey: ["soap-note", consultationId],
       })
     },
+  })
+}
+
+export function useFlagFeedback(consultationId: string) {
+  return useMutation({
+    mutationFn: ({
+      flagIndex,
+      action,
+    }: {
+      flagIndex: number
+      action: "accepted" | "dismissed" | "edited"
+    }) =>
+      apiFetch(
+        `/api/v1/consultations/${consultationId}/soap-note/flags/${flagIndex}/feedback`,
+        {
+          method: "POST",
+          body: JSON.stringify({ flag_index: flagIndex, action }),
+        },
+      ),
   })
 }
 

@@ -40,6 +40,28 @@ export function useQualityMetrics(params?: {
   })
 }
 
+export interface FlagTypeStats {
+  issue_type: string
+  total: number
+  accepted: number
+  dismissed: number
+  acceptance_rate: number
+}
+
+export interface FlagStatsResponse {
+  total_flags: number
+  total_feedback: number
+  by_issue_type: FlagTypeStats[]
+  by_section: FlagTypeStats[]
+}
+
+export function useFlagStats() {
+  return useQuery({
+    queryKey: ["admin-flag-stats"],
+    queryFn: () => apiFetch<FlagStatsResponse>("/api/v1/admin/flag-stats"),
+  })
+}
+
 export function getTrainingDataExportUrl(params?: {
   language?: string
   date_from?: string

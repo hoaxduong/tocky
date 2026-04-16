@@ -125,19 +125,29 @@ class SOAPGenerator:
                 sections[key] = content.strip()
 
         # Extract confidence flags from [Low confidence: ...] markers
-        confidence_flags: list[dict[str, str]] = []
+        from app.models.review_flag import (
+            ReviewConfidence,
+            ReviewFlag,
+            ReviewFlagSource,
+            ReviewIssueType,
+            ReviewSeverity,
+            SOAPSectionName,
+        )
+
+        confidence_flags: list[dict] = []
         flag_pattern = re.compile(r"\[Low confidence:\s*(.+?)\]", re.IGNORECASE)
         for section_key, content in sections.items():
             for match in flag_pattern.finditer(content):
-                confidence_flags.append(
-                    {
-                        "section": section_key,
-                        "quoted_span": match.group(0).strip(),
-                        "issue_type": "low_confidence_section",
-                        "suggestion": match.group(1).strip(),
-                        "confidence": "low",
-                    }
+                flag = ReviewFlag(
+                    section=SOAPSectionName(section_key),
+                    quoted_span=match.group(0).strip(),
+                    issue_type=ReviewIssueType.low_confidence_section,
+                    suggestion=match.group(1).strip(),
+                    confidence=ReviewConfidence.low,
+                    severity=ReviewSeverity.info,
+                    source=ReviewFlagSource.ai_confidence,
                 )
+                confidence_flags.append(flag.model_dump())
         sections["_confidence_flags"] = confidence_flags  # type: ignore[assignment]
 
         return sections

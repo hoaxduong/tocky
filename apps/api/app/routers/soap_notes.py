@@ -9,6 +9,7 @@ from app.db_models.soap_note import SOAPNote
 from app.db_models.soap_note_version import SOAPNoteVersion
 from app.db_models.transcript import Transcript
 from app.dependencies import CurrentUserDep, DbSessionDep
+from app.models.review_flag import FlagFeedbackRequest, FlagFeedbackResponse
 from app.models.soap_note import SOAPNoteResponse, SOAPNoteUpdate
 from app.models.soap_note_version import (
     SOAPNoteVersionListResponse,
@@ -73,6 +74,66 @@ async def update_soap_note(
     return SOAPNoteResponse.model_validate(soap)
 
 
+@router.post("/review", response_model=SOAPNoteResponse)
+async def run_review(
+    consultation_id: uuid.UUID,
+    request: Request,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    """Run the QA reviewer on the current SOAP note without finalizing."""
+    consultation = await _get_consultation(db, consultation_id, user["id"])
+    soap = await _get_soap_note_row(db, consultation_id)
+
+    transcript_text = await _build_transcript_text(db, consultation_id)
+    if not transcript_text:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No transcript segments to review against",
+        )
+
+    from app.services.soap_generator import fetch_patient_history
+
+    patient_history = await fetch_patient_history(
+        db,
+        consultation.patient_identifier,
+        user["id"],
+        exclude_consultation_id=consultation_id,
+    )
+
+    logger.info(
+        "Running review for %s — transcript: %d chars, SOAP sections: S=%d O=%d A=%d P=%d",
+        consultation_id,
+        len(transcript_text),
+        len(soap.subjective or ""),
+        len(soap.objective or ""),
+        len(soap.assessment or ""),
+        len(soap.plan or ""),
+    )
+    flags = await request.app.state.dashscope_client.review_soap(
+        transcript_text,
+        {
+            "subjective": soap.subjective,
+            "objective": soap.objective,
+            "assessment": soap.assessment,
+            "plan": soap.plan,
+        },
+        consultation.language,
+        patient_history=patient_history,
+    )
+    logger.info(
+        "Review flags for %s: %d flags — %s",
+        consultation_id,
+        len(flags),
+        [f.get("issue_type") for f in flags] if flags else "none",
+    )
+
+    soap.review_flags = flags
+    await db.commit()
+    await db.refresh(soap)
+    return SOAPNoteResponse.model_validate(soap)
+
+
 @router.post("/finalize", response_model=SOAPNoteResponse)
 async def finalize_soap_note(
     consultation_id: uuid.UUID,
@@ -84,6 +145,15 @@ async def finalize_soap_note(
     soap = await _get_soap_note_row(db, consultation_id)
 
     transcript_text = await _build_transcript_text(db, consultation_id)
+
+    from app.services.soap_generator import fetch_patient_history
+
+    patient_history = await fetch_patient_history(
+        db,
+        consultation.patient_identifier,
+        user["id"],
+        exclude_consultation_id=consultation_id,
+    )
 
     flags: list[dict] = []
     if transcript_text:
@@ -97,9 +167,13 @@ async def finalize_soap_note(
                     "plan": soap.plan,
                 },
                 consultation.language,
+                patient_history=patient_history,
             )
         except Exception:
-            logger.exception("SOAP reviewer call failed; proceeding without flags")
+            logger.exception(
+                "SOAP reviewer call failed; proceeding without flags"
+            )
+    logger.info("Review flags for %s: %d flags", consultation_id, len(flags))
 
     if consultation.full_audio_oss_key is None:
         try:
@@ -215,6 +289,41 @@ async def suggest_icd10_codes(
     await db.commit()
     await db.refresh(soap)
     return SOAPNoteResponse.model_validate(soap)
+
+
+@router.post(
+    "/flags/{flag_index}/feedback", response_model=FlagFeedbackResponse
+)
+async def submit_flag_feedback(
+    consultation_id: uuid.UUID,
+    flag_index: int,
+    body: FlagFeedbackRequest,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    soap = await _get_soap_note(db, consultation_id, user["id"])
+    flags = soap.review_flags or []
+    if flag_index < 0 or flag_index >= len(flags):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"flag_index {flag_index} out of range (0..{len(flags) - 1})",
+        )
+    flag = flags[flag_index]
+
+    from app.db_models.flag_feedback import FlagFeedback
+
+    feedback = FlagFeedback(
+        soap_note_id=soap.id,
+        flag_index=flag_index,
+        flag_issue_type=flag.get("issue_type", ""),
+        flag_section=flag.get("section", ""),
+        action=body.action,
+        user_id=user["id"],
+    )
+    db.add(feedback)
+    await db.commit()
+    await db.refresh(feedback)
+    return FlagFeedbackResponse.model_validate(feedback)
 
 
 @router.get("/audio")

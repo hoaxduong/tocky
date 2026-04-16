@@ -202,6 +202,99 @@ async def get_quality_metrics(
     )
 
 
+@router.get("/flag-stats")
+async def get_flag_stats(
+    db: DbSessionDep,
+    _user: AdminUserDep,
+):
+    """Return acceptance/dismissal rates for review flags."""
+    from app.db_models.flag_feedback import FlagFeedback
+    from app.db_models.soap_note import SOAPNote
+    from app.models.quality_metrics import FlagStatsResponse, FlagTypeStats
+
+    # Count total flags across finalized SOAP notes
+    result = await db.execute(
+        select(SOAPNote.review_flags).where(SOAPNote.is_draft.is_(False))
+    )
+    all_flags_json = result.scalars().all()
+
+    total_flags = 0
+    flags_by_type: dict[str, int] = {}
+    flags_by_section: dict[str, int] = {}
+    for flags_list in all_flags_json:
+        if not isinstance(flags_list, list):
+            continue
+        total_flags += len(flags_list)
+        for f in flags_list:
+            if isinstance(f, dict):
+                it = f.get("issue_type", "unknown")
+                flags_by_type[it] = flags_by_type.get(it, 0) + 1
+                sec = f.get("section", "unknown")
+                flags_by_section[sec] = flags_by_section.get(sec, 0) + 1
+
+    # Feedback counts
+    feedback_rows = await db.execute(
+        select(
+            FlagFeedback.flag_issue_type,
+            FlagFeedback.flag_section,
+            FlagFeedback.action,
+            func.count().label("cnt"),
+        ).group_by(
+            FlagFeedback.flag_issue_type,
+            FlagFeedback.flag_section,
+            FlagFeedback.action,
+        )
+    )
+    feedback_data = feedback_rows.all()
+
+    total_feedback = sum(row.cnt for row in feedback_data)
+
+    # Aggregate by issue_type
+    fb_by_type: dict[str, dict[str, int]] = {}
+    fb_by_section: dict[str, dict[str, int]] = {}
+    for row in feedback_data:
+        fb_by_type.setdefault(row.flag_issue_type, {"accepted": 0, "dismissed": 0})
+        fb_by_section.setdefault(row.flag_section, {"accepted": 0, "dismissed": 0})
+        if row.action in ("accepted", "dismissed"):
+            fb_by_type[row.flag_issue_type][row.action] += row.cnt
+            fb_by_section[row.flag_section][row.action] += row.cnt
+
+    by_issue_type = []
+    for it, total in sorted(flags_by_type.items(), key=lambda x: -x[1]):
+        fb = fb_by_type.get(it, {"accepted": 0, "dismissed": 0})
+        responded = fb["accepted"] + fb["dismissed"]
+        by_issue_type.append(
+            FlagTypeStats(
+                issue_type=it,
+                total=total,
+                accepted=fb["accepted"],
+                dismissed=fb["dismissed"],
+                acceptance_rate=(fb["accepted"] / responded * 100) if responded else 0,
+            )
+        )
+
+    by_section = []
+    for sec, total in sorted(flags_by_section.items(), key=lambda x: -x[1]):
+        fb = fb_by_section.get(sec, {"accepted": 0, "dismissed": 0})
+        responded = fb["accepted"] + fb["dismissed"]
+        by_section.append(
+            FlagTypeStats(
+                issue_type=sec,
+                total=total,
+                accepted=fb["accepted"],
+                dismissed=fb["dismissed"],
+                acceptance_rate=(fb["accepted"] / responded * 100) if responded else 0,
+            )
+        )
+
+    return FlagStatsResponse(
+        total_flags=total_flags,
+        total_feedback=total_feedback,
+        by_issue_type=by_issue_type,
+        by_section=by_section,
+    )
+
+
 @router.get("/export-training-data")
 async def export_training_data(
     db: DbSessionDep,

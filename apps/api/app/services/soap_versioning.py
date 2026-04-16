@@ -10,6 +10,7 @@ import logging
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from app.db_models.soap_note_version import SOAPNoteVersion
 
@@ -64,7 +65,18 @@ async def archive_soap_snapshot(
         source=source,
         edited_by=edited_by,
     )
+    nested = await db.begin_nested()
     db.add(version)
+    try:
+        await nested.commit()
+    except IntegrityError:
+        await nested.rollback()
+        logger.debug(
+            "Version %d for SOAP %s already archived (race), skipping",
+            soap.version,
+            soap.id,
+        )
+        return None
     return version
 
 

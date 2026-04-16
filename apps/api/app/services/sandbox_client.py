@@ -181,6 +181,8 @@ class SandboxAIClient:
         transcript_text: str,
         soap: dict[str, str],
         language: str,
+        *,
+        patient_history: str = "",
     ) -> list[dict]:
         await asyncio.sleep(self.latency)
         logger.debug("sandbox review_soap: no flags")

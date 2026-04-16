@@ -22,6 +22,23 @@ def _effective_language(state: ScribePipelineState) -> str:
     return state.get("detected_language") or state.get("language", "en")
 
 
+def _deduplicate_flags(
+    confidence_flags: list[dict], review_flags: list[dict]
+) -> list[dict]:
+    """Merge flags, preferring review_flags when both flag the same section+span."""
+    seen: set[tuple[str, str]] = set()
+    merged: list[dict] = []
+    for flag in review_flags:
+        key = (flag["section"], flag.get("quoted_span", "").lower().strip())
+        seen.add(key)
+        merged.append(flag)
+    for flag in confidence_flags:
+        key = (flag["section"], flag.get("quoted_span", "").lower().strip())
+        if key not in seen:
+            merged.append(flag)
+    return merged
+
+
 async def detect_language_node(
     state: ScribePipelineState, config: RunnableConfig
 ) -> dict[str, Any]:
@@ -128,10 +145,13 @@ async def review_soap_node(
     polished = state.get("polished_transcript") or state["relevant_text"]
     soap = state.get("soap", {})
     confidence_flags = list(state.get("confidence_flags") or [])
+    patient_history = config["configurable"].get("patient_history", "")
 
     try:
-        review_flags = await ai_client.review_soap(polished, soap, language)
-        all_flags = confidence_flags + list(review_flags)
+        review_flags = await ai_client.review_soap(
+            polished, soap, language, patient_history=patient_history
+        )
+        all_flags = _deduplicate_flags(confidence_flags, list(review_flags))
         return {"review_flags": all_flags}
     except Exception as e:
         logger.warning("review_soap failed [%s]: %s", type(e).__name__, e)

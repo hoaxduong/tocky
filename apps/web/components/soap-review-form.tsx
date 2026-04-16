@@ -48,8 +48,10 @@ import {
 import {
   useConsultationAudio,
   useFinalizeSOAPNote,
+  useFlagFeedback,
   useRegenerateSOAPNote,
   useResuggestICD10,
+  useRunReview,
   useSOAPNote,
   useTranscripts,
   useUpdateSOAPNote,
@@ -92,6 +94,8 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const finalizeSOAP = useFinalizeSOAPNote(consultationId)
   const regenerateSOAP = useRegenerateSOAPNote(consultationId)
   const resuggestICD10 = useResuggestICD10(consultationId)
+  const runReview = useRunReview(consultationId)
+  const flagFeedback = useFlagFeedback(consultationId)
   const [autoSuggested, setAutoSuggested] = useState(false)
   const { data: transcripts } = useTranscripts(consultationId)
   const hasAudio = !!soap && !soap.is_draft
@@ -251,6 +255,27 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                     : t("Regenerate")}
                 </Button>
               )}
+              <Button
+                variant="outline"
+                disabled={runReview.isPending}
+                className="gap-2"
+                onClick={() => {
+                  setDismissedFlags(new Set())
+                  runReview.mutate(undefined, {
+                    onSuccess: () =>
+                      toast.success(t("Review complete")),
+                    onError: () =>
+                      toast.error(t("Failed to run review")),
+                  })
+                }}
+              >
+                <AlertTriangle
+                  className={`h-4 w-4 ${runReview.isPending ? "animate-pulse" : ""}`}
+                />
+                {runReview.isPending
+                  ? t("Reviewing...")
+                  : t("Run Review")}
+              </Button>
               {soap.is_draft && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -440,12 +465,14 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                 <FlagCard
                   key={i}
                   flag={flag}
+                  flagIndex={i}
                   match={flagTranscriptMatches[i] ?? null}
                   canSeek={!!audio?.url}
                   onSeek={seekTo}
-                  onDismiss={() =>
+                  onFeedback={(action) => {
+                    flagFeedback.mutate({ flagIndex: i, action })
                     setDismissedFlags((prev) => new Set(prev).add(i))
-                  }
+                  }}
                   t={t}
                 />
               )
@@ -540,10 +567,11 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
 
 interface FlagCardProps {
   flag: ReviewFlag
+  flagIndex: number
   match: TranscriptSegment | null
   canSeek: boolean
   onSeek: (ms: number) => void
-  onDismiss: () => void
+  onFeedback: (action: "accepted" | "dismissed") => void
   t: (s: string) => string
 }
 
@@ -552,29 +580,66 @@ function FlagCard({
   match,
   canSeek,
   onSeek,
-  onDismiss,
+  onFeedback,
   t,
 }: FlagCardProps) {
   const issueLabel = ISSUE_LABELS[flag.issue_type] ?? flag.issue_type
+  const severity = flag.severity ?? "warning"
 
   return (
-    <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+    <div
+      className={cn(
+        "space-y-2 rounded-md border p-3",
+        severity === "critical" && "border-red-500/40 bg-red-500/5",
+        severity === "warning" && "border-amber-500/40 bg-amber-500/5",
+        severity === "info" && "bg-muted/30",
+      )}
+    >
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant="secondary" className="capitalize">
             {flag.section}
           </Badge>
           <Badge variant="outline">{t(issueLabel)}</Badge>
+          <Badge
+            variant="outline"
+            className={severityClass(severity)}
+          >
+            {t(severity)}
+          </Badge>
           <Badge variant="outline" className={confidenceClass(flag.confidence)}>
             {flag.confidence}
           </Badge>
+          {flag.source === "ai_confidence" && (
+            <Badge variant="outline" className="text-muted-foreground">
+              {t("Confidence")}
+            </Badge>
+          )}
         </div>
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          {t("Dismiss")}
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-green-700 hover:text-green-800"
+            onClick={() => onFeedback("accepted")}
+          >
+            <Check className="mr-1 h-3 w-3" />
+            {t("Accept")}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onFeedback("dismissed")}
+          >
+            {t("Dismiss")}
+          </Button>
+        </div>
       </div>
+      {flag.context && (
+        <p className="text-xs text-muted-foreground">{flag.context}</p>
+      )}
       <blockquote className="border-l-2 pl-2 text-sm italic">
-        "{flag.quoted_span}"
+        &ldquo;{flag.quoted_span}&rdquo;
       </blockquote>
       <p className="text-sm">{flag.suggestion}</p>
       {match && canSeek && (
@@ -600,11 +665,22 @@ const ISSUE_LABELS: Record<string, string> = {
   ambiguous_term: "Ambiguous term",
   translation_uncertainty: "Translation uncertainty",
   missing_information: "Missing information",
+  low_confidence_section: "Low confidence",
+  dosage_concern: "Dosage concern",
+  contraindication: "Contraindication",
+  temporal_inconsistency: "Timeline mismatch",
+  vital_sign_mismatch: "Vital sign mismatch",
+}
+
+function severityClass(level: string) {
+  if (level === "critical") return "border-red-500 text-red-700"
+  if (level === "warning") return "border-amber-500 text-amber-700"
+  return "border-muted-foreground/40 text-muted-foreground"
 }
 
 function confidenceClass(level: ReviewFlag["confidence"]) {
-  if (level === "high") return "border-red-500 text-red-700"
-  if (level === "medium") return "border-amber-500 text-amber-700"
+  if (level === "high") return "border-red-500/50 text-red-600"
+  if (level === "medium") return "border-amber-500/50 text-amber-600"
   return "border-muted-foreground/40 text-muted-foreground"
 }
 
