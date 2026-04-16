@@ -1,6 +1,7 @@
 import { refreshSession } from "@/lib/auth"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+// Use relative URL so requests go through Next.js rewrite (same-origin cookies)
+const API_BASE = ""
 
 export class ApiError extends Error {
   constructor(

@@ -3,18 +3,28 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
-_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
+def _find_env_file() -> Path | None:
+    """Walk up from this file to find a .env file."""
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / ".env"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+_ENV_FILE = _find_env_file()
 
 
 class Settings(BaseSettings):
     model_config = {
         "env_prefix": "TOCKY_",
-        "env_file": str(_ENV_FILE) if _ENV_FILE.exists() else None,
+        "env_file": str(_ENV_FILE) if _ENV_FILE else None,
         "extra": "ignore",
     }
 
     app_name: str = "Tocky API"
     debug: bool = False
+    cors_origins: str = "http://localhost:3000"  # comma-separated origins
     database_url: str = "postgresql+asyncpg://tocky:tocky@localhost:5432/tocky"
 
     # Authentication (ES256 ECDSA keys)

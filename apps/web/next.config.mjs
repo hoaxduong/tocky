@@ -15,6 +15,8 @@ const withNextIntl = createNextIntlPlugin({
   },
 })
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ["@workspace/ui"],
@@ -22,11 +24,7 @@ const nextConfig = {
     return [
       {
         source: "/api/v1/:path*",
-        destination: "http://localhost:8000/api/v1/:path*",
-      },
-      {
-        source: "/ws/:path*",
-        destination: "http://localhost:8000/ws/:path*",
+        destination: `${API_URL}/api/v1/:path*`,
       },
     ]
   },

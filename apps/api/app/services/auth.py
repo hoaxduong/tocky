@@ -1,4 +1,5 @@
 import hashlib
+import re
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
@@ -19,14 +20,30 @@ ISSUER = "tocky"
 security = HTTPBearer(auto_error=False)
 
 
+def _normalize_pem(raw: str) -> str:
+    """Restore PEM newlines that get stripped by env var injection."""
+    raw = raw.replace("\\n", "\n").strip()
+    if "\n" not in raw:
+        # Single-line PEM — re-insert newlines around markers and every 64 chars
+        raw = re.sub(r"(-----BEGIN [^-]+-----)", r"\1\n", raw)
+        raw = re.sub(r"(-----END [^-]+-----)", r"\n\1", raw)
+        m = re.match(r"(-----BEGIN [^-]+-----)\n(.*)\n(-----END [^-]+-----)", raw, re.S)
+        if m:
+            body = m.group(2).replace(" ", "")
+            lines = [body[i : i + 64] for i in range(0, len(body), 64)]
+            raw = m.group(1) + "\n" + "\n".join(lines) + "\n" + m.group(3)
+    return raw.strip() + "\n"
+
+
 def _get_private_key():
     settings = get_settings()
-    return load_pem_private_key(settings.jwt_private_key.encode(), password=None)
+    pem = _normalize_pem(settings.jwt_private_key)
+    return load_pem_private_key(pem.encode(), password=None)
 
 
 def _get_public_key():
     settings = get_settings()
-    return settings.jwt_public_key
+    return _normalize_pem(settings.jwt_public_key)
 
 
 # --- Password hashing ---

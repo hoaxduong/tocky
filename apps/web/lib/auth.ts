@@ -1,4 +1,5 @@
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+// Use relative URL so requests go through Next.js rewrite (same-origin cookies)
+const API = ""
 
 interface UserData {
   id: string

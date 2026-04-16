@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from sqlalchemy import select
 
+from app.config import get_settings
 from app.db_models.session import Session
 from app.db_models.user import User
 from app.dependencies import DbSessionDep
@@ -25,7 +26,8 @@ from app.services.auth import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-COOKIE_SECURE = False  # Set True in production (HTTPS)
+_settings = get_settings()
+COOKIE_SECURE = not _settings.debug
 COOKIE_SAMESITE = "lax"
 
 
