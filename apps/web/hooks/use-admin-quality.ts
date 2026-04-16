@@ -67,9 +67,7 @@ export function getTrainingDataExportUrl(params?: {
   date_from?: string
   date_to?: string
 }) {
-  const base =
-    (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") +
-    "/api/v1/admin/export-training-data"
+  const base = "/api/v1/admin/export-training-data"
   const searchParams = new URLSearchParams()
   if (params?.language) searchParams.set("language", params.language)
   if (params?.date_from) searchParams.set("date_from", params.date_from)

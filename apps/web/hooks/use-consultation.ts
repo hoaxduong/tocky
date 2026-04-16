@@ -174,7 +174,7 @@ export function useConsultationAudio(
 
 export function useUploadAudio() {
   const queryClient = useQueryClient()
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+  const API_BASE = ""
   return useMutation({
     mutationFn: async ({
       consultationId,

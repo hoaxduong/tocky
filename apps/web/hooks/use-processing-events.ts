@@ -4,7 +4,7 @@ import { useEffect, useReducer, useRef, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { fetchEventSource } from "@microsoft/fetch-event-source"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
+const API_BASE = ""
 
 // ---------------------------------------------------------------------------
 // Types
