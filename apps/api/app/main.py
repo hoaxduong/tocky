@@ -27,6 +27,7 @@ from app.services.elfie_mock_client import MockElfieClient
 from app.services.event_queue import EventQueueRegistry
 from app.services.local_storage_client import LocalStorageClient
 from app.services.oss_client import OSSClient
+from app.services.s3_client import S3Client
 from app.services.prompt_registry import PromptRegistry
 
 logger = logging.getLogger(__name__)
@@ -92,13 +93,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             vad_prefix_ms=settings.vad_prefix_padding_ms,
         )
 
-    if settings.oss_endpoint:
+    if settings.s3_endpoint_url:
+        app.state.oss_client = S3Client(
+            endpoint_url=settings.s3_endpoint_url,
+            access_key_id=settings.s3_access_key_id,
+            access_key_secret=settings.s3_access_key_secret,
+            bucket_name=settings.s3_bucket_name,
+            region=settings.s3_region,
+            public_url=settings.s3_public_url,
+        )
+        logger.info("Using S3-compatible storage at %s", settings.s3_endpoint_url)
+    elif settings.oss_endpoint:
         app.state.oss_client = OSSClient(
             access_key_id=settings.oss_access_key_id,
             access_key_secret=settings.oss_access_key_secret,
             endpoint=settings.oss_endpoint,
             bucket_name=settings.oss_bucket_name,
         )
+        logger.info("Using Alibaba Cloud OSS storage")
     else:
         storage_dir = Path(__file__).resolve().parents[1] / "storage"
         app.state.oss_client = LocalStorageClient(

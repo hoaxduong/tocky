@@ -40,6 +40,14 @@ class Settings(BaseSettings):
     oss_bucket_name: str = "tocky-audio"
     oss_endpoint: str = ""
 
+    # S3-compatible storage (Cloudflare R2, AWS S3, MinIO, etc.)
+    s3_endpoint_url: str = ""  # e.g. https://<account>.r2.cloudflarestorage.com
+    s3_access_key_id: str = ""
+    s3_access_key_secret: str = ""
+    s3_bucket_name: str = "tocky-audio"
+    s3_region: str = "auto"
+    s3_public_url: str = ""  # optional public domain for direct access
+
     # Audio processing
     audio_buffer_seconds: float = 5.0
     soap_update_interval_seconds: float = 30.0
