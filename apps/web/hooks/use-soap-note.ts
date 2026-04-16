@@ -183,7 +183,33 @@ export function useRegenerateSOAPNote(consultationId: string) {
   })
 }
 
+export interface FlagFeedbackItem {
+  id: string
+  soap_note_id: string
+  flag_index: number
+  flag_issue_type: string
+  flag_section: string
+  action: string
+  user_id: string
+  created_at: string
+}
+
+export function useFlagFeedbackList(
+  consultationId: string,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ["flag-feedback", consultationId],
+    queryFn: () =>
+      apiFetch<FlagFeedbackItem[]>(
+        `/api/v1/consultations/${consultationId}/soap-note/flags/feedback`,
+      ),
+    enabled: enabled && !!consultationId,
+  })
+}
+
 export function useFlagFeedback(consultationId: string) {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({
       flagIndex,
@@ -199,6 +225,11 @@ export function useFlagFeedback(consultationId: string) {
           body: JSON.stringify({ flag_index: flagIndex, action }),
         },
       ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["flag-feedback", consultationId],
+      })
+    },
   })
 }
 

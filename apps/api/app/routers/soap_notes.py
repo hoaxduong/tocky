@@ -291,6 +291,27 @@ async def suggest_icd10_codes(
     return SOAPNoteResponse.model_validate(soap)
 
 
+@router.get("/flags/feedback", response_model=list[FlagFeedbackResponse])
+async def list_flag_feedback(
+    consultation_id: uuid.UUID,
+    db: DbSessionDep,
+    user: CurrentUserDep,
+):
+    soap = await _get_soap_note(db, consultation_id, user["id"])
+
+    from app.db_models.flag_feedback import FlagFeedback
+
+    result = await db.execute(
+        select(FlagFeedback)
+        .where(FlagFeedback.soap_note_id == soap.id)
+        .order_by(FlagFeedback.created_at.desc())
+    )
+    return [
+        FlagFeedbackResponse.model_validate(fb)
+        for fb in result.scalars().all()
+    ]
+
+
 @router.post(
     "/flags/{flag_index}/feedback", response_model=FlagFeedbackResponse
 )

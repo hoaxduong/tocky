@@ -49,6 +49,7 @@ import {
   useConsultationAudio,
   useFinalizeSOAPNote,
   useFlagFeedback,
+  useFlagFeedbackList,
   useRegenerateSOAPNote,
   useResuggestICD10,
   useRunReview,
@@ -80,7 +81,7 @@ interface SOAPReviewFormProps {
 export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const t = useExtracted()
   const playerRef = useRef<AudioPlayerHandle>(null)
-  const [dismissedFlags, setDismissedFlags] = useState<Set<number>>(new Set())
+  const [localDismissed, setLocalDismissed] = useState<Set<number>>(new Set())
 
   const [selectedVersion, setSelectedVersion] = useState<SOAPNoteVersion | null>(
     null
@@ -96,6 +97,20 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
   const resuggestICD10 = useResuggestICD10(consultationId)
   const runReview = useRunReview(consultationId)
   const flagFeedback = useFlagFeedback(consultationId)
+  const { data: existingFeedback } = useFlagFeedbackList(
+    consultationId,
+    !!soap,
+  )
+
+  const dismissedFlags = useMemo(() => {
+    const set = new Set(localDismissed)
+    if (existingFeedback) {
+      for (const fb of existingFeedback) {
+        set.add(fb.flag_index)
+      }
+    }
+    return set
+  }, [localDismissed, existingFeedback])
   const [autoSuggested, setAutoSuggested] = useState(false)
   const { data: transcripts } = useTranscripts(consultationId)
   const hasAudio = !!soap && !soap.is_draft
@@ -260,7 +275,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                 disabled={runReview.isPending}
                 className="gap-2"
                 onClick={() => {
-                  setDismissedFlags(new Set())
+                  setLocalDismissed(new Set())
                   runReview.mutate(undefined, {
                     onSuccess: () =>
                       toast.success(t("Review complete")),
@@ -471,7 +486,7 @@ export function SOAPReviewForm({ consultationId }: SOAPReviewFormProps) {
                   onSeek={seekTo}
                   onFeedback={(action) => {
                     flagFeedback.mutate({ flagIndex: i, action })
-                    setDismissedFlags((prev) => new Set(prev).add(i))
+                    setLocalDismissed((prev) => new Set(prev).add(i))
                   }}
                 />
               )
