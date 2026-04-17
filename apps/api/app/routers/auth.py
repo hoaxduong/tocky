@@ -28,7 +28,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 _settings = get_settings()
 COOKIE_SECURE = not _settings.debug
-COOKIE_SAMESITE: str = "none" if COOKIE_SECURE else "lax"
+COOKIE_SAMESITE = "lax"
 
 
 def _set_auth_cookies(response: Response, access_token: str, refresh_token: str):
@@ -229,6 +229,17 @@ async def refresh(
     # Issue new tokens
     user_resp = await _create_session(db, user, request, response)
     return SessionResponse(user=user_resp)
+
+
+@router.post("/ws-ticket")
+async def ws_ticket(user: CurrentUserDep):
+    """Return a short-lived token for WebSocket authentication.
+
+    Needed because WebSocket connects directly to the API (cross-origin),
+    so same-origin cookies set via Next.js rewrite aren't sent.
+    """
+    token = create_access_token(user["id"], user["email"], user["role"])
+    return {"token": token}
 
 
 @router.get("/session", response_model=SessionResponse)

@@ -23,10 +23,28 @@ export function useScribeWebSocket({
     updateMetadata,
   } = useScribeStore()
 
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return
 
-    const ws = new WebSocket(`${WS_BASE}/ws/scribe/${consultationId}`)
+    // Fetch a short-lived token via the same-origin rewrite (cookies are sent),
+    // then pass it as a query param to the cross-origin WebSocket.
+    let tokenParam = ""
+    try {
+      const res = await fetch("/api/v1/auth/ws-ticket", {
+        method: "POST",
+        credentials: "include",
+      })
+      if (res.ok) {
+        const { token } = await res.json()
+        tokenParam = `?token=${encodeURIComponent(token)}`
+      }
+    } catch {
+      // Fall back to connecting without token (will rely on cookie if same-origin)
+    }
+
+    const ws = new WebSocket(
+      `${WS_BASE}/ws/scribe/${consultationId}${tokenParam}`
+    )
     wsRef.current = ws
 
     ws.onopen = () => {
