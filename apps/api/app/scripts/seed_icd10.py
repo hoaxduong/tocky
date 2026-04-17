@@ -39,6 +39,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.config import get_settings
+from app.database import _prepare_url
 
 ICD10_EN_URL = (
     "https://raw.githubusercontent.com/kamillamagna/"
@@ -160,7 +161,8 @@ async def seed_english(source: str | None = None) -> None:
     ]
 
     settings = get_settings()
-    engine = create_async_engine(settings.database_url)
+    clean_url, kwargs = _prepare_url(settings.database_url)
+    engine = create_async_engine(clean_url, **kwargs)
     factory = async_sessionmaker(engine, expire_on_commit=False)
 
     async with factory() as db:
@@ -233,7 +235,8 @@ async def import_language(
     lang_descs = {code: desc for code, desc in pairs}
 
     settings = get_settings()
-    engine = create_async_engine(settings.database_url)
+    clean_url, kwargs = _prepare_url(settings.database_url)
+    engine = create_async_engine(clean_url, **kwargs)
     factory = async_sessionmaker(engine, expire_on_commit=False)
 
     async with factory() as db:
