@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
 import logging
@@ -76,6 +77,52 @@ class DashScopeClient:
             timeout=60.0,
         )
 
+    _RETRYABLE_EXCEPTIONS = (
+        httpx.ReadTimeout,
+        httpx.ConnectTimeout,
+        httpx.ConnectError,
+    )
+    _RETRYABLE_STATUS_CODES = {429, 502, 503, 504}
+
+    async def _post(
+        self,
+        path: str,
+        *,
+        json: dict,
+        timeout: float = 60.0,
+        max_retries: int = 2,
+    ) -> httpx.Response:
+        """POST with retry + exponential backoff on transient failures."""
+        last_exc: Exception | None = None
+        for attempt in range(max_retries + 1):
+            try:
+                response = await self.client.post(
+                    path, json=json, timeout=timeout
+                )
+                if response.status_code not in self._RETRYABLE_STATUS_CODES:
+                    return response
+                last_exc = httpx.HTTPStatusError(
+                    f"{response.status_code}",
+                    request=response.request,
+                    response=response,
+                )
+            except self._RETRYABLE_EXCEPTIONS as exc:
+                last_exc = exc
+
+            if attempt < max_retries:
+                delay = 2**attempt  # 1s, 2s
+                logger.warning(
+                    "Retrying %s (attempt %d/%d) after %s, backoff %.0fs",
+                    path,
+                    attempt + 1,
+                    max_retries + 1,
+                    type(last_exc).__name__,
+                    delay,
+                )
+                await asyncio.sleep(delay)
+
+        raise last_exc  # type: ignore[misc]
+
     async def _call_with_json_retry(
         self,
         payload: dict,
@@ -85,7 +132,7 @@ class DashScopeClient:
     ) -> dict | list:
         """Make an API call, parse JSON response, retry once on decode failure."""
         for attempt in range(max_retries + 1):
-            response = await self.client.post(
+            response = await self._post(
                 "/chat/completions", json=payload, timeout=timeout
             )
             response.raise_for_status()
@@ -120,7 +167,7 @@ class DashScopeClient:
         slug = slug_map.get(language, "transcript_polish")
         system_prompt = self.prompts.get(slug)
         dynamic_max_tokens = min(8000, len(text) // 2 + 500)
-        response = await self.client.post(
+        response = await self._post(
             "/chat/completions",
             json={
                 "model": self.classification_model,
@@ -174,7 +221,7 @@ class DashScopeClient:
                 payload["asr_options"] = {"language": asr_lang}
 
         logger.debug("ASR request: model=%s", payload["model"])
-        response = await self.client.post("/chat/completions", json=payload)
+        response = await self._post("/chat/completions", json=payload)
         logger.debug("ASR response: status=%d", response.status_code)
         response.raise_for_status()
         data = response.json()
@@ -208,7 +255,7 @@ class DashScopeClient:
             self.transcription_model,
             system_content[:100],
         )
-        response = await self.client.post(
+        response = await self._post(
             "/chat/completions",
             json={
                 "model": self.transcription_model,
@@ -241,7 +288,7 @@ class DashScopeClient:
         import time
 
         t0 = time.monotonic()
-        response = await self.client.post(
+        response = await self._post(
             "/chat/completions",
             json={
                 "model": self.classification_model,
@@ -287,7 +334,7 @@ class DashScopeClient:
 
         # Pass 1: Extract Subjective + Objective
         extract_messages = generator.build_extract_prompt(transcript_text, language)
-        response = await self.client.post(
+        response = await self._post(
             "/chat/completions",
             json={
                 "model": self.soap_model,
@@ -309,7 +356,7 @@ class DashScopeClient:
         reason_messages = generator.build_reason_prompt(
             subjective, objective, language, patient_history=patient_history
         )
-        response = await self.client.post(
+        response = await self._post(
             "/chat/completions",
             json={
                 "model": self.soap_model,
@@ -383,7 +430,7 @@ class DashScopeClient:
 
     async def detect_language(self, text: str) -> str:
         """Detect language from transcript text. Returns a language code."""
-        response = await self.client.post(
+        response = await self._post(
             "/chat/completions",
             json={
                 "model": self.classification_model,
