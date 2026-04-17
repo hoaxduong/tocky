@@ -34,15 +34,13 @@ const signInSchema = z.object({
 type SignInValues = z.infer<typeof signInSchema>
 
 const demoUsers = [
-  { email: "doctor@tocky.ai", password: "doctor123" },
-  { email: "admin@tocky.ai", password: "admin123" },
+  { label: "Doctor", email: "doctor@tocky.ai", password: "doctor123" },
+  { label: "Admin", email: "admin@tocky.ai", password: "admin123" },
 ]
 
 export function SignInForm() {
   const t = useExtracted()
   const [error, setError] = useState("")
-  const [demoLoading, setDemoLoading] = useState<string | null>(null)
-
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: "", password: "" },
@@ -56,20 +54,6 @@ export function SignInForm() {
     } catch {
       setError(t("Invalid email or password"))
       toast.error(t("Invalid email or password"))
-    }
-  }
-
-  async function handleDemoLogin(user: (typeof demoUsers)[number]) {
-    setError("")
-    setDemoLoading(user.email)
-    try {
-      await signIn(user.email, user.password)
-      window.location.href = "/dashboard"
-    } catch {
-      setError(t("Demo login failed. Make sure the demo account exists."))
-      toast.error(t("Demo login failed"))
-    } finally {
-      setDemoLoading(null)
     }
   }
 
@@ -129,29 +113,14 @@ export function SignInForm() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">{t("Demo Accounts")}</CardTitle>
-          <CardDescription className="text-xs">
-            {t("Quick sign-in with a demo account")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex gap-2">
-          {demoUsers.map((user) => (
-            <Button
-              key={user.email}
-              variant="outline"
-              className="flex-1"
-              disabled={demoLoading !== null || form.formState.isSubmitting}
-              onClick={() => handleDemoLogin(user)}
-            >
-              {demoLoading === user.email
-                ? t("Loading...")
-                : user.email.split("@")[0]}
-            </Button>
-          ))}
-        </CardContent>
-      </Card>
+      <div className="text-center text-sm text-muted-foreground">
+        <p>{t("Demo Accounts")}</p>
+        {demoUsers.map((user) => (
+          <p key={user.email}>
+            {user.label}: {user.email} / {user.password}
+          </p>
+        ))}
+      </div>
     </div>
   )
 }
