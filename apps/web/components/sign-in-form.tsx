@@ -33,9 +33,15 @@ const signInSchema = z.object({
 
 type SignInValues = z.infer<typeof signInSchema>
 
+const demoUsers = [
+  { label: "Doctor", email: "doctor@tocky.ai", password: "doctor123" },
+  { label: "Admin", email: "admin@tocky.ai", password: "admin123" },
+]
+
 export function SignInForm() {
   const t = useExtracted()
   const [error, setError] = useState("")
+  const [demoLoading, setDemoLoading] = useState<string | null>(null)
 
   const form = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
@@ -53,59 +59,97 @@ export function SignInForm() {
     }
   }
 
+  async function handleDemoLogin(user: (typeof demoUsers)[number]) {
+    setError("")
+    setDemoLoading(user.email)
+    try {
+      await signIn(user.email, user.password)
+      window.location.href = "/dashboard"
+    } catch {
+      setError(t("Demo login failed. Make sure the demo account exists."))
+      toast.error(t("Demo login failed"))
+    } finally {
+      setDemoLoading(null)
+    }
+  }
+
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>{t("Sign in to Tốc ký AI")}</CardTitle>
-        <CardDescription>
-          {t("Don't have an account?")}{" "}
-          <Link href="/sign-up" className="text-primary underline">
-            {t("Sign Up")}
-          </Link>
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("Email")}</FormLabel>
-                  <FormControl>
-                    <Input type="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("Password")}</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {error && <p className="text-sm text-destructive">{error}</p>}
+    <div className="flex w-full max-w-md flex-col gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("Sign in to Tốc ký AI")}</CardTitle>
+          <CardDescription>
+            {t("Don't have an account?")}{" "}
+            <Link href="/sign-up" className="text-primary underline">
+              {t("Sign Up")}
+            </Link>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("Email")}</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("Password")}</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting
+                  ? t("Loading...")
+                  : t("Sign In")}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium">{t("Demo Accounts")}</CardTitle>
+          <CardDescription className="text-xs">
+            {t("Quick sign-in with a demo account")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex gap-2">
+          {demoUsers.map((user) => (
             <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
+              key={user.email}
+              variant="outline"
+              className="flex-1"
+              disabled={demoLoading !== null || form.formState.isSubmitting}
+              onClick={() => handleDemoLogin(user)}
             >
-              {form.formState.isSubmitting
-                ? t("Loading...")
-                : t("Sign In")}
+              {demoLoading === user.email ? t("Loading...") : t(user.label)}
             </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
   )
 }
