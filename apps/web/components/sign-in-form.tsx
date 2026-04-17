@@ -34,8 +34,8 @@ const signInSchema = z.object({
 type SignInValues = z.infer<typeof signInSchema>
 
 const demoUsers = [
-  { label: "Doctor", email: "doctor@tocky.ai", password: "doctor123" },
-  { label: "Admin", email: "admin@tocky.ai", password: "admin123" },
+  { email: "doctor@tocky.ai", password: "doctor123" },
+  { email: "admin@tocky.ai", password: "admin123" },
 ]
 
 export function SignInForm() {
@@ -145,7 +145,9 @@ export function SignInForm() {
               disabled={demoLoading !== null || form.formState.isSubmitting}
               onClick={() => handleDemoLogin(user)}
             >
-              {demoLoading === user.email ? t("Loading...") : t(user.label)}
+              {demoLoading === user.email
+                ? t("Loading...")
+                : user.email.split("@")[0]}
             </Button>
           ))}
         </CardContent>
