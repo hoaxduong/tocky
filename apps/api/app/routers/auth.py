@@ -28,7 +28,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 _settings = get_settings()
 COOKIE_SECURE = not _settings.debug
-COOKIE_SAMESITE = "lax"
+COOKIE_SAMESITE: str = "none" if COOKIE_SECURE else "lax"
 
 
 def _set_auth_cookies(response: Response, access_token: str, refresh_token: str):
